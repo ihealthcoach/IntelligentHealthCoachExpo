@@ -36,29 +36,33 @@ const AuthNavigator = () => (
 
 // Main Tab Navigator
 const MainNavigator = () => (
-  <MainTab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName: keyof typeof Ionicons.glyphMap = 'ios-help';
-
-        if (route.name === 'Home') {
-          iconName = focused ? 'ios-home' : 'ios-home-outline';
-        } else if (route.name === 'Workouts') {
-          iconName = focused ? 'ios-fitness' : 'ios-fitness-outline';
-        } else if (route.name === 'Exercises') {
-          iconName = focused ? 'ios-barbell' : 'ios-barbell-outline';
-        } else if (route.name === 'Profile') {
-          iconName = focused ? 'ios-person' : 'ios-person-outline';
-        }
-
-        // Make sure size is a number
-        const iconSize = typeof size === 'number' ? size : 24;
-        return <Ionicons name={iconName} size={iconSize} color={color} />;
-      },
-      tabBarActiveTintColor: '#007AFF',
-      tabBarInactiveTintColor: 'gray',
-    })}
-  >
+    <MainTab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: string;
+  
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Workouts') {
+            iconName = focused ? 'fitness' : 'fitness-outline';
+          } else if (route.name === 'Exercises') {
+            iconName = focused ? 'barbell' : 'barbell-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else {
+            iconName = 'help-circle';
+          }
+  
+          // Make sure size is a number
+          const iconSize = typeof size === 'number' ? size : 24;
+          
+          // Return the Ionicons component with proper typing
+          return <Ionicons name={iconName as any} size={iconSize} color={color} />;
+        },
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
     <MainTab.Screen name="Home" component={HomeScreen} />
     <MainTab.Screen name="Workouts" component={WorkoutsScreen} />
     <MainTab.Screen name="Exercises" component={ExercisesScreen} />
