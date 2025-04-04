@@ -10,7 +10,8 @@ import {
   FlatList,
   Animated,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
+  ImageBackground
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { 
@@ -437,13 +438,22 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
                           <Check size={12} color="#FCFDFD" />
                         </View>
                       )}
-                      <Image 
-                        source={exercise.gif_url 
-                          ? { uri: getGifUrl(exercise.gif_url) } 
-                          : { uri: 'https://via.placeholder.com/68x68/333' }}
-                        style={styles.exerciseImage} 
-                        resizeMode="cover"
-                      />
+                      <View style={styles.imageWrapper}>
+                        <Image 
+                          source={exercise.gif_url 
+                            ? { uri: getGifUrl(exercise.gif_url) } 
+                            : { uri: 'https://via.placeholder.com/68x68/333' }}
+                          style={styles.exerciseImage} 
+                          resizeMode="cover"
+                        />
+                        <View 
+                          style={[
+                            styles.blendOverlay, 
+                            // @ts-ignore - Adding mixBlendMode which isn't in RN's TypeScript definitions
+                            { mixBlendMode: 'multiply' }
+                          ]} 
+                        />
+                      </View>
                     </View>
                     
                     <View style={styles.exerciseInfo}>
@@ -471,20 +481,23 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
                 style={styles.exerciseItem}
                 onPress={() => handleExerciseSelection(exercise)}
               >
-                <View style={styles.exerciseImageContainer}>
-                  {exercise.selected && (
-                    <View style={styles.checkBadge}>
-                      <Check size={12} color="#FCFDFD" />
-                    </View>
-                  )}
-                  <Image 
-                    source={exercise.gif_url 
-                      ? { uri: getGifUrl(exercise.gif_url) } 
-                      : { uri: 'https://via.placeholder.com/68x68/333' }}
-                    style={styles.exerciseImage} 
-                    resizeMode="cover"
-                  />
-                </View>
+<View style={styles.exerciseImageContainer}>
+  {exercise.selected && (
+    <View style={styles.checkBadge}>
+      <Check size={12} color="#FCFDFD" />
+    </View>
+  )}
+  <View style={styles.imageWrapper}>
+    <Image 
+      source={exercise.gif_url 
+        ? { uri: getGifUrl(exercise.gif_url) } 
+        : { uri: 'https://via.placeholder.com/68x68/333' }}
+      style={styles.exerciseImage} 
+      resizeMode="cover"
+    />
+    <View style={styles.blendOverlay} />
+  </View>
+</View>
                 
                 <View style={styles.exerciseInfo}>
                   <Text style={styles.exerciseName}>{exercise.name}</Text>
@@ -726,12 +739,27 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0',
   },
   exerciseImage: {
-    width: 68,
-    height: 68,
-    borderRadius: 0,
+    width: '100%',
+    height: '100%',
+  }, 
+  imageWrapper: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
   },
+  // Type assertion to bypass TypeScript checking
+  blendOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(240,240,240,0.4)',
+  } as any,
   checkBadge: {
     position: 'absolute',
     bottom: 0,
