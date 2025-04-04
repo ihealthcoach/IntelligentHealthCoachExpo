@@ -26,7 +26,8 @@ import {
   MoreVertical,
   Save
 } from 'lucide-react-native';
-import { MainTabScreenProps } from '../../types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../services/supabase';
@@ -51,8 +52,11 @@ type WorkoutExercise = {
   isExpanded: boolean;
 };
 
-export default function WorkoutExerciseOverview({ navigation, route }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
-  const { user } = useAuth();
+export default function WorkoutExerciseOverview({ 
+    navigation, 
+    route 
+  }: NativeStackScreenProps<MainStackParamList, 'WorkoutExerciseOverview'>) {
+    const { user } = useAuth();
   const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
   const [workoutName, setWorkoutName] = useState<string>('New Workout');
   const [workoutNotes, setWorkoutNotes] = useState<string>('');
@@ -393,13 +397,13 @@ export default function WorkoutExerciseOverview({ navigation, route }: MainStack
                 No exercises added yet. Go to the library to add exercises.
               </Text>
               <Button
-                mode="contained"
-                icon={() => <Plus size={16} color="#fff" />}
-                onPress={() => navigation.navigate('Exercises')}
-                style={styles.addExerciseButton}
-              >
-                Add Exercises
-              </Button>
+  mode="contained"
+  icon={() => <Plus size={16} color="#fff" />}
+  onPress={() => navigation.navigate('MainTabs', { screen: 'Exercises' })}
+  style={styles.addExerciseButton}
+>
+  Add Exercises
+</Button>
             </View>
           ) : (
             exercises.map(exercise => (
@@ -566,13 +570,13 @@ export default function WorkoutExerciseOverview({ navigation, route }: MainStack
           {/* Add Exercise Button */}
           {exercises.length > 0 && (
             <Button
-              mode="outlined"
-              icon={() => <Plus size={16} color="#007AFF" />}
-              onPress={() => navigation.navigate('Exercises')}
-              style={styles.addMoreExercisesButton}
-            >
-              Add More Exercises
-            </Button>
+  mode="outlined"
+  icon={() => <Plus size={16} color="#007AFF" />}
+  onPress={() => navigation.navigate('MainTabs', { screen: 'Exercises' })}
+  style={styles.addMoreExercisesButton}
+>
+  Add More Exercises
+</Button>
           )}
         </View>
       </ScrollView>
