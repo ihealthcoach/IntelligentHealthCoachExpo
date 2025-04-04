@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
-import { MainScreenProps } from '../../types/navigation';
+import { MainTabScreenProps } from '../../types/navigation';
 
-export default function HomeScreen({ navigation }: MainScreenProps<'Home'>) {
+export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
 
   return (

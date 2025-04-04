@@ -6,13 +6,18 @@ import { ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../contexts/AuthContext';
-import { RootStackParamList, MainTabParamList, AuthStackParamList } from '../types/navigation';
+import { 
+  RootStackParamList, 
+  MainTabParamList, 
+  AuthStackParamList,
+  MainStackParamList
+} from '../types/navigation';
 
 // Import screens
 import HomeScreen from '../screens/main/HomeScreen';
 import WorkoutsScreen from '../screens/main/WorkoutsScreen';
 
-// Auth screens (will create placeholders for now)
+// Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
@@ -20,10 +25,12 @@ import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 // Additional main screens
 import ExercisesScreen from '../screens/main/ExercisesScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import WorkoutExerciseOverview from '../screens/main/WorkoutExerciseOverview';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
-const MainTab = createBottomTabNavigator<MainTabParamList>();
+const MainStack = createNativeStackNavigator<MainStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Auth Navigator
 const AuthNavigator = () => (
@@ -34,40 +41,56 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// Main Tab Navigator
+// Tab Navigator
+const TabNavigator = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName: string;
+
+        if (route.name === 'Home') {
+          iconName = focused ? 'home' : 'home-outline';
+        } else if (route.name === 'Workouts') {
+          iconName = focused ? 'fitness' : 'fitness-outline';
+        } else if (route.name === 'Exercises') {
+          iconName = focused ? 'barbell' : 'barbell-outline';
+        } else if (route.name === 'Profile') {
+          iconName = focused ? 'person' : 'person-outline';
+        } else {
+          iconName = 'help-circle';
+        }
+
+        // Make sure size is a number
+        const iconSize = typeof size === 'number' ? size : 24;
+        
+        // Return the Ionicons component with proper typing
+        return <Ionicons name={iconName as any} size={iconSize} color={color} />;
+      },
+      tabBarActiveTintColor: '#007AFF',
+      tabBarInactiveTintColor: 'gray',
+    })}
+  >
+    <Tab.Screen name="Home" component={HomeScreen} />
+    <Tab.Screen name="Workouts" component={WorkoutsScreen} />
+    <Tab.Screen name="Exercises" component={ExercisesScreen} />
+    <Tab.Screen name="Profile" component={ProfileScreen} />
+  </Tab.Navigator>
+);
+
+// Main Navigator
 const MainNavigator = () => (
-    <MainTab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: string;
-  
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Workouts') {
-            iconName = focused ? 'fitness' : 'fitness-outline';
-          } else if (route.name === 'Exercises') {
-            iconName = focused ? 'barbell' : 'barbell-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          } else {
-            iconName = 'help-circle';
-          }
-  
-          // Make sure size is a number
-          const iconSize = typeof size === 'number' ? size : 24;
-          
-          // Return the Ionicons component with proper typing
-          return <Ionicons name={iconName as any} size={iconSize} color={color} />;
-        },
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: 'gray',
-      })}
-    >
-    <MainTab.Screen name="Home" component={HomeScreen} />
-    <MainTab.Screen name="Workouts" component={WorkoutsScreen} />
-    <MainTab.Screen name="Exercises" component={ExercisesScreen} />
-    <MainTab.Screen name="Profile" component={ProfileScreen} />
-  </MainTab.Navigator>
+  <MainStack.Navigator>
+    <MainStack.Screen 
+      name="MainTabs" 
+      component={TabNavigator} 
+      options={{ headerShown: false }}
+    />
+    <MainStack.Screen 
+      name="WorkoutExerciseOverview" 
+      component={WorkoutExerciseOverview}
+      options={{ headerShown: false }}
+    />
+  </MainStack.Navigator>
 );
 
 // Root Navigation

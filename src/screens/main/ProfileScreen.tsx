@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Avatar, Button, Card, TextInput, Divider } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
-import { MainScreenProps } from '../../types/navigation';
+import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 
 // Mock profile data
@@ -15,7 +15,7 @@ const initialProfile = {
   fitnessGoal: '',
 };
 
-export default function ProfileScreen({ navigation }: MainScreenProps<'Profile'>) {
+export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState(initialProfile);
   const [editing, setEditing] = useState(false);

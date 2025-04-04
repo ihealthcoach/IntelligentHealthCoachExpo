@@ -26,8 +26,9 @@ import {
   ChevronDown,
   Filter
 } from 'lucide-react-native';
-import { MainScreenProps } from '../../types/navigation';
+import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -292,7 +293,7 @@ const mockExercises: Exercise[] = [
   },
 ];
 
-export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercises'>) {
+export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
   const [activeFilter, setActiveFilter] = useState('A-Z');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
@@ -562,7 +563,7 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
     setShowSetSheet(true);
   };
   
-  const confirmAddExercises = () => {
+  const confirmAddExercises = async () => {
     // Close the sheet
     setShowSetSheet(false);
     
@@ -585,6 +586,47 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
     });
     
     setFilteredExercises(updatedFiltered);
+    
+    // Save selected exercises to AsyncStorage for the WorkoutExerciseOverview screen
+    try {
+      // First, try to get any existing workout data
+      const existingWorkoutJson = await AsyncStorage.getItem('current_workout');
+      let workoutData = existingWorkoutJson ? JSON.parse(existingWorkoutJson) : { 
+        name: 'New Workout',
+        notes: '',
+        exercises: []
+      };
+      
+      // Transform selected exercises into the format needed for the workout
+      const selectedExercisesForWorkout = selectedExercises.map(ex => ({
+        id: ex.id,
+        exerciseId: ex.id,
+        name: ex.name,
+        primaryMuscles: ex.primary_muscles || 'Unknown',
+        equipment: ex.equipment || 'Bodyweight',
+        sets: Array.from({ length: selectedSets }, (_, i) => ({
+          id: `${ex.id}-${i + 1}`,
+          setNumber: i + 1,
+          weight: null,
+          reps: null,
+          isComplete: false
+        })),
+        notes: '',
+        isExpanded: true
+      }));
+      
+      // Add to existing exercises or create new array
+      workoutData.exercises = [
+        ...(workoutData.exercises || []),
+        ...selectedExercisesForWorkout
+      ];
+      
+      // Save to AsyncStorage
+      await AsyncStorage.setItem('current_workout', JSON.stringify(workoutData));
+    } catch (error) {
+      console.error('Error saving workout data:', error);
+      // Consider showing an alert to the user
+    }
     
     // Clear selected exercises
     setSelectedExercises([]);
@@ -653,21 +695,23 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
             <ArrowLeft size={24} color="#000" />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.viewWorkoutButton}>
-            <Text style={styles.viewWorkoutText}>View workout</Text>
-            <ChevronDown size={18} color="#000" />
-          </TouchableOpacity>
+          <TouchableOpacity 
+          style={styles.viewWorkoutButton}
+          onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+        >
+          <Text style={styles.viewWorkoutText}>View workout</Text>
+          <ChevronDown size={18} color="#000" />
+        </TouchableOpacity>
         </View>
         
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Plus size={24} color="#000" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.doneButton}>
-            <Text style={styles.doneButtonText}>Done</Text>
-            <Check size={18} color="#fff" />
-          </TouchableOpacity>
+          <TouchableOpacity 
+          style={styles.doneButton}
+          onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+        >
+          <Text style={styles.doneButtonText}>Done</Text>
+          <Check size={18} color="#fff" />
+        </TouchableOpacity>
         </View>
       </View>
       

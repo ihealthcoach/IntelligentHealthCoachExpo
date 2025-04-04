@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, FAB } from 'react-native-paper';
-import { MainScreenProps } from '../../types/navigation';
+import { MainTabScreenProps } from '../../types/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock data for now
 const mockWorkouts = [
@@ -10,7 +11,7 @@ const mockWorkouts = [
   { id: '3', name: 'Core & Cardio', date: '2023-04-05', exercises: 8 },
 ];
 
-export default function WorkoutsScreen({ navigation }: MainScreenProps<'Workouts'>) {
+export default function WorkoutsScreen({ navigation }: MainTabScreenProps<'Workouts'>) {
   const [workouts, setWorkouts] = useState(mockWorkouts);
 
   const renderWorkoutCard = ({ item }: { item: typeof mockWorkouts[0] }) => (
@@ -21,7 +22,9 @@ export default function WorkoutsScreen({ navigation }: MainScreenProps<'Workouts
         <Text variant="bodyMedium">Exercises: {item.exercises}</Text>
       </Card.Content>
       <Card.Actions>
-        <Button>View Details</Button>
+        <Button onPress={() => navigation.navigate('WorkoutExerciseOverview')}>
+  View Details
+</Button>
       </Card.Actions>
     </Card>
   );
@@ -42,20 +45,33 @@ export default function WorkoutsScreen({ navigation }: MainScreenProps<'Workouts
       ) : (
         <View style={styles.emptyState}>
           <Text variant="bodyLarge">You haven't logged any workouts yet.</Text>
-          <Button mode="contained" style={styles.startButton}>
-            Start Your First Workout
-          </Button>
+          <Button 
+  mode="contained" 
+  style={styles.startButton}
+  onPress={() => navigation.navigate('Exercises')}
+>
+  Start Your First Workout
+</Button>
         </View>
       )}
 
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => {
-          // Navigate to workout creation screen
-          console.log('Create new workout');
-        }}
-      />
+<FAB
+  icon="plus"
+  style={styles.fab}
+  onPress={() => {
+    // Clear any existing workout data in AsyncStorage
+    AsyncStorage.removeItem('current_workout')
+      .then(() => {
+        // Navigate to workout creation screen
+        navigation.navigate('WorkoutExerciseOverview');
+      })
+      .catch(error => {
+        console.error('Error clearing workout data:', error);
+        // Navigate anyway
+        navigation.navigate('WorkoutExerciseOverview');
+      });
+  }}
+/>
     </View>
   );
 }
