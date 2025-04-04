@@ -77,7 +77,7 @@ export const Navigation = () => {
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size={36} color="#007AFF" />
       </View>
     );
   }

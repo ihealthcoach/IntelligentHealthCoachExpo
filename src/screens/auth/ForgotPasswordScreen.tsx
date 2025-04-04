@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, TextInput, Button, HelperText } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { TextInput, Button, HelperText } from 'react-native-paper';
 import { supabase } from '../../services/supabase';
 import { AuthScreenProps } from '../../types/navigation';
 
@@ -50,8 +50,8 @@ export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'Fo
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text variant="headlineLarge">Reset Password</Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
+          <Text style={styles.title}>Reset Password</Text>
+          <Text style={styles.subtitle}>
             Enter your email to receive a password reset link
           </Text>
         </View>
@@ -111,10 +111,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 48,
   },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#000',
+  },
   subtitle: {
-    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
     textAlign: 'center',
-    opacity: 0.7,
+    marginTop: 8,
+    marginBottom: 8,
   },
   form: {
     width: '100%',

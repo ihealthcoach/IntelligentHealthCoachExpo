@@ -328,11 +328,11 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size={36} color="#007AFF" />
-        <Text>Loading exercises...</Text>
-      </View>
-    );
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={36} color="#007AFF" />
+          <Text>Loading exercises...</Text>
+        </View>
+      );
   }
 
   if (error) {

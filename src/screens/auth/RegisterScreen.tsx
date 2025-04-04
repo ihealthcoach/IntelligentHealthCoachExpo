@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, TextInput, Button, HelperText } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
+import { TextInput, Button, HelperText } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthScreenProps } from '../../types/navigation';
 
@@ -64,8 +64,8 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text variant="headlineLarge">Create Account</Text>
-          <Text variant="titleMedium" style={styles.subtitle}>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>
             Join Intelligent Health Coach
           </Text>
         </View>
@@ -122,7 +122,7 @@ export default function RegisterScreen({ navigation }: AuthScreenProps<'Register
           </Button>
 
           <View style={styles.footer}>
-            <Text variant="bodyMedium">Already have an account?</Text>
+            <Text style={styles.footerText}>Already have an account?</Text>
             <Button
               mode="text"
               onPress={() => navigation.navigate('Login')}
@@ -151,8 +151,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 48,
   },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#000',
+  },
   subtitle: {
-    marginTop: 8,
+    fontSize: 16,
+    color: '#666',
     opacity: 0.7,
   },
   form: {
@@ -171,4 +178,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 24,
   },
+  footerText: {
+    fontSize: 14,
+    color: '#333',
+  }
 });
