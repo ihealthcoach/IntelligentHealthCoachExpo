@@ -481,23 +481,23 @@ export default function ExercisesScreen({ navigation }: MainScreenProps<'Exercis
                 style={styles.exerciseItem}
                 onPress={() => handleExerciseSelection(exercise)}
               >
-<View style={styles.exerciseImageContainer}>
-  {exercise.selected && (
-    <View style={styles.checkBadge}>
-      <Check size={12} color="#FCFDFD" />
-    </View>
-  )}
-  <View style={styles.imageWrapper}>
-    <Image 
-      source={exercise.gif_url 
-        ? { uri: getGifUrl(exercise.gif_url) } 
-        : { uri: 'https://via.placeholder.com/68x68/333' }}
-      style={styles.exerciseImage} 
-      resizeMode="cover"
-    />
-    <View style={styles.blendOverlay} />
-  </View>
-</View>
+              <View style={styles.exerciseImageContainer}>
+                {exercise.selected && (
+                  <View style={styles.checkBadge}>
+                    <Check size={12} color="#FCFDFD" />
+                  </View>
+                )}
+                <View style={styles.imageWrapper}>
+                  <Image 
+                    source={exercise.gif_url 
+                      ? { uri: getGifUrl(exercise.gif_url) } 
+                      : { uri: 'https://via.placeholder.com/68x68/333' }}
+                    style={styles.exerciseImage} 
+                    resizeMode="cover"
+                  />
+                  <View style={styles.blendOverlay} />
+                </View>
+              </View>
                 
                 <View style={styles.exerciseInfo}>
                   <Text style={styles.exerciseName}>{exercise.name}</Text>
@@ -683,6 +683,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: 'row',
     paddingVertical: 8,
+    marginBottom: 0,
+    backgroundColor: '#000',
   },
   filterBadge: {
     flexDirection: 'row',
@@ -691,7 +693,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 999,
     marginRight: 8,
-    // Keep original size
     height: 40,
   },
   activeFilterBadge: {
@@ -718,6 +719,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
+    paddingTop: 8,
   },
   letterSection: {
     marginBottom: 6,
