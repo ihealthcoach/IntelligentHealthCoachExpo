@@ -196,12 +196,6 @@ export default function WorkoutTrackingScreen({
         return newWorkout;
       });
     };
-    
-    // Also save to AsyncStorage to persist changes
-    setTimeout(() => {
-      saveWorkoutData();
-    }, 500);
-  };
   
   // Function to mark a set as complete or incomplete
   const toggleSetCompletion = (setId: string) => {
@@ -231,12 +225,6 @@ export default function WorkoutTrackingScreen({
         return newWorkout;
       });
     };
-    
-    // Save changes
-    setTimeout(() => {
-      saveWorkoutData();
-    }, 500);
-  };
   
   // Function to add a new set to the current exercise
   const addSet = () => {
@@ -264,12 +252,16 @@ export default function WorkoutTrackingScreen({
       return exercise;
     });
     
-    setWorkout({ ...workout, exercises: updatedExercises });
-    
-    // Save changes
-    setTimeout(() => {
-      saveWorkoutData();
-    }, 500);
+    setWorkout(prevWorkout => {
+      const newWorkout = { ...prevWorkout!, exercises: updatedExercises };
+      
+      // Save immediately to ensure persistence
+      setTimeout(() => {
+        saveWorkoutData();
+      }, 0);
+      
+      return newWorkout;
+    });
   };
   
   // Navigate to the previous exercise
@@ -530,12 +522,12 @@ export default function WorkoutTrackingScreen({
                       <TouchableOpacity 
                         onPress={() => toggleSetCompletion(set.id)}
                       >
-{set.isComplete ? (
-  <Check size={20} color="#4F46E5" />
-) : (
-  // Either show nothing or an empty view for incomplete sets
-  <View style={styles.emptySpace} />
-)}
+                        {set.isComplete ? (
+                          <Check size={20} color="#4F46E5" />
+                        ) : (
+                          // Either show nothing or an empty view for incomplete sets
+                          <View style={styles.emptySpace} />
+                        )}
                       </TouchableOpacity>
                     )}
                   </View>
@@ -797,12 +789,9 @@ const styles = StyleSheet.create({
   inactiveText: {
     color: '#D1D5DB',
   },
-  emptyCheckbox: {
+  emptySpace: {
     width: 20,
     height: 20,
-    borderWidth: 2,
-    borderColor: '#D1D5DB',
-    borderRadius: 4,
   },
   prContainer: {
     flexDirection: 'row',
