@@ -137,7 +137,7 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
             
             <View style={styles.exerciseDetails}>
               <Text style={styles.exerciseName}>{exercise.name}</Text>
-              <Text style={styles.exerciseProgress}>{exercise.primaryMuscles}, {exercise.equipment}</Text>
+              <Text style={styles.exerciseProgress}>{exercise.primaryMuscles}</Text>
             </View>
           </View>
           <View style={styles.completedContainer}>
@@ -156,7 +156,7 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
               <Text style={styles.exerciseName}>{exercise.name}</Text>
               <View style={styles.tagsContainer}>
                 <Text style={styles.exerciseProgress}>
-                  {exercise.primaryMuscles}, {exercise.equipment}
+                  {exercise.primaryMuscles}
                 </Text>
               </View>
             </View>
