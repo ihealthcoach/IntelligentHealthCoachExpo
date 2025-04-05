@@ -119,9 +119,9 @@ export default function WorkoutTrackingScreen({
   const saveWorkoutData = async () => {
     if (workout) {
       try {
-        console.log('Saving workout data to AsyncStorage...');
-        // Make sure we're saving the most current version with all tracked sets
-        await AsyncStorage.setItem('current_workout', JSON.stringify(workout));
+        // Important: we need to stringify the CURRENT workout state
+        const workoutToSave = JSON.stringify(workout);
+        await AsyncStorage.setItem('current_workout', workoutToSave);
         console.log('Workout data saved successfully');
       } catch (error) {
         console.error('Error saving workout data:', error);
@@ -162,12 +162,21 @@ export default function WorkoutTrackingScreen({
     
     const numValue = value === '' ? null : parseFloat(value);
     
-    // Update the specific set in the current exercise
     const updatedExercises = workout.exercises.map((exercise, index) => {
       if (index === currentExerciseIndex) {
         const updatedSets = exercise.sets.map(set => {
           if (set.id === setId) {
-            return { ...set, [field]: numValue };
+            const updatedSet = { ...set, [field]: numValue };
+            
+            // Automatically mark as complete if both weight and reps have values
+            const otherField = field === 'weight' ? 'reps' : 'weight';
+            const otherValue = field === 'weight' ? updatedSet.reps : updatedSet.weight;
+            
+            if (numValue !== null && otherValue !== null) {
+              updatedSet.isComplete = true;
+            }
+            
+            return updatedSet;
           }
           return set;
         });
@@ -178,10 +187,15 @@ export default function WorkoutTrackingScreen({
     
     setWorkout(prevWorkout => {
         const newWorkout = { ...prevWorkout!, exercises: updatedExercises };
-        // Save immediately after state update
-        saveWorkoutData();
+        
+        // Save immediately to ensure persistence
+        setTimeout(() => {
+          saveWorkoutData();
+        }, 0);
+        
         return newWorkout;
       });
+    };
     
     // Also save to AsyncStorage to persist changes
     setTimeout(() => {
@@ -208,10 +222,15 @@ export default function WorkoutTrackingScreen({
     
     setWorkout(prevWorkout => {
         const newWorkout = { ...prevWorkout!, exercises: updatedExercises };
-        // Save immediately after state update
-        saveWorkoutData();
+        
+        // Save immediately to ensure persistence
+        setTimeout(() => {
+          saveWorkoutData();
+        }, 0);
+        
         return newWorkout;
       });
+    };
     
     // Save changes
     setTimeout(() => {
@@ -254,9 +273,11 @@ export default function WorkoutTrackingScreen({
   };
   
   // Navigate to the previous exercise
-  const handlePreviousExercise = async () => {
-    // Save current state first
-    await saveWorkoutData();
+  const handlePreviousExercise = () => {
+    // Force save current exercise data before transitioning
+    setTimeout(() => {
+      saveWorkoutData();
+    }, 0);
     
     Animated.timing(position, {
       toValue: width,
@@ -282,11 +303,13 @@ export default function WorkoutTrackingScreen({
   };
   
   // Navigate to the next exercise
-  const handleNextExercise = async () => {
+  const handleNextExercise = () => {
     if (!workout) return;
     
-    // Save current state first
-    await saveWorkoutData();
+    // Force save current exercise data before transitioning
+    setTimeout(() => {
+      saveWorkoutData();
+    }, 0);
     
     Animated.timing(position, {
       toValue: -width,
@@ -507,11 +530,12 @@ export default function WorkoutTrackingScreen({
                       <TouchableOpacity 
                         onPress={() => toggleSetCompletion(set.id)}
                       >
-                        {set.isComplete ? (
-                          <Check size={20} color="#4F46E5" />
-                        ) : (
-                          <View style={styles.emptyCheckbox} />
-                        )}
+{set.isComplete ? (
+  <Check size={20} color="#4F46E5" />
+) : (
+  // Either show nothing or an empty view for incomplete sets
+  <View style={styles.emptySpace} />
+)}
                       </TouchableOpacity>
                     )}
                   </View>
