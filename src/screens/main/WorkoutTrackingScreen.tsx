@@ -73,6 +73,16 @@ export default function WorkoutTrackingScreen({
   useEffect(() => {
     loadWorkoutData();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      // Use an IIFE for async cleanup
+      (async () => {
+        // Save data when navigating away
+        await saveWorkoutData();
+      })();
+    };
+  }, []);
   
   const loadWorkoutData = async () => {
     try {
@@ -109,7 +119,10 @@ export default function WorkoutTrackingScreen({
   const saveWorkoutData = async () => {
     if (workout) {
       try {
+        console.log('Saving workout data to AsyncStorage...');
+        // Make sure we're saving the most current version with all tracked sets
         await AsyncStorage.setItem('current_workout', JSON.stringify(workout));
+        console.log('Workout data saved successfully');
       } catch (error) {
         console.error('Error saving workout data:', error);
       }
@@ -163,7 +176,12 @@ export default function WorkoutTrackingScreen({
       return exercise;
     });
     
-    setWorkout({ ...workout, exercises: updatedExercises });
+    setWorkout(prevWorkout => {
+        const newWorkout = { ...prevWorkout!, exercises: updatedExercises };
+        // Save immediately after state update
+        saveWorkoutData();
+        return newWorkout;
+      });
     
     // Also save to AsyncStorage to persist changes
     setTimeout(() => {
@@ -188,7 +206,12 @@ export default function WorkoutTrackingScreen({
       return exercise;
     });
     
-    setWorkout({ ...workout, exercises: updatedExercises });
+    setWorkout(prevWorkout => {
+        const newWorkout = { ...prevWorkout!, exercises: updatedExercises };
+        // Save immediately after state update
+        saveWorkoutData();
+        return newWorkout;
+      });
     
     // Save changes
     setTimeout(() => {
@@ -231,7 +254,10 @@ export default function WorkoutTrackingScreen({
   };
   
   // Navigate to the previous exercise
-  const handlePreviousExercise = () => {
+  const handlePreviousExercise = async () => {
+    // Save current state first
+    await saveWorkoutData();
+    
     Animated.timing(position, {
       toValue: width,
       duration: 250,
@@ -256,8 +282,11 @@ export default function WorkoutTrackingScreen({
   };
   
   // Navigate to the next exercise
-  const handleNextExercise = () => {
+  const handleNextExercise = async () => {
     if (!workout) return;
+    
+    // Save current state first
+    await saveWorkoutData();
     
     Animated.timing(position, {
       toValue: -width,
