@@ -17,10 +17,44 @@ export type MainTabParamList = {
   Profile: undefined;
 };
 
+// Types for workout data passed between screens
+export type ExerciseSet = {
+  id: string;
+  setNumber: number;
+  weight: number | null;
+  reps: number | null;
+  isComplete: boolean;
+  isPR?: boolean;
+};
+
+export type WorkoutExercise = {
+  id: string;
+  exerciseId: string;
+  name: string;
+  primaryMuscles: string;
+  equipment: string;
+  sets: ExerciseSet[];
+  notes: string;
+  isExpanded: boolean;
+  completed?: boolean;
+};
+
+export type Workout = {
+  name: string;
+  exercises: WorkoutExercise[];
+};
+
 // Main Stack Param List (includes screens accessible from tabs)
 export type MainStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   WorkoutExerciseOverview: undefined;
+  WorkoutTracking: {
+    exerciseIndex?: number;
+    workout?: {
+      name: string;
+      exercises: WorkoutExercise[];
+    };
+  };
 };
 
 // Root Stack Param List (combines Auth and Main)

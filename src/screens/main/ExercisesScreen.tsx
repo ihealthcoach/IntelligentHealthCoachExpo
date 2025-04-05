@@ -597,23 +597,24 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         exercises: []
       };
       
-      // Transform selected exercises into the format needed for the workout
-      const selectedExercisesForWorkout = selectedExercises.map(ex => ({
-        id: ex.id,
-        exerciseId: ex.id,
-        name: ex.name,
-        primaryMuscles: ex.primary_muscles || 'Unknown',
-        equipment: ex.equipment || 'Bodyweight',
-        sets: Array.from({ length: selectedSets }, (_, i) => ({
-          id: `${ex.id}-${i + 1}`,
-          setNumber: i + 1,
-          weight: null,
-          reps: null,
-          isComplete: false
-        })),
-        notes: '',
-        isExpanded: true
-      }));
+// When adding exercises to the workout, generate unique IDs
+const selectedExercisesForWorkout = selectedExercises.map(ex => ({
+  // Use Date.now() + random number to ensure uniqueness
+  id: `${ex.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+  exerciseId: ex.id,
+  name: ex.name,
+  primaryMuscles: ex.primary_muscles || 'Unknown',
+  equipment: ex.equipment || 'Bodyweight',
+  sets: Array.from({ length: selectedSets }, (_, i) => ({
+    id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
+    setNumber: i + 1,
+    weight: null,
+    reps: null,
+    isComplete: false
+  })),
+  notes: '',
+  isExpanded: true
+}));
       
       // Add to existing exercises or create new array
       workoutData.exercises = [

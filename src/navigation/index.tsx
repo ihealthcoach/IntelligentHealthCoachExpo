@@ -26,6 +26,7 @@ import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import ExercisesScreen from '../screens/main/ExercisesScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import WorkoutExerciseOverview from '../screens/main/WorkoutExerciseOverview';
+import WorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -88,6 +89,11 @@ const MainNavigator = () => (
     <MainStack.Screen 
       name="WorkoutExerciseOverview" 
       component={WorkoutExerciseOverview}
+      options={{ headerShown: false }}
+    />
+    <MainStack.Screen 
+      name="WorkoutTracking" 
+      component={WorkoutTrackingScreen}
       options={{ headerShown: false }}
     />
   </MainStack.Navigator>
