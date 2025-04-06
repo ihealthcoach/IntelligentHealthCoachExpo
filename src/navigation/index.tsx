@@ -3,7 +3,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { 
+  Home as HomeIcon, 
+  Dumbbell, 
+  Calendar, 
+  User, 
+  BarChart
+} from 'lucide-react-native';
 
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -13,20 +19,22 @@ import {
   MainStackParamList
 } from '../types/navigation';
 
-// Import screens
-import HomeScreen from '../screens/main/HomeScreen';
-import WorkoutsScreen from '../screens/main/WorkoutsScreen';
-
 // Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 
-// Additional main screens
-import ExercisesScreen from '../screens/main/ExercisesScreen';
+// Main screens
+import HomeScreen from '../screens/main/HomeScreen';
+import WorkoutsScreen from '../screens/main/WorkoutsScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
-import WorkoutExerciseOverview from '../screens/main/WorkoutExerciseOverview';
-import WorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
+import ExercisesScreen from '../screens/main/ExercisesScreen';
+
+// Enhanced screens (new implementations)
+import EnhancedWorkoutOverviewScreen from '../screens/main/WorkoutOverviewScreen';
+import EnhancedWorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
+import WorkoutHistoryScreen from '../screens/main/WorkoutHistoryScreen';
+import ExerciseDetailScreen from '../screens/main/ExerciseDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -47,54 +55,67 @@ const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
-        let iconName: string;
-
-        if (route.name === 'Home') {
-          iconName = focused ? 'home' : 'home-outline';
-        } else if (route.name === 'Workouts') {
-          iconName = focused ? 'fitness' : 'fitness-outline';
-        } else if (route.name === 'Exercises') {
-          iconName = focused ? 'barbell' : 'barbell-outline';
-        } else if (route.name === 'Profile') {
-          iconName = focused ? 'person' : 'person-outline';
-        } else {
-          iconName = 'help-circle';
-        }
-
         // Make sure size is a number
         const iconSize = typeof size === 'number' ? size : 24;
         
-        // Return the Ionicons component with proper typing
-        return <Ionicons name={iconName as any} size={iconSize} color={color} />;
+        // Return the appropriate icon based on route name
+        switch (route.name) {
+          case 'Home':
+            return <HomeIcon size={iconSize} color={color} />;
+          case 'Workouts':
+            return <Dumbbell size={iconSize} color={color} />;
+          case 'Exercises':
+            return <Calendar size={iconSize} color={color} />;
+          case 'History':
+            return <BarChart size={iconSize} color={color} />;
+          case 'Profile':
+            return <User size={iconSize} color={color} />;
+          default:
+            return <HomeIcon size={iconSize} color={color} />;
+        }
       },
-      tabBarActiveTintColor: '#007AFF',
-      tabBarInactiveTintColor: 'gray',
+      tabBarActiveTintColor: '#4F46E5',
+      tabBarInactiveTintColor: '#6B7280',
+      tabBarStyle: {
+        backgroundColor: '#FFFFFF',
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+        height: 60,
+        paddingBottom: 8,
+        paddingTop: 8,
+      },
+      tabBarLabelStyle: {
+        fontSize: 12,
+      },
+      headerShown: false,
     })}
   >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Workouts" component={WorkoutsScreen} />
     <Tab.Screen name="Exercises" component={ExercisesScreen} />
+    <Tab.Screen name="History" component={WorkoutHistoryScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
 // Main Navigator
 const MainNavigator = () => (
-  <MainStack.Navigator>
+  <MainStack.Navigator screenOptions={{ headerShown: false }}>
     <MainStack.Screen 
       name="MainTabs" 
       component={TabNavigator} 
-      options={{ headerShown: false }}
     />
     <MainStack.Screen 
       name="WorkoutExerciseOverview" 
-      component={WorkoutExerciseOverview}
-      options={{ headerShown: false }}
+      component={EnhancedWorkoutOverviewScreen}
     />
     <MainStack.Screen 
       name="WorkoutTracking" 
-      component={WorkoutTrackingScreen}
-      options={{ headerShown: false }}
+      component={EnhancedWorkoutTrackingScreen}
+    />
+    <MainStack.Screen 
+      name="ExerciseDetail" 
+      component={ExerciseDetailScreen}
     />
   </MainStack.Navigator>
 );
@@ -105,8 +126,8 @@ export const Navigation = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size={36} color="#007AFF" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9FAFB' }}>
+        <ActivityIndicator size="large" color="#4F46E5" />
       </View>
     );
   }

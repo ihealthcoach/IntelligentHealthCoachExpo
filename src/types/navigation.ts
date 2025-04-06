@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { NavigatorScreenParams, CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { Workout, WorkoutExercise, ExerciseSet } from './workout';
 
 // Auth Stack Param List
 export type AuthStackParamList = {
@@ -14,46 +15,22 @@ export type MainTabParamList = {
   Home: undefined;
   Workouts: undefined;
   Exercises: undefined;
+  History: undefined;
   Profile: undefined;
-};
-
-// Types for workout data passed between screens
-export type ExerciseSet = {
-  id: string;
-  setNumber: number;
-  weight: number | null;
-  reps: number | null;
-  isComplete: boolean;
-  isPR?: boolean;
-};
-
-export type WorkoutExercise = {
-  id: string;
-  exerciseId: string;
-  name: string;
-  primaryMuscles: string;
-  equipment: string;
-  sets: ExerciseSet[];
-  notes: string;
-  isExpanded: boolean;
-  completed?: boolean;
-};
-
-export type Workout = {
-  name: string;
-  exercises: WorkoutExercise[];
 };
 
 // Main Stack Param List (includes screens accessible from tabs)
 export type MainStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
-  WorkoutExerciseOverview: undefined;
+  WorkoutExerciseOverview: {
+    workoutId?: string;
+  };
   WorkoutTracking: {
     exerciseIndex?: number;
-    workout?: {
-      name: string;
-      exercises: WorkoutExercise[];
-    };
+    workout?: Workout;
+  };
+  ExerciseDetail: {
+    exerciseId: string;
   };
 };
 
