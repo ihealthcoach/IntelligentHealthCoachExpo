@@ -126,11 +126,16 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
     navigation.navigate('WorkoutTracking', {
       exerciseIndex: exerciseIndex,
       workout: {
+        id: workout?.id || Date.now().toString(),
         name: workoutName,
-        exercises: exercises
+        exercises: exercises.map((exercise, index) => ({
+          ...exercise,
+          order: exercise.order !== undefined ? exercise.order : index // Add order property if missing
+        })),
+        status: workout?.status || 'in_progress',
+        startedAt: workout?.startedAt || new Date().toISOString()
       }
     });
-  };
 
   const startWorkout = async () => {
     // Save current workout data
@@ -149,13 +154,18 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
     
     // Navigate to the workout tracking screen
     navigation.navigate('WorkoutTracking', {
-      exerciseIndex: 0,
+      exerciseIndex: exerciseIndex,
       workout: {
+        id: workout?.id || Date.now().toString(),
         name: workoutName,
-        exercises: exercises
+        exercises: exercises.map((exercise, index) => ({
+          ...exercise,
+          order: exercise.order !== undefined ? exercise.order : index // Add order property if missing
+        })),
+        status: workout?.status || 'in_progress',
+        startedAt: workout?.startedAt || new Date().toISOString()
       }
     });
-  };
 
   const renderExerciseItem = (exercise, index) => {
     // Calculate completed sets

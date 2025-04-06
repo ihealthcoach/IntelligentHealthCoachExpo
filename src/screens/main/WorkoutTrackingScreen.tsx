@@ -36,7 +36,7 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react-native';
-import { Portal, Modal, Button, ProgressBar, Slider } from 'react-native-paper';
+import { Portal, Modal, Button, ProgressBar } from 'react-native-paper';
 import { MainStackScreenProps } from '../../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { workoutService } from '../../services/workoutService';
@@ -48,6 +48,7 @@ import {
 } from '../../types/workout';
 import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
+import Slider from '@react-native-community/slider';
 
 // Get screen dimensions for swipe calculations
 const { width } = Dimensions.get('window');
@@ -1034,6 +1035,44 @@ export default function WorkoutTrackingScreen({
                           keyboardType="numeric"
                           autoFocus
                           onBlur={() => {
+                            updateSetValue(set.id, 'weight', editingWeight.value);
+                            setEditingWeight(null);
+                          }}
+                          onSubmitEditing={() => {
+                            updateSetValue(set.id, 'weight', editingWeight.value);
+                            setEditingWeight(null);
+                          }}
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setEditingWeight({setId: set.id, value: set.weight?.toString() || ''})}
+                          disabled={isInactive}
+                        >
+                          <Text style={[
+                            styles.weightValue, 
+                            !set.weight && styles.emptyValue,
+                            isInactive && styles.inactiveText
+                          ]}>
+                            {set.weight?.toString() || '-'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    
+                    {/* Reps */}
+                    <View style={styles.repsContainer}>
+                      {editingReps && editingReps.setId === set.id ? (
+                        <TextInput
+                          style={styles.valueInput}
+                          value={editingReps.value}
+                          onChangeText={(text) => setEditingReps({...editingReps, value: text})}
+                          keyboardType="numeric"
+                          autoFocus
+                          onBlur={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                          onSubmitEditing={() => {
                             updateSetValue(set.id, 'reps', editingReps.value);
                             setEditingReps(null);
                           }}
@@ -1119,7 +1158,7 @@ export default function WorkoutTrackingScreen({
                       </TouchableOpacity>
                     </View>
                   </View>
-                </Animated.View>
+                </View>
               );
             })}
           </View>
@@ -1861,4 +1900,101 @@ id, 'weight', editingWeight.value);
                             setEditingReps(null);
                           }}
                           onSubmitEditing={() => {
-                            updateSetValue(set.
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                          onSubmitEditing={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setEditingReps({setId: set.id, value: set.reps?.toString() || ''})}
+                          disabled={isInactive}
+                        >
+                          <Text style={[
+                            styles.repsValue, 
+                            !set.reps && styles.emptyValue,
+                            isInactive && styles.inactiveText
+                          ]}>
+                            {set.reps?.toString() || '-'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    
+                    {/* RPE (Rate of Perceived Exertion) */}
+                    <View style={styles.rpeContainer}>
+                      {editingRPE && editingRPE.setId === set.id ? (
+                        <Slider
+                          style={styles.rpeSlider}
+                          value={editingRPE.value || 5}
+                          minimumValue={1}
+                          maximumValue={10}
+                          step={0.5}
+                          minimumTrackTintColor="#4F46E5"
+                          maximumTrackTintColor="#E5E7EB"
+                          onValueChange={(value) => setEditingRPE({...editingRPE, value})}
+                          onSlidingComplete={(value) => {
+                            updateSetValue(set.id, 'rpe', value);
+                            setEditingRPE(null);
+                          }}
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setEditingRPE({setId: set.id, value: set.rpe})}
+                          disabled={isInactive || !set.isComplete}
+                        >
+                          <Text style={[
+                            styles.rpeValue, 
+                            !set.rpe && styles.emptyValue,
+                            isInactive && styles.inactiveText,
+                            !set.isComplete && styles.disabledText
+                          ]}>
+                            {set.rpe?.toString() || '-'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    
+                    {/* Completion checkbox / PR indicator */}
+                    <View style={styles.completionContainer}>
+                      {set.isPR ? (
+                        <View style={styles.prContainer}>
+                          <Award size={20} color="#F59E0B" />
+                        </View>
+                      ) : (
+                        <TouchableOpacity 
+                          onPress={() => toggleSetCompletion(set.id)}
+                          disabled={isInactive}
+                          style={[
+                            styles.completionCheckbox,
+                            set.isComplete && styles.completedCheckbox,
+                            isInactive && styles.disabledCheckbox
+                          ]}
+                        >
+                          {set.isComplete && (
+                            <Check size={16} color="#FFFFFF" />
+                          )}
+                        </TouchableOpacity>
+                      )}
+                      
+                      {/* Set menu button for additional actions */}
+                      <TouchableOpacity 
+                        style={styles.setMenuButton}
+                        onPress={() => removeSet(set.id)}
+                      >
+                        <Trash size={16} color="#9CA3AF" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              );
+              })}
+                  </View>
+                </View>
+              );
+              }
+              
+              export default EnhancedWorkoutTrackingScreen;
