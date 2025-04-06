@@ -68,7 +68,7 @@ interface RestTimerState {
   setId: string | null;
 }
 
-export default function EnhancedWorkoutTrackingScreen({ 
+export default function WorkoutTrackingScreen({ 
   navigation,
   route 
 }: MainStackScreenProps<'WorkoutTracking'>) {
