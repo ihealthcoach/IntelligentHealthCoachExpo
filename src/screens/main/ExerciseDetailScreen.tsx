@@ -10,7 +10,8 @@ import {
   Image,
   Animated,
   Dimensions,
-  ActivityIndicator
+  ActivityIndicator,
+  ImageStyle
 } from 'react-native';
 import {
   ArrowLeft,
@@ -298,10 +299,10 @@ export default function ExerciseDetailScreen({ route, navigation }: ExerciseDeta
           {/* Exercise Image/Video Placeholder */}
           <View style={styles.exerciseMedia}>
             <Image 
-              source={{ uri: 'https://via.placeholder.com/600x400?text=Exercise+Demonstration' }} 
-              style={styles.exerciseImage}
-              resizeMode="cover"
-            />
+                source={{ uri: 'https://via.placeholder.com/600x400?text=Exercise+Demonstration' }} 
+                style={styles.exerciseImage as ImageStyle}
+                resizeMode="cover"
+                />
             <TouchableOpacity 
               style={styles.playButton}
               onPress={() => setShowInstructionsModal(true)}
