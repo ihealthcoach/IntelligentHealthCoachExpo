@@ -46,6 +46,7 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
   const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
   const [workoutName, setWorkoutName] = useState<string>('Workout');
   const [loading, setLoading] = useState(true);
+  const [workoutStarted, setWorkoutStarted] = useState(false);
 
   useEffect(() => {
     loadWorkoutData();
@@ -61,9 +62,16 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
         const parsedWorkout = JSON.parse(savedWorkout);
         setWorkoutName(parsedWorkout.name || 'Workout');
         setExercises(parsedWorkout.exercises || []);
+        
+        // Check if workout has been started by seeing if any sets are completed
+        const hasStarted = parsedWorkout.exercises?.some(exercise => 
+          exercise.sets?.some(set => set.isComplete)
+        );
+        setWorkoutStarted(hasStarted);
       } else {
         // If no saved workout exists, initialize with empty array
         setExercises([]);
+        setWorkoutStarted(false);
       }
     } catch (error) {
       console.error('Error loading workout data:', error);
@@ -104,6 +112,26 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
     }
   };
 
+  const handleExerciseClick = (exerciseIndex) => {
+    // Save current workout data
+    AsyncStorage.setItem('current_workout', JSON.stringify({
+      name: workoutName,
+      exercises: exercises
+    }));
+    
+    // Set workout as started
+    setWorkoutStarted(true);
+    
+    // Navigate to workout tracking with the selected exercise
+    navigation.navigate('WorkoutTracking', {
+      exerciseIndex: exerciseIndex,
+      workout: {
+        name: workoutName,
+        exercises: exercises
+      }
+    });
+  };
+
   const startWorkout = async () => {
     // Save current workout data
     await AsyncStorage.setItem('current_workout', JSON.stringify({
@@ -116,6 +144,8 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
       Alert.alert('No Exercises', 'Please add exercises before starting your workout.');
       return;
     }
+
+    setWorkoutStarted(true);
     
     // Navigate to the workout tracking screen
     navigation.navigate('WorkoutTracking', {
@@ -128,7 +158,12 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
   };
 
   const renderExerciseItem = (exercise, index) => {
-    if (exercise.completed) {
+    // Calculate completed sets
+    const totalSets = exercise.sets.length;
+    const completedSets = exercise.sets.filter(set => set.isComplete).length;
+    const allSetsCompleted = totalSets > 0 && completedSets === totalSets;
+    
+    if (allSetsCompleted) {
       return (
         <View key={`${exercise.id}-${index}`} style={styles.exerciseItem}>
           <View style={styles.exerciseContent}>
@@ -147,7 +182,11 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
       );
     } else {
       return (
-        <View key={`${exercise.id}-${index}`} style={styles.exerciseItem}>
+        <TouchableOpacity 
+          key={`${exercise.id}-${index}`} 
+          style={styles.exerciseItem}
+          onPress={() => handleExerciseClick(index)}
+        >
           <View style={styles.exerciseContent}>
             {/* Use a placeholder for demo purposes */}
             <View style={styles.exerciseImage} />
@@ -156,7 +195,9 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
               <Text style={styles.exerciseName}>{exercise.name}</Text>
               <View style={styles.tagsContainer}>
                 <Text style={styles.exerciseProgress}>
-                  {exercise.primaryMuscles}
+                  {workoutStarted 
+                    ? `${completedSets} of ${totalSets} sets completed` 
+                    : exercise.primaryMuscles}
                 </Text>
               </View>
             </View>
@@ -164,20 +205,26 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
           
           <TouchableOpacity 
             style={styles.moreButton}
-            onPress={() => {/* Show options menu */}}
+            onPress={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onPress
+              /* Show options menu */
+            }}
           >
             <MoreHorizontal size={20} color="#9EA5AF" />
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={styles.deleteButton}
-            onPress={() => removeExercise(exercise.id)}
+            onPress={(e) => {
+              e.stopPropagation(); // Prevent triggering parent onPress
+              removeExercise(exercise.id);
+            }}
           >
             <View style={styles.deleteButtonInner}>
               <Trash2 size={20} color="#4B5563" />
             </View>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       );
     }
   };
@@ -238,19 +285,21 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
 
       {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
-        <TouchableOpacity 
-          style={[
-            styles.startButton,
-            exercises.length === 0 && styles.disabledButton
-          ]}
-          onPress={startWorkout}
-          disabled={exercises.length === 0}
-        >
-          <Text style={styles.startButtonText}>Start workout</Text>
-        </TouchableOpacity>
+        {!workoutStarted && (
+          <TouchableOpacity 
+            style={[
+              styles.startButton,
+              exercises.length === 0 && styles.disabledButton
+            ]}
+            onPress={startWorkout}
+            disabled={exercises.length === 0}
+          >
+            <Text style={styles.startButtonText}>Start workout</Text>
+          </TouchableOpacity>
+        )}
         
         <TouchableOpacity 
-          style={styles.addButton}
+          style={[styles.addButton, workoutStarted && styles.fullWidthButton]}
           onPress={() => navigation.navigate('MainTabs', { screen: 'Exercises' })}
         >
           <Plus size={24} color="#374151" />
@@ -434,6 +483,9 @@ const styles = StyleSheet.create({
     color: '#FCFDFD',
     fontSize: 16,
     fontWeight: '500',
+  },
+  fullWidthButton: {
+    width: '100%',
   },
   addButton: {
     backgroundColor: '#F9FAFB',
