@@ -40,6 +40,7 @@ type WorkoutExercise = {
   notes: string;
   isExpanded: boolean;
   completed?: boolean;
+  order: number;
 };
 
 export default function WorkoutExerciseOverview({ navigation }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
@@ -126,14 +127,14 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
     navigation.navigate('WorkoutTracking', {
       exerciseIndex: exerciseIndex,
       workout: {
-        id: workout?.id || Date.now().toString(),
+        id: Date.now().toString(),
         name: workoutName,
         exercises: exercises.map((exercise, index) => ({
           ...exercise,
-          order: exercise.order !== undefined ? exercise.order : index // Add order property if missing
+          order: exercise.order !== undefined ? exercise.order : index
         })),
-        status: workout?.status || 'in_progress',
-        startedAt: workout?.startedAt || new Date().toISOString()
+        status: 'in_progress',
+        startedAt: new Date().toISOString()
       }
     });
 
@@ -154,16 +155,16 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
     
     // Navigate to the workout tracking screen
     navigation.navigate('WorkoutTracking', {
-      exerciseIndex: exerciseIndex,
+      exerciseIndex: 0, // Assuming you want to start with the first exercise
       workout: {
-        id: workout?.id || Date.now().toString(),
+        id: Date.now().toString(),
         name: workoutName,
         exercises: exercises.map((exercise, index) => ({
           ...exercise,
-          order: exercise.order !== undefined ? exercise.order : index // Add order property if missing
+          order: exercise.order !== undefined ? exercise.order : index
         })),
-        status: workout?.status || 'in_progress',
-        startedAt: workout?.startedAt || new Date().toISOString()
+        status: 'in_progress',
+        startedAt: new Date().toISOString()
       }
     });
 
