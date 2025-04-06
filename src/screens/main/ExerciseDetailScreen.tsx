@@ -37,14 +37,7 @@ import { Video } from 'expo-av';
 const { width } = Dimensions.get('window');
 
 // Props type for the screen
-type ExerciseDetailScreenProps = {
-  route: {
-    params: {
-      exerciseId: string;
-    };
-  };
-  navigation: any;
-};
+type ExerciseDetailScreenProps = MainStackScreenProps<'ExerciseDetail'>;
 
 export default function ExerciseDetailScreen({ route, navigation }: ExerciseDetailScreenProps) {
   const { user } = useAuth();
@@ -362,7 +355,174 @@ export default function ExerciseDetailScreen({ route, navigation }: ExerciseDeta
           {filteredHistory.length > 0 && (
             <View style={styles.progressSection}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>History</Text>
+                <Text style={styles.sectionTitle}>Progress</Text>
+                
+                <View style={styles.timeRangeSelector}>
+                  <TouchableOpacity
+                    style={[
+                      styles.timeRangeButton,
+                      selectedTimeRange === 'month' && styles.timeRangeButtonActive
+                    ]}
+                    onPress={() => setSelectedTimeRange('month')}
+                  >
+                    <Text
+                      style={[
+                        styles.timeRangeText,
+                        selectedTimeRange === 'month' && styles.timeRangeTextActive
+                      ]}
+                    >
+                      Month
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[
+                      styles.timeRangeButton,
+                      selectedTimeRange === 'year' && styles.timeRangeButtonActive
+                    ]}
+                    onPress={() => setSelectedTimeRange('year')}
+                  >
+                    <Text
+                      style={[
+                        styles.timeRangeText,
+                        selectedTimeRange === 'year' && styles.timeRangeTextActive
+                      ]}
+                    >
+                      Year
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[
+                      styles.timeRangeButton,
+                      selectedTimeRange === 'all' && styles.timeRangeButtonActive
+                    ]}
+                    onPress={() => setSelectedTimeRange('all')}
+                  >
+                    <Text
+                      style={[
+                        styles.timeRangeText,
+                        selectedTimeRange === 'all' && styles.timeRangeTextActive
+                      ]}
+                    >
+                      All
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              
+              {/* Progress Stats */}
+              <View style={styles.progressStats}>
+                <View style={styles.progressStat}>
+                  <View style={[
+                    styles.progressStatIcon,
+                    progressStats.weightChange >= 0 ? styles.progressPositive : styles.progressNegative
+                  ]}>
+                    {progressStats.weightChange >= 0 ? (
+                      <TrendingUp size={16} color="#059669" />
+                    ) : (
+                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
+                    )}
+                  </View>
+                  <Text style={styles.progressStatValue}>
+                    {progressStats.weightChange > 0 ? '+' : ''}
+                    {progressStats.weightChange}kg
+                  </Text>
+                  <Text style={styles.progressStatLabel}>Weight</Text>
+                </View>
+                
+                <View style={styles.progressStat}>
+                  <View style={[
+                    styles.progressStatIcon,
+                    progressStats.volumeChange >= 0 ? styles.progressPositive : styles.progressNegative
+                  ]}>
+                    {progressStats.volumeChange >= 0 ? (
+                      <TrendingUp size={16} color="#059669" />
+                    ) : (
+                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
+                    )}
+                  </View>
+                  <Text style={styles.progressStatValue}>
+                    {progressStats.volumeChange > 0 ? '+' : ''}
+                    {progressStats.volumeChange}kg
+                  </Text>
+                  <Text style={styles.progressStatLabel}>Volume</Text>
+                </View>
+                
+                <View style={styles.progressStat}>
+                  <View style={[
+                    styles.progressStatIcon,
+                    progressStats.oneRepMaxChange >= 0 ? styles.progressPositive : styles.progressNegative
+                  ]}>
+                    {progressStats.oneRepMaxChange >= 0 ? (
+                      <TrendingUp size={16} color="#059669" />
+                    ) : (
+                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
+                    )}
+                  </View>
+                  <Text style={styles.progressStatValue}>
+                    {progressStats.oneRepMaxChange > 0 ? '+' : ''}
+                    {Math.round(progressStats.oneRepMaxChange)}kg
+                  </Text>
+                  <Text style={styles.progressStatLabel}>Est. 1RM</Text>
+                </View>
+              </View>
+              
+              {/* Chart Placeholder */}
+              <View style={styles.chartContainer}>
+                <View style={styles.chartPlaceholder}>
+                  <BarChart2 size={32} color="#9CA3AF" />
+                  <Text style={styles.chartPlaceholderText}>
+                    {filteredHistory.length} data points
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+          
+          {/* Exercise Instructions */}
+          <View style={styles.instructionsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Instructions</Text>
+              <TouchableOpacity onPress={() => setShowInstructionsModal(true)}>
+                <Text style={styles.sectionAction}>View Video</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.instructionsList}>
+              {exerciseDetails.instructions.map((instruction, index) => (
+                <View key={index} style={styles.instructionItem}>
+                  <View style={styles.instructionNumber}>
+                    <Text style={styles.instructionNumberText}>{index + 1}</Text>
+                  </View>
+                  <Text style={styles.instructionText}>
+                    {instruction}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+          
+          {/* Exercise Tips */}
+          <View style={styles.tipsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Tips</Text>
+            </View>
+            
+            <View style={styles.tipsList}>
+              {exerciseDetails.tips.map((tip, index) => (
+                <View key={index} style={styles.tipItem}>
+                  <Check size={16} color="#4F46E5" />
+                  <Text style={styles.tipText}>{tip}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+          
+          {/* Exercise History */}
+          <View style={styles.historySection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>History</Text>
               <TouchableOpacity>
                 <Text style={styles.sectionAction}>View All</Text>
               </TouchableOpacity>
@@ -920,171 +1080,3 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
-ectionTitle}>Progress</Text>
-                
-                <View style={styles.timeRangeSelector}>
-                  <TouchableOpacity
-                    style={[
-                      styles.timeRangeButton,
-                      selectedTimeRange === 'month' && styles.timeRangeButtonActive
-                    ]}
-                    onPress={() => setSelectedTimeRange('month')}
-                  >
-                    <Text
-                      style={[
-                        styles.timeRangeText,
-                        selectedTimeRange === 'month' && styles.timeRangeTextActive
-                      ]}
-                    >
-                      Month
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={[
-                      styles.timeRangeButton,
-                      selectedTimeRange === 'year' && styles.timeRangeButtonActive
-                    ]}
-                    onPress={() => setSelectedTimeRange('year')}
-                  >
-                    <Text
-                      style={[
-                        styles.timeRangeText,
-                        selectedTimeRange === 'year' && styles.timeRangeTextActive
-                      ]}
-                    >
-                      Year
-                    </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={[
-                      styles.timeRangeButton,
-                      selectedTimeRange === 'all' && styles.timeRangeButtonActive
-                    ]}
-                    onPress={() => setSelectedTimeRange('all')}
-                  >
-                    <Text
-                      style={[
-                        styles.timeRangeText,
-                        selectedTimeRange === 'all' && styles.timeRangeTextActive
-                      ]}
-                    >
-                      All
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              
-              {/* Progress Stats */}
-              <View style={styles.progressStats}>
-                <View style={styles.progressStat}>
-                  <View style={[
-                    styles.progressStatIcon,
-                    progressStats.weightChange >= 0 ? styles.progressPositive : styles.progressNegative
-                  ]}>
-                    {progressStats.weightChange >= 0 ? (
-                      <TrendingUp size={16} color="#059669" />
-                    ) : (
-                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
-                    )}
-                  </View>
-                  <Text style={styles.progressStatValue}>
-                    {progressStats.weightChange > 0 ? '+' : ''}
-                    {progressStats.weightChange}kg
-                  </Text>
-                  <Text style={styles.progressStatLabel}>Weight</Text>
-                </View>
-                
-                <View style={styles.progressStat}>
-                  <View style={[
-                    styles.progressStatIcon,
-                    progressStats.volumeChange >= 0 ? styles.progressPositive : styles.progressNegative
-                  ]}>
-                    {progressStats.volumeChange >= 0 ? (
-                      <TrendingUp size={16} color="#059669" />
-                    ) : (
-                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
-                    )}
-                  </View>
-                  <Text style={styles.progressStatValue}>
-                    {progressStats.volumeChange > 0 ? '+' : ''}
-                    {progressStats.volumeChange}kg
-                  </Text>
-                  <Text style={styles.progressStatLabel}>Volume</Text>
-                </View>
-                
-                <View style={styles.progressStat}>
-                  <View style={[
-                    styles.progressStatIcon,
-                    progressStats.oneRepMaxChange >= 0 ? styles.progressPositive : styles.progressNegative
-                  ]}>
-                    {progressStats.oneRepMaxChange >= 0 ? (
-                      <TrendingUp size={16} color="#059669" />
-                    ) : (
-                      <TrendingUp size={16} color="#DC2626" style={{ transform: [{ rotate: '180deg' }] }} />
-                    )}
-                  </View>
-                  <Text style={styles.progressStatValue}>
-                    {progressStats.oneRepMaxChange > 0 ? '+' : ''}
-                    {Math.round(progressStats.oneRepMaxChange)}kg
-                  </Text>
-                  <Text style={styles.progressStatLabel}>Est. 1RM</Text>
-                </View>
-              </View>
-              
-              {/* Chart Placeholder */}
-              <View style={styles.chartContainer}>
-                <View style={styles.chartPlaceholder}>
-                  <BarChart2 size={32} color="#9CA3AF" />
-                  <Text style={styles.chartPlaceholderText}>
-                    {filteredHistory.length} data points
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
-          
-          {/* Exercise Instructions */}
-          <View style={styles.instructionsSection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Instructions</Text>
-              <TouchableOpacity onPress={() => setShowInstructionsModal(true)}>
-                <Text style={styles.sectionAction}>View Video</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.instructionsList}>
-              {exerciseDetails.instructions.map((instruction, index) => (
-                <View key={index} style={styles.instructionItem}>
-                  <View style={styles.instructionNumber}>
-                    <Text style={styles.instructionNumberText}>{index + 1}</Text>
-                  </View>
-                  <Text style={styles.instructionText}>
-                    {instruction}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          {/* Exercise Tips */}
-          <View style={styles.tipsSection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Tips</Text>
-            </View>
-            
-            <View style={styles.tipsList}>
-              {exerciseDetails.tips.map((tip, index) => (
-                <View key={index} style={styles.tipItem}>
-                  <Check size={16} color="#4F46E5" />
-                  <Text style={styles.tipText}>{tip}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          {/* Exercise History */}
-          <View style={styles.historySection}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.s
