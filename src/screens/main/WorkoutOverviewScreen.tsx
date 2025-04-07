@@ -35,7 +35,8 @@ import {
   DollarSign,
   ChevronRight,
   Star,
-  StarHalf
+  StarHalf,
+  Check
 } from 'lucide-react-native';
 import { Portal, Modal, Button, Divider, Badge } from 'react-native-paper';
 import { MainStackScreenProps } from '../../types/navigation';
@@ -46,14 +47,15 @@ import {
   WorkoutExercise,
   ExerciseSet,
   WorkoutTemplate,
-  SupersetType
+  SupersetType,
+  WorkoutStatus
 } from '../../types/workout';
 import * as Haptics from 'expo-haptics';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 
 const { width } = Dimensions.get('window');
 
-export default function EnhancedWorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
+export default function WorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
   const { user } = useAuth();
   
   // Workout state
@@ -208,11 +210,11 @@ export default function EnhancedWorkoutOverviewScreen({ navigation }: MainStackS
     
     try {
       // Update workout status
-      const updatedWorkout = { 
-        ...workout, 
-        status: 'in_progress',
-        startedAt: new Date().toISOString() 
-      };
+    const updatedWorkout = {
+    ...workout,
+    status: WorkoutStatus.IN_PROGRESS,
+    startedAt: new Date().toISOString()
+    };
       
       setWorkout(updatedWorkout);
       setWorkoutStarted(true);
@@ -442,11 +444,12 @@ export default function EnhancedWorkoutOverviewScreen({ navigation }: MainStackS
   };
   
   // Render an exercise item
-  const renderExerciseItem = ({ item, index, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
+  const renderExerciseItem = ({ item, drag, isActive }: RenderItemParams<WorkoutExercise>) => {
     // Check if all sets are completed for this exercise
     const totalSets = item.sets.length;
     const completedSets = item.sets.filter(set => set.isComplete).length;
     const allSetsCompleted = totalSets > 0 && completedSets === totalSets;
+    const index = workout?.exercises.findIndex(exercise => exercise.id === item.id) ?? 0;
     
     // Check if this exercise is part of a superset
     const isSuperset = item.supersetId !== undefined && item.supersetId !== null;
@@ -974,6 +977,15 @@ const styles = StyleSheet.create({
   exercisesContainer: {
     marginHorizontal: 16,
   },
+  exerciseInfo: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  progressContainer: {
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1108,3 +1120,239 @@ const styles = StyleSheet.create({
     color: '#111827',
     marginBottom: 2,
   },
+  progressBar: {
+    flex: 1,
+    height: 4,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 2,
+    marginRight: 8,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4F46E5',
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  setsText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  
+  // Exercise menu related styles
+  exerciseActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  exerciseMenuButton: {
+    padding: 8,
+  },
+  exerciseMenu: {
+    position: 'absolute',
+    right: 12,
+    top: 48,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingVertical: 4,
+    width: 160,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 10,
+  },
+  exerciseMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 8,
+  },
+  exerciseMenuItemText: {
+    fontSize: 14,
+    color: '#111827',
+  },
+  exerciseMenuItemDanger: {
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  exerciseMenuItemTextDanger: {
+    color: '#EF4444',
+  },
+  
+  // Bottom buttons
+  bottomButtons: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    paddingTop: 12,
+    backgroundColor: '#F9FAFB',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    gap: 8,
+  },
+  startButton: {
+    backgroundColor: '#4F46E5',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  startButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  addButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  addButtonText: {
+    color: '#374151',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  fullWidthButton: {
+    width: '100%',
+  },
+  
+  // Template modal related styles
+  templateModal: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  templateModalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  templateInput: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  templateDescriptionInput: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  templateModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 8,
+  },
+  templateCancelButton: {
+    borderColor: '#6B7280',
+  },
+  templateSaveButton: {
+    backgroundColor: '#4F46E5',
+  },
+  
+  // Templates list modal styles
+  templatesListModal: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 12,
+    paddingTop: 20,
+    height: '80%',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  templatesListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  templatesListTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  templatesListClose: {
+    fontSize: 16,
+    color: '#4F46E5',
+    fontWeight: '500',
+  },
+  templatesEmptyState: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  templatesEmptyText: {
+    textAlign: 'center',
+    color: '#6B7280',
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  templateItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  templateItemContent: {
+    flex: 1,
+    marginRight: 16,
+  },
+  templateItemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  templateItemInfo: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  templateItemDescription: {
+    fontSize: 12,
+    color: '#4B5563',
+    marginTop: 4,
+  },
+  templatesList: {
+    padding: 0,
+  },
+});
