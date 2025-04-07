@@ -9,13 +9,14 @@ import {
   StatusBar,
   Image,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions
 } from 'react-native';
 import {
   Calendar,
   ChevronRight,
   Clock,
-  BarChart,
+  BarChart as BarChartIcon,
   TrendingUp,
   Dumbbell,
   ArrowUpRight,
@@ -26,7 +27,7 @@ import { Chip, Portal, Modal, Button, Divider } from 'react-native-paper';
 import { workoutService } from '../../services/workoutService';
 import { useAuth } from '../../contexts/AuthContext';
 import { Workout, WorkoutExercise, MuscleGroupVolume } from '../../types/workout';
-import { LineChart, BarChart as RechartBarChart, PieChart } from 'recharts';
+import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { MainTabScreenProps } from '../../types/navigation';
 
 // Duration formatting helper
@@ -69,6 +70,7 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
   const [volumeData, setVolumeData] = useState<any[]>([]);
   const [muscleGroupData, setMuscleGroupData] = useState<MuscleGroupVolume[]>([]);
   const [workoutFrequencyData, setWorkoutFrequencyData] = useState<any[]>([]);
+  const screenWidth = Dimensions.get('window').width;
   
   // Load workout history
   const loadWorkoutHistory = useCallback(async () => {
@@ -435,18 +437,43 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
                 <View style={styles.chartHeader}>
                   <Text style={styles.chartTitle}>Volume Progress</Text>
                   <TouchableOpacity>
-                    <BarChart size={16} color="#6B7280" />
+                    <BarChartIcon size={16} color="#6B7280" />
                   </TouchableOpacity>
                 </View>
                 
                 <View style={styles.chartContainer}>
-                  {/* This would be a real chart in a complete implementation */}
-                  <View style={styles.chartPlaceholder}>
-                    <Text style={styles.chartPlaceholderText}>
-                      {volumeData.length} data points
-                    </Text>
-                  </View>
-                </View>
+  <LineChart
+    data={{
+      labels: volumeData.slice(-6).map(item => item.date.substring(5)),
+      datasets: [
+        {
+          data: volumeData.slice(-6).map(item => item.volume),
+          color: (opacity = 1) => `rgba(79, 70, 229, ${opacity})`,
+          strokeWidth: 2
+        }
+      ]
+    }}
+    width={screenWidth - 64}
+    height={200}
+    chartConfig={{
+      backgroundColor: '#FFFFFF',
+      backgroundGradientFrom: '#FFFFFF',
+      backgroundGradientTo: '#FFFFFF',
+      decimalPlaces: 0,
+      color: (opacity = 1) => `rgba(79, 70, 229, ${opacity})`,
+      labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
+      propsForDots: {
+        r: "5",
+        strokeWidth: "2",
+        stroke: "#4F46E5"
+      }
+    }}
+    bezier
+    style={{
+      borderRadius: 8
+    }}
+  />
+</View>
                 
                 <View style={styles.chartLegend}>
                   <View style={styles.legendItem}>
