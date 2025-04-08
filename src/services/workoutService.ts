@@ -425,7 +425,7 @@ class WorkoutService {
         })),
         category: templateInfo.category,
         split: templateInfo.split,
-        difficulty: templateInfo.difficulty,
+        difficulty: templateInfo.difficulty?.toLowerCase() as "beginner" | "intermediate" | "advanced" | undefined,
         tags: templateInfo.tags,
         isDefault: false
       };
@@ -538,32 +538,32 @@ class WorkoutService {
             // For each template, get its exercises
             const remoteTemplates: WorkoutTemplate[] = [];
 
-            for (const template of templateData) {
+            for (const templateItem of templateData) {
               // Fetch exercises for this template
               const { data: exercisesData, error: exercisesError } = await supabase
                 .from('template_exercises')
                 .select('*')
-                .eq('template_id', template.id)
+                .eq('template_id', templateItem.id)
                 .order('order', { ascending: true });
 
-              if (exercisesError) {
-                console.error(`Error fetching exercises for template ${template.id}:`, exercisesError);
-                continue;
-              }
+                if (exercisesError) {
+                  console.error(`Error fetching exercises for template ${templateItem.id}:`, exercisesError);
+                  continue;
+                }
 
               // Map to our app's type structure
               const mappedTemplate: WorkoutTemplate = {
-                id: template.id,
-                name: template.name,
-                description: template.description || '',
-                createdAt: template.created_at,
-                lastUsed: template.last_used,
-                category: template.category,
-                split: template.split,
-                estimatedDuration: template.estimated_duration,
-                difficulty: template.difficulty,
-                tags: template.tags,
-                isDefault: template.is_default,
+                id: templateItem.id,
+                name: templateItem.name,
+                description: templateItem.description || '',
+                createdAt: templateItem.created_at,
+                lastUsed: templateItem.last_used,
+                category: templateItem.category,
+                split: templateItem.split,
+                estimatedDuration: templateItem.estimated_duration,
+                difficulty: templateItem.difficulty?.toLowerCase() as "beginner" | "intermediate" | "advanced" | undefined,
+                tags: templateItem.tags,
+                isDefault: templateItem.is_default,
                 exercises: exercisesData.map(ex => ({
                   id: ex.id,
                   exerciseId: ex.exercise_id,

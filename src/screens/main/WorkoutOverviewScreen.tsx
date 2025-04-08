@@ -74,9 +74,6 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
   const [templateDetailsVisible, setTemplateDetailsVisible] = useState(false);
   
-  // Templates
-  const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutTemplate[]>([]);
-  
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
