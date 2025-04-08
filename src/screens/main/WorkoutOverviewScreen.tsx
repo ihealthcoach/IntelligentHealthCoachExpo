@@ -52,6 +52,7 @@ import {
 } from '../../types/workout';
 import * as Haptics from 'expo-haptics';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
+import SaveTemplateModal from '../../components/SaveTemplateModal';
 
 const { width } = Dimensions.get('window');
 
@@ -69,9 +70,9 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const [exerciseMenuOpen, setExerciseMenuOpen] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [saveAsTemplateModalVisible, setSaveAsTemplateModalVisible] = useState(false);
-  const [templateName, setTemplateName] = useState('');
-  const [templateDescription, setTemplateDescription] = useState('');
-  const [templateCategory, setTemplateCategory] = useState('');
+  const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
+  const [templateDetailsVisible, setTemplateDetailsVisible] = useState(false);
   
   // Templates
   const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutTemplate[]>([]);
@@ -95,6 +96,49 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
       // Clean up or save data when unmounting
     };
   }, []);
+
+    // Handle template selection
+    const handleTemplatePress = (template: WorkoutTemplate) => {
+        setSelectedTemplate(template);
+        setTemplateDetailsVisible(true);
+      };
+    
+      // Handle successful template save
+      const handleTemplateSaved = () => {
+        // Refresh templates list
+        loadWorkoutTemplates();
+        Alert.alert('Success', 'Workout template saved successfully');
+      };
+    
+      // Delete a template
+      const deleteTemplate = async (templateId: string) => {
+        Alert.alert(
+          'Delete Template',
+          'Are you sure you want to delete this template? This action cannot be undone.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel'
+            },
+            {
+              text: 'Delete',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await workoutService.deleteWorkoutTemplate(templateId);
+                  // Refresh templates list
+                  loadWorkoutTemplates();
+                  // Close template details modal
+                  setTemplateDetailsVisible(false);
+                } catch (error) {
+                  console.error('Error deleting template:', error);
+                  Alert.alert('Error', 'Failed to delete template');
+                }
+              }
+            }
+          ]
+        );
+      };
   
   // Load workout data from service
   const loadWorkoutData = async () => {
@@ -257,7 +301,8 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   };
   
   // Save workout as template
-  const saveAsTemplate = async () => {
+  const saveAsTemplate = () => {
+    setSaveAsTemplateModalVisible(true);
     if (!workout) return;
     
     try {
@@ -732,108 +777,132 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
       </View>
       
       {/* Save as Template Modal */}
-      <Portal>
-        <Modal
-          visible={saveAsTemplateModalVisible}
-          onDismiss={() => setSaveAsTemplateModalVisible(false)}
-          contentContainerStyle={styles.templateModal}
-        >
-          <Text style={styles.templateModalTitle}>Save as Template</Text>
-          
-          <TextInput
-            style={styles.templateInput}
-            placeholder="Template Name"
-            value={templateName}
-            onChangeText={setTemplateName}
-          />
-          
-          <TextInput
-            style={[styles.templateInput, styles.templateDescriptionInput]}
-            placeholder="Description (optional)"
-            value={templateDescription}
-            onChangeText={setTemplateDescription}
-            multiline
-            numberOfLines={3}
-          />
-          
-          <TextInput
-            style={styles.templateInput}
-            placeholder="Category (e.g., Push, Pull, Upper, Lower)"
-            value={templateCategory}
-            onChangeText={setTemplateCategory}
-          />
-          
-          <View style={styles.templateModalButtons}>
-            <Button
-              mode="outlined"
-              onPress={() => setSaveAsTemplateModalVisible(false)}
-              style={styles.templateCancelButton}
-            >
-              Cancel
-            </Button>
-            
-            <Button
-              mode="contained"
-              onPress={saveAsTemplate}
-              style={styles.templateSaveButton}
-              disabled={!templateName.trim()}
-            >
-              Save Template
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
+      <SaveTemplateModal
+    visible={saveAsTemplateModalVisible}
+    onDismiss={() => setSaveAsTemplateModalVisible(false)}
+    workout={workout}
+    onSuccess={handleTemplateSaved}
+  />
+
+  {/* Templates List Modal */}
+  <Portal>
+    <Modal
+      visible={showTemplateModal}
+      onDismiss={() => setShowTemplateModal(false)}
+      contentContainerStyle={styles.templatesListModal}
+    >
+      <View style={styles.templatesListHeader}>
+        <Text style={styles.templatesListTitle}>Workout Templates</Text>
+        <TouchableOpacity onPress={() => setShowTemplateModal(false)}>
+          <Text style={styles.templatesListClose}>Close</Text>
+        </TouchableOpacity>
+      </View>
       
-      {/* Templates Modal */}
-      <Portal>
-        <Modal
-          visible={showTemplateModal}
-          onDismiss={() => setShowTemplateModal(false)}
-          contentContainerStyle={styles.templatesListModal}
-        >
-          <View style={styles.templatesListHeader}>
-            <Text style={styles.templatesListTitle}>Workout Templates</Text>
-            <TouchableOpacity onPress={() => setShowTemplateModal(false)}>
-              <Text style={styles.templatesListClose}>Close</Text>
+      {workoutTemplates.length === 0 ? (
+        <View style={styles.templatesEmptyState}>
+          <Text style={styles.templatesEmptyText}>
+            No templates saved yet. Create a workout and save it as a template.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={workoutTemplates}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.templateItem}
+              onPress={() => handleTemplatePress(item)}
+            >
+              <View style={styles.templateItemContent}>
+                <Text style={styles.templateItemName}>{item.name}</Text>
+                <View style={styles.templateItemTags}>
+                  {item.category && (
+                    <View style={styles.templateCategoryTag}>
+                      <Text style={styles.templateCategoryText}>{item.category}</Text>
+                    </View>
+                  )}
+                  {item.difficulty && (
+                    <View style={styles.templateDifficultyTag}>
+                      <Text style={styles.templateDifficultyText}>{item.difficulty}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.templateItemInfo}>
+                  {item.exercises.length} exercises
+                  {item.split ? ` • ${item.split}` : ''}
+                </Text>
+                
+                {item.description ? (
+                  <Text style={styles.templateItemDescription} numberOfLines={2}>
+                    {item.description}
+                  </Text>
+                ) : null}
+              </View>
+              <ChevronRight size={18} color="#9CA3AF" />
+            </TouchableOpacity>
+          )}
+          contentContainerStyle={styles.templatesList}
+        />
+      )}
+    </Modal>
+  </Portal>
+
+  {/* Template Details Modal */}
+  <Portal>
+    <Modal
+      visible={templateDetailsVisible}
+      onDismiss={() => setTemplateDetailsVisible(false)}
+      contentContainerStyle={styles.templateDetailsModal}
+    >
+      {selectedTemplate && (
+        <>
+          <View style={styles.templateDetailsHeader}>
+            <Text style={styles.templateDetailsTitle}>{selectedTemplate.name}</Text>
+            <TouchableOpacity onPress={() => setTemplateDetailsVisible(false)}>
+              <Text style={styles.templateDetailsClose}>Close</Text>
             </TouchableOpacity>
           </View>
           
-          {workoutTemplates.length === 0 ? (
-            <View style={styles.templatesEmptyState}>
-              <Text style={styles.templatesEmptyText}>
-                No templates saved yet. Create a workout and save it as a template.
-              </Text>
-            </View>
-          ) : (
-            <FlatList
-              data={workoutTemplates}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity 
-                  style={styles.templateItem}
-                  onPress={() => loadFromTemplate(item.id)}
-                >
-                  <View style={styles.templateItemContent}>
-                    <Text style={styles.templateItemName}>{item.name}</Text>
-                    <Text style={styles.templateItemInfo}>
-                      {item.exercises.length} exercises
-                      {item.category ? ` • ${item.category}` : ''}
+          <ScrollView style={styles.templateDetailsContent}>
+            {/* Template details content */}
+            <View style={styles.templateDetailsSection}>
+              <Text style={styles.templateDetailsSectionTitle}>Exercises</Text>
+              {selectedTemplate.exercises.map((exercise, index) => (
+                <View key={exercise.id} style={styles.templateExerciseItem}>
+                  <Text style={styles.templateExerciseNumber}>{index + 1}</Text>
+                  <View style={styles.templateExerciseDetails}>
+                    <Text style={styles.templateExerciseName}>{exercise.name}</Text>
+                    <Text style={styles.templateExerciseInfo}>
+                      {exercise.sets} sets • {exercise.primaryMuscles}
                     </Text>
-                    
-                    {item.description ? (
-                      <Text style={styles.templateItemDescription} numberOfLines={2}>
-                        {item.description}
-                      </Text>
-                    ) : null}
                   </View>
-                  <ChevronRight size={18} color="#9CA3AF" />
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={styles.templatesList}
-            />
-          )}
-        </Modal>
-      </Portal>
+                </View>
+              ))}
+            </View>
+            
+            <View style={styles.templateDetailsActions}>
+              <Button
+                mode="contained"
+                onPress={() => loadFromTemplate(selectedTemplate.id)}
+                style={styles.templateLoadButton}
+              >
+                Use Template
+              </Button>
+              
+              <Button
+                mode="outlined"
+                onPress={() => deleteTemplate(selectedTemplate.id)}
+                style={styles.templateDeleteButton}
+                textColor="#EF4444"
+              >
+                Delete Template
+              </Button>
+            </View>
+          </ScrollView>
+        </>
+      )}
+    </Modal>
+  </Portal>
     </SafeAreaView>
   );
 }
@@ -1354,5 +1423,107 @@ const styles = StyleSheet.create({
   },
   templatesList: {
     padding: 0,
+  },
+  templateCategoryTag: {
+    backgroundColor: '#EEF2FF',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 6,
+  },
+  templateCategoryText: {
+    fontSize: 12,
+    color: '#4F46E5',
+  },
+  templateDifficultyTag: {
+    backgroundColor: '#E0F2FE',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  templateDifficultyText: {
+    fontSize: 12,
+    color: '#0284C7',
+  },
+  templateItemTags: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  templateDetailsModal: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 12,
+    height: '80%',
+    overflow: 'hidden',
+  },
+  templateDetailsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  templateDetailsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  templateDetailsClose: {
+    fontSize: 16,
+    color: '#4F46E5',
+  },
+  templateDetailsContent: {
+    flex: 1,
+    padding: 16,
+  },
+  templateDetailsSection: {
+    marginBottom: 20,
+  },
+  templateDetailsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 12,
+  },
+  templateDetailsDescription: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 16,
+  },
+  templateExerciseItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  templateExerciseNumber: {
+    width: 24,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  templateExerciseDetails: {
+    flex: 1,
+  },
+  templateExerciseName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  templateExerciseInfo: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  templateDetailsActions: {
+    paddingTop: 20,
+    gap: 12,
+  },
+  templateLoadButton: {
+    backgroundColor: '#4F46E5',
+  },
+  templateDeleteButton: {
+    borderColor: '#EF4444',
   },
 });
