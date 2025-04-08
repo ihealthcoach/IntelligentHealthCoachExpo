@@ -137,6 +137,7 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
         startedAt: new Date().toISOString()
       }
     });
+  };
 
   const startWorkout = async () => {
     // Save current workout data
@@ -167,6 +168,7 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
         startedAt: new Date().toISOString()
       }
     });
+  };
 
   const renderExerciseItem = (exercise, index) => {
     // Calculate completed sets
