@@ -337,7 +337,7 @@ export default function WorkoutTrackingScreen({
                 setLastCompletedSetId(setId);
                 
                 // Trigger completion animation
-                setCompleteAnimation(new Animated.Value(0));
+                setCompleteAnimation.setValue(0);
                 Animated.timing(setCompleteAnimation, {
                   toValue: 1,
                   duration: 500,
@@ -1158,7 +1158,7 @@ export default function WorkoutTrackingScreen({
                       </TouchableOpacity>
                     </View>
                   </View>
-                </View>
+                  </Animated.View>
               );
             })}
           </View>
