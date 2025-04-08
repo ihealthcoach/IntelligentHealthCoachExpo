@@ -6,8 +6,16 @@ import {
   Workout, 
   WorkoutExercise, 
   ExerciseSet, 
-  WorkoutTemplate
+  WorkoutTemplate,
+  SupersetType,
+  WorkoutStatus
 } from '../types/workout';
+import {
+  Tables,
+  InsertTables,
+  WorkoutTemplate as SupabaseWorkoutTemplate,
+  TemplateExercise as SupabaseTemplateExercise
+} from '../types/supabase';
 
 // Keys for AsyncStorage
 const KEYS = {
@@ -68,7 +76,7 @@ class WorkoutService {
       const completedWorkout = {
         ...workout,
         completedAt: new Date().toISOString(),
-        status: 'completed'
+        status: 'completed' as WorkoutStatus
       };
 
       // Try to sync with Supabase first
@@ -146,17 +154,21 @@ class WorkoutService {
    */
   private async syncWorkoutToSupabase(workout: Workout): Promise<void> {
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
       // First insert the workout record
       const { data: workoutData, error: workoutError } = await supabase
         .from('workouts')
         .insert({
           id: workout.id || uuidv4(),
-          user_id: workout.userId,
+          user_id: user.id,
           name: workout.name,
-          date: workout.completedAt?.split('T')[0] || new Date().toISOString().split('T')[0],
           notes: workout.notes,
           duration: workout.duration,
-          completed: true
+          status: workout.status,
+          completed_at: workout.completedAt
         })
         .select()
         .single();
@@ -165,31 +177,36 @@ class WorkoutService {
 
       // Then insert each exercise
       for (const exercise of workout.exercises) {
-        const { data: exerciseData, error: exerciseError } = await supabase
+        const { data: exerciseDetailData, error: exerciseDetailError } = await supabase
           .from('workout_exercise_details')
           .insert({
             workout_id: workoutData.id,
             exercise_id: exercise.exerciseId,
-            order: workout.exercises.indexOf(exercise) + 1,
-            notes: exercise.notes
+            order: exercise.order !== undefined ? exercise.order : workout.exercises.indexOf(exercise),
+            notes: exercise.notes,
+            superset_id: exercise.supersetId,
+            superset_type: exercise.supersetType,
+            rest_between_sets: exercise.restBetweenSets
           })
           .select()
           .single();
 
-        if (exerciseError) throw exerciseError;
+        if (exerciseDetailError) throw exerciseDetailError;
 
         // Then insert each set
         for (const set of exercise.sets) {
           const { error: setError } = await supabase
             .from('workout_sets')
             .insert({
-              workout_exercise_id: exerciseData.id,
+              workout_exercise_details_id: exerciseDetailData.id,
               set_number: set.setNumber,
               reps: set.reps,
               weight: set.weight,
-              duration: null, // Add if implemented
-              distance: null, // Add if implemented
-              notes: null // Add if needed
+              duration: set.restAfter,
+              completed: set.isComplete,
+              rpe: set.rpe,
+              is_pr: set.isPR,
+              notes: null // Optional notes for the set
             });
 
           if (setError) throw setError;
@@ -259,40 +276,51 @@ class WorkoutService {
           const { data, error } = await supabase
             .from('workouts')
             .select(`
-              id, name, date, notes, duration, completed,
+              id, name, notes, duration, status, created_at, updated_at, completed_at,
               workout_exercise_details (
-                id, exercise_id, order, notes,
+                id, exercise_id, order, notes, superset_id, superset_type, rest_between_sets,
                 workout_sets (
-                  id, set_number, reps, weight, duration, distance, notes
+                  id, set_number, reps, weight, duration, distance, completed, rpe, is_pr, notes
                 )
               )
             `)
-            .eq('completed', true)
-            .order('date', { ascending: false });
+            .eq('status', 'completed')
+            .order('completed_at', { ascending: false });
 
           if (!error && data) {
             // Map Supabase data to our workout type
             const supabaseWorkouts: Workout[] = data.map(item => {
               return {
                 id: item.id,
-                name: item.name,
-                completedAt: item.date,
+                name: item.name || 'Workout',
                 notes: item.notes,
+                status: item.status as WorkoutStatus,
+                startedAt: item.created_at,
+                completedAt: item.completed_at,
                 duration: item.duration,
-                status: 'completed',
                 exercises: item.workout_exercise_details.map(detail => {
                   return {
                     id: detail.id,
                     exerciseId: detail.exercise_id,
                     name: 'Loading...', // We would need to get exercise details in a separate query
-                    notes: detail.notes,
+                    primaryMuscles: '',
+                    equipment: '',
+                    order: detail.order || 0,
+                    notes: detail.notes || '',
+                    supersetId: detail.superset_id,
+                    supersetType: detail.superset_type as SupersetType,
+                    restBetweenSets: detail.rest_between_sets,
                     sets: detail.workout_sets.map(set => {
                       return {
                         id: set.id,
-                        setNumber: set.set_number,
+                        setNumber: set.set_number || 0,
                         weight: set.weight,
                         reps: set.reps,
-                        isComplete: true
+                        isComplete: set.completed,
+                        rpe: set.rpe,
+                        isPR: set.is_pr,
+                        duration: set.duration,
+                        distance: set.distance
                       };
                     }),
                     isExpanded: false
@@ -300,6 +328,29 @@ class WorkoutService {
                 })
               };
             });
+
+            // Get exercise details for each workout
+            for (const workout of supabaseWorkouts) {
+              for (const exercise of workout.exercises) {
+                if (exercise.exerciseId) {
+                  try {
+                    const { data: exerciseData, error: exerciseError } = await supabase
+                      .from('exercises')
+                      .select('name, primary_muscles, equipment')
+                      .eq('id', exercise.exerciseId)
+                      .single();
+                    
+                    if (!exerciseError && exerciseData) {
+                      exercise.name = exerciseData.name || 'Unknown';
+                      exercise.primaryMuscles = exerciseData.primary_muscles || '';
+                      exercise.equipment = exerciseData.equipment || '';
+                    }
+                  } catch (err) {
+                    console.error(`Error fetching exercise details for ${exercise.exerciseId}:`, err);
+                  }
+                }
+              }
+            }
 
             // Merge remote and local history, prioritizing remote
             // This is a simple approach - a more sophisticated merge might be needed
@@ -314,7 +365,9 @@ class WorkoutService {
 
             // Sort by completion date
             mergedHistory.sort((a, b) => {
-              return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+              const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+              const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+              return dateB - dateA;
             });
 
             // Update local cache
@@ -338,40 +391,62 @@ class WorkoutService {
   /**
    * Save a workout as a template
    */
-  async saveWorkoutTemplate(workout: Workout): Promise<void> {
+  async saveWorkoutTemplate(workout: Workout, templateInfo: {
+    name: string;
+    description?: string;
+    category?: string;
+    split?: string;
+    difficulty?: string;
+    tags?: string[];
+  }): Promise<void> {
     try {
-      // Create template object
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      // Create template object for local storage
       const template: WorkoutTemplate = {
         id: uuidv4(),
-        name: workout.name,
-        description: workout.notes || '',
+        name: templateInfo.name,
+        description: templateInfo.description || '',
         createdAt: new Date().toISOString(),
-        exercises: workout.exercises.map(exercise => ({
-          id: exercise.id,
+        lastUsed: null,
+        exercises: workout.exercises.map((exercise, index) => ({
+          id: uuidv4(),
           exerciseId: exercise.exerciseId,
           name: exercise.name,
           primaryMuscles: exercise.primaryMuscles,
           equipment: exercise.equipment,
           sets: exercise.sets.length,
-          order: workout.exercises.indexOf(exercise)
-        }))
+          order: exercise.order !== undefined ? exercise.order : index,
+          restBetweenSets: exercise.restBetweenSets,
+          supersetId: exercise.supersetId,
+          supersetType: exercise.supersetType
+        })),
+        category: templateInfo.category,
+        split: templateInfo.split,
+        difficulty: templateInfo.difficulty,
+        tags: templateInfo.tags,
+        isDefault: false
       };
 
-      // Get existing templates
+      // Get existing templates from local storage
       const templatesJson = await AsyncStorage.getItem(KEYS.WORKOUT_TEMPLATES);
       const templates = templatesJson ? JSON.parse(templatesJson) : [];
       
       // Add new template
       templates.push(template);
       
-      // Save updated templates
+      // Save updated templates to local storage
       await AsyncStorage.setItem(KEYS.WORKOUT_TEMPLATES, JSON.stringify(templates));
 
       // If online, sync with Supabase
       const isConnected = await this.checkConnectivity();
       if (isConnected) {
-        await this.syncTemplateToSupabase(template);
+        await this.syncTemplateToSupabase(template, user.id);
       }
+
+      return;
     } catch (error) {
       console.error('Error saving workout template:', error);
       throw error;
@@ -381,29 +456,49 @@ class WorkoutService {
   /**
    * Sync a template to Supabase
    */
-  private async syncTemplateToSupabase(template: WorkoutTemplate): Promise<void> {
+  private async syncTemplateToSupabase(template: WorkoutTemplate, userId: string): Promise<void> {
     try {
-      // Get the current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
       // Insert template record
-      const { data, error } = await supabase
+      const { data: templateData, error: templateError } = await supabase
         .from('workout_templates')
         .insert({
           id: template.id,
-          user_id: user.id,
+          user_id: userId,
           name: template.name,
           description: template.description,
-          created_at: template.createdAt
+          created_at: template.createdAt,
+          last_used: template.lastUsed,
+          category: template.category,
+          split: template.split,
+          difficulty: template.difficulty,
+          tags: template.tags,
+          is_default: template.isDefault
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (templateError) throw templateError;
 
-      // We would need additional tables for template exercises
-      // This is a simplified version
+      // Insert template exercises
+      for (const exercise of template.exercises) {
+        const { error: exerciseError } = await supabase
+          .from('template_exercises')
+          .insert({
+            id: exercise.id,
+            template_id: template.id,
+            exercise_id: exercise.exerciseId,
+            name: exercise.name,
+            primary_muscles: exercise.primaryMuscles,
+            equipment: exercise.equipment,
+            sets: exercise.sets,
+            order: exercise.order,
+            rest_between_sets: exercise.restBetweenSets,
+            superset_id: exercise.supersetId,
+            superset_type: exercise.supersetType
+          });
+
+        if (exerciseError) throw exerciseError;
+      }
     } catch (error) {
       console.error('Error syncing template to Supabase:', error);
       throw error;
@@ -415,9 +510,99 @@ class WorkoutService {
    */
   async getWorkoutTemplates(): Promise<WorkoutTemplate[]> {
     try {
-      // Get from AsyncStorage
+      // Get local templates
       const templatesJson = await AsyncStorage.getItem(KEYS.WORKOUT_TEMPLATES);
-      return templatesJson ? JSON.parse(templatesJson) : [];
+      let localTemplates = templatesJson ? JSON.parse(templatesJson) : [];
+
+      // If online, try to sync with Supabase
+      const isConnected = await this.checkConnectivity();
+      if (isConnected) {
+        try {
+          // Get the current user
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error('No user found');
+
+          // Fetch templates from Supabase
+          const { data: templateData, error: templateError } = await supabase
+            .from('workout_templates')
+            .select(`
+              id, name, description, created_at, last_used, category, split, 
+              estimated_duration, difficulty, tags, is_default
+            `)
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+          if (templateError) throw templateError;
+
+          if (templateData) {
+            // For each template, get its exercises
+            const remoteTemplates: WorkoutTemplate[] = [];
+
+            for (const template of templateData) {
+              // Fetch exercises for this template
+              const { data: exercisesData, error: exercisesError } = await supabase
+                .from('template_exercises')
+                .select('*')
+                .eq('template_id', template.id)
+                .order('order', { ascending: true });
+
+              if (exercisesError) {
+                console.error(`Error fetching exercises for template ${template.id}:`, exercisesError);
+                continue;
+              }
+
+              // Map to our app's type structure
+              const mappedTemplate: WorkoutTemplate = {
+                id: template.id,
+                name: template.name,
+                description: template.description || '',
+                createdAt: template.created_at,
+                lastUsed: template.last_used,
+                category: template.category,
+                split: template.split,
+                estimatedDuration: template.estimated_duration,
+                difficulty: template.difficulty,
+                tags: template.tags,
+                isDefault: template.is_default,
+                exercises: exercisesData.map(ex => ({
+                  id: ex.id,
+                  exerciseId: ex.exercise_id,
+                  name: ex.name,
+                  primaryMuscles: ex.primary_muscles || '',
+                  equipment: ex.equipment || '',
+                  sets: ex.sets,
+                  order: ex.order,
+                  restBetweenSets: ex.rest_between_sets,
+                  supersetId: ex.superset_id,
+                  supersetType: ex.superset_type
+                }))
+              };
+
+              remoteTemplates.push(mappedTemplate);
+            }
+
+            // Merge remote and local templates, prioritizing remote
+            const mergedTemplates = [...remoteTemplates];
+            
+            // Add local templates that aren't in the remote data
+            localTemplates.forEach(localTemplate => {
+              if (!mergedTemplates.some(remoteTemplate => remoteTemplate.id === localTemplate.id)) {
+                mergedTemplates.push(localTemplate);
+              }
+            });
+
+            // Update local storage with merged data
+            await AsyncStorage.setItem(KEYS.WORKOUT_TEMPLATES, JSON.stringify(mergedTemplates));
+            
+            return mergedTemplates;
+          }
+        } catch (error) {
+          console.error('Error fetching templates from Supabase:', error);
+          // Fall back to local templates
+        }
+      }
+
+      return localTemplates;
     } catch (error) {
       console.error('Error getting workout templates:', error);
       return [];
@@ -437,45 +622,72 @@ class WorkoutService {
         throw new Error('Template not found');
       }
 
-      // Build exercise objects for the new workout
-      const exercises: WorkoutExercise[] = await Promise.all(
-        template.exercises.map(async (templateExercise) => {
-          // Get full exercise details from DB if possible
-          // For now, just using template data
-          return {
-            id: uuidv4(),
-            exerciseId: templateExercise.exerciseId,
-            name: templateExercise.name,
-            primaryMuscles: templateExercise.primaryMuscles,
-            equipment: templateExercise.equipment,
-            sets: Array.from({ length: templateExercise.sets }, (_, i) => ({
-              id: uuidv4(),
-              setNumber: i + 1,
-              weight: null,
-              reps: null,
-              isComplete: false
-            })),
-            notes: '',
-            isExpanded: true
-          };
-        })
-      );
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
 
-      // Sort exercises by original order
-      exercises.sort((a, b) => {
-        const aTemplateEx = template.exercises.find(te => te.exerciseId === a.exerciseId);
-        const bTemplateEx = template.exercises.find(te => te.exerciseId === b.exerciseId);
-        return (aTemplateEx?.order || 0) - (bTemplateEx?.order || 0);
+      // Update template's last used timestamp if online
+      const isConnected = await this.checkConnectivity();
+      if (isConnected) {
+        try {
+          const lastUsed = new Date().toISOString();
+          
+          await supabase
+            .from('workout_templates')
+            .update({ last_used: lastUsed })
+            .eq('id', templateId);
+            
+          // Also update in the local template
+          template.lastUsed = lastUsed;
+          
+          // Update templates in local storage
+          const templatesJson = await AsyncStorage.getItem(KEYS.WORKOUT_TEMPLATES);
+          let templates = templatesJson ? JSON.parse(templatesJson) : [];
+          
+          templates = templates.map(t => t.id === templateId ? {...t, lastUsed} : t);
+          
+          await AsyncStorage.setItem(KEYS.WORKOUT_TEMPLATES, JSON.stringify(templates));
+        } catch (err) {
+          // Non-critical error, just log it
+          console.error('Error updating template last_used:', err);
+        }
+      }
+
+      // Build exercise objects for the new workout
+      const exercises: WorkoutExercise[] = template.exercises.map(templateExercise => {
+        return {
+          id: uuidv4(),
+          exerciseId: templateExercise.exerciseId,
+          name: templateExercise.name,
+          primaryMuscles: templateExercise.primaryMuscles || '',
+          equipment: templateExercise.equipment || '',
+          order: templateExercise.order,
+          supersetId: templateExercise.supersetId,
+          supersetType: templateExercise.supersetType,
+          restBetweenSets: templateExercise.restBetweenSets,
+          sets: Array.from({ length: templateExercise.sets }, (_, i) => ({
+            id: uuidv4(),
+            setNumber: i + 1,
+            weight: null,
+            reps: null,
+            isComplete: false
+          })),
+          notes: '',
+          isExpanded: true
+        };
       });
 
       // Create new workout
       const newWorkout: Workout = {
         id: uuidv4(),
+        userId: user.id,
         name: template.name,
-        notes: template.description,
+        notes: template.description || '',
         startedAt: new Date().toISOString(),
         exercises,
-        status: 'in_progress'
+        status: 'not_started' as WorkoutStatus,
+        duration: 0,
+        plannedDuration: template.estimatedDuration
       };
 
       // Save as current workout
@@ -484,6 +696,36 @@ class WorkoutService {
       return newWorkout;
     } catch (error) {
       console.error('Error creating workout from template:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a workout template
+   */
+  async deleteWorkoutTemplate(templateId: string): Promise<void> {
+    try {
+      // Get existing templates
+      const templatesJson = await AsyncStorage.getItem(KEYS.WORKOUT_TEMPLATES);
+      let templates = templatesJson ? JSON.parse(templatesJson) : [];
+      
+      // Filter out the template to be deleted
+      templates = templates.filter(template => template.id !== templateId);
+      
+      // Save updated templates
+      await AsyncStorage.setItem(KEYS.WORKOUT_TEMPLATES, JSON.stringify(templates));
+      
+      // If online, delete from Supabase
+      const isConnected = await this.checkConnectivity();
+      if (isConnected) {
+        // Supabase will automatically delete template_exercises due to CASCADE
+        await supabase
+          .from('workout_templates')
+          .delete()
+          .eq('id', templateId);
+      }
+    } catch (error) {
+      console.error('Error deleting workout template:', error);
       throw error;
     }
   }
@@ -548,4 +790,5 @@ class WorkoutService {
   }
 }
 
+// Export a singleton instance of the service
 export const workoutService = new WorkoutService();
