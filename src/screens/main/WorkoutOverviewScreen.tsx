@@ -73,6 +73,9 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
   const [templateDetailsVisible, setTemplateDetailsVisible] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
+  const [templateCategory, setTemplateCategory] = useState<string | null>(null);
   
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -297,15 +300,12 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
     }
   };
   
-  // Save workout as template
-  const saveAsTemplate = () => {
-    setSaveAsTemplateModalVisible(true);
+// Save workout as template
+const saveAsTemplate = async () => {
+    setSaveAsTemplateModalVisible(false);
     if (!workout) return;
     
     try {
-      // Close the modal
-      setSaveAsTemplateModalVisible(false);
-      
       // Check if name is provided
       if (!templateName.trim()) {
         Alert.alert('Template Name Required', 'Please provide a name for your template.');
@@ -323,7 +323,11 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
       };
       
       // Save as template using the service
-      await workoutService.saveWorkoutTemplate(templateWorkout);
+      await workoutService.saveWorkoutTemplate(templateWorkout, {
+        name: templateName,
+        description: templateDescription,
+        category: templateCategory || undefined
+      });
       
       // Show success message
       Alert.alert('Success', 'Workout saved as template');

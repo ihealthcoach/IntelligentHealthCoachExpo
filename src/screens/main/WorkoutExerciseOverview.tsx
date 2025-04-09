@@ -19,6 +19,7 @@ import {
   XIcon 
 } from 'lucide-react-native';
 import { MainStackScreenProps } from '../../types/navigation';
+import { WorkoutExercise, Workout } from '../../types/workout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Types for workout exercises
@@ -43,8 +44,9 @@ type WorkoutExercise = {
   order: number;
 };
 
-export default function WorkoutExerciseOverview({ navigation }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
+export default function WorkoutExerciseOverview({ navigation, route }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
   const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
+  const [workout, setWorkout] = useState<Workout | null>(null);
   const [workoutName, setWorkoutName] = useState<string>('Workout');
   const [loading, setLoading] = useState(true);
   const [workoutStarted, setWorkoutStarted] = useState(false);
@@ -56,23 +58,40 @@ export default function WorkoutExerciseOverview({ navigation }: MainStackScreenP
   const loadWorkoutData = async () => {
     try {
       setLoading(true);
-      // Try to load from AsyncStorage
-      const savedWorkout = await AsyncStorage.getItem('current_workout');
       
-      if (savedWorkout) {
-        const parsedWorkout = JSON.parse(savedWorkout);
-        setWorkoutName(parsedWorkout.name || 'Workout');
-        setExercises(parsedWorkout.exercises || []);
+      // Check for workoutId param
+      const workoutId = route.params?.workoutId;
+      
+      if (workoutId) {
+        // This logic needs implementation to fetch workout by ID
+        // For now, just log that we have an ID
+        console.log('Have workoutId:', workoutId);
         
-        // Check if workout has been started by seeing if any sets are completed
-        const hasStarted = parsedWorkout.exercises?.some(exercise => 
-          exercise.sets?.some(set => set.isComplete)
-        );
-        setWorkoutStarted(hasStarted);
+        // You need to implement how to get a workout by ID
+        // For example:
+        // const workoutData = await workoutService.getWorkoutById(workoutId);
+        // setWorkout(workoutData);
+        // setWorkoutName(workoutData.name || 'New Workout');
       } else {
-        // If no saved workout exists, initialize with empty array
-        setExercises([]);
-        setWorkoutStarted(false);
+        // Try to load from AsyncStorage
+        const savedWorkout = await AsyncStorage.getItem('current_workout');
+        
+        if (savedWorkout) {
+          const parsedWorkout = JSON.parse(savedWorkout);
+          setWorkout(parsedWorkout);
+          setWorkoutName(parsedWorkout.name || 'Workout');
+          setExercises(parsedWorkout.exercises || []);
+          
+          // Check if workout has been started by seeing if any sets are completed
+          const hasStarted = parsedWorkout.exercises?.some(exercise => 
+            exercise.sets?.some(set => set.isComplete)
+          );
+          setWorkoutStarted(hasStarted);
+        } else {
+          // If no saved workout exists, initialize with empty array
+          setExercises([]);
+          setWorkoutStarted(false);
+        }
       }
     } catch (error) {
       console.error('Error loading workout data:', error);
