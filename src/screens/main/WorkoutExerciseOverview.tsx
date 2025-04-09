@@ -19,33 +19,11 @@ import {
   XIcon 
 } from 'lucide-react-native';
 import { MainStackScreenProps } from '../../types/navigation';
-import { WorkoutExercise, Workout } from '../../types/workout';
+import { Workout, WorkoutExercise as WorkoutExerciseType, WorkoutStatus } from '../../types/workout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Types for workout exercises
-type ExerciseSet = {
-  id: string;
-  setNumber: number;
-  weight: number | null;
-  reps: number | null;
-  isComplete: boolean;
-};
-
-type WorkoutExercise = {
-  id: string;
-  exerciseId: string;
-  name: string;
-  primaryMuscles: string;
-  equipment: string;
-  sets: ExerciseSet[];
-  notes: string;
-  isExpanded: boolean;
-  completed?: boolean;
-  order: number;
-};
-
 export default function WorkoutExerciseOverview({ navigation, route }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
-  const [exercises, setExercises] = useState<WorkoutExercise[]>([]);
+  const [exercises, setExercises] = useState<WorkoutExerciseType[]>([]);
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [workoutName, setWorkoutName] = useState<string>('Workout');
   const [loading, setLoading] = useState(true);
