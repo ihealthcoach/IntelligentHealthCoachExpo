@@ -31,8 +31,9 @@ import ProfileScreen from '../screens/main/ProfileScreen';
 import ExercisesScreen from '../screens/main/ExercisesScreen';
 
 // Enhanced screens (new implementations)
-import EnhancedWorkoutOverviewScreen from '../screens/main/WorkoutOverviewScreen';
-import EnhancedWorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
+import WorkoutOverviewScreen from '../screens/main/WorkoutOverviewScreen';
+// import WorkoutExerciseOverviewScreen from '../screens/main/WorkoutOverviewScreen';
+import WorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
 import WorkoutHistoryScreen from '../screens/main/WorkoutHistoryScreen';
 import ExerciseDetailScreen from '../screens/main/ExerciseDetailScreen';
 
@@ -107,11 +108,11 @@ const MainNavigator = () => (
     />
     <MainStack.Screen 
       name="WorkoutExerciseOverview" 
-      component={EnhancedWorkoutOverviewScreen}
+      component={WorkoutOverviewScreen}  // Using the enhanced implementation
     />
     <MainStack.Screen 
       name="WorkoutTracking" 
-      component={EnhancedWorkoutTrackingScreen}
+      component={WorkoutTrackingScreen}
     />
     <MainStack.Screen 
       name="ExerciseDetail" 

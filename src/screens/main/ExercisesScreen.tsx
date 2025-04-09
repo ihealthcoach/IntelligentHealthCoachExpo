@@ -26,6 +26,7 @@ import {
   ChevronDown,
   Filter
 } from 'lucide-react-native';
+import { workoutService } from '../../services/workoutService';
 import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,6 +51,7 @@ type Exercise = {
 };
 
 // Mock exercises for development
+/*
 const mockExercises: Exercise[] = [
   {
     id: '1',
@@ -292,6 +294,7 @@ const mockExercises: Exercise[] = [
     target: 'Hamstrings',
   },
 ];
+*/
 
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
   const [activeFilter, setActiveFilter] = useState('A-Z');
@@ -322,9 +325,8 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   ];
 
   useEffect(() => {
-    loadMockExercises();
-    // correct code below
-    // fetchExercises();
+    fetchExercises();
+    workoutService.cacheExerciseLibrary();
   }, []);
 
   useEffect(() => {
@@ -335,6 +337,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   }, [searchQuery, activeFilter]);
 
   // Mock data start
+  /*
   const loadMockExercises = () => {
     try {
       setLoading(true);
@@ -379,23 +382,19 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       setLoading(false);
     }
   };
+  */
   // Mock data end
 
-   // Original Supabase fetch function (commented out)
   const fetchExercises = async () => {
-    /* try {
+    try {
       setLoading(true);
-      let query = supabase.from('exercises').select('*');
       
-      const { data, error } = await query;
+      // Use the workout service to get exercises with caching support
+      const exerciseData = await workoutService.getExerciseLibrary();
       
-      if (error) {
-        throw error;
-      }
-      
-      if (data) {
-        // Mark some exercises as added for UI purposes (later this will be from real data)
-        const processedData = data.map((exercise) => ({
+      if (exerciseData && exerciseData.length > 0) {
+        // Process the data as before
+        const processedData = exerciseData.map((exercise) => ({
           ...exercise,
           selected: false,
           added: false
@@ -406,6 +405,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         
         // Organize exercises by first letter
         organizeExercisesByLetter(processedData as Exercise[]);
+        
         // Track which letters have exercises
         const letters: Record<string, boolean> = {};
         alphabet.forEach(letter => {
@@ -421,13 +421,20 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
           }
         });
         setAvailableLetters(letters);
+      } else {
+        // If no data available, set empty arrays
+        setExercises([]);
+        setFilteredExercises([]);
+        setAvailableLetters({});
+        // Show appropriate message to user
+        setError('No exercises available. Please check your connection and try again.');
       }
     } catch (err) {
       console.error('Error fetching exercises:', err);
       setError('Failed to fetch exercises. Please try again later.');
     } finally {
       setLoading(false);
-    } */
+    }
   };
 
   const applyFilters = () => {
@@ -697,22 +704,22 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
           </TouchableOpacity>
           
           <TouchableOpacity 
-          style={styles.viewWorkoutButton}
-          onPress={() => navigation.navigate('WorkoutExerciseOverview')}
-        >
-          <Text style={styles.viewWorkoutText}>View workout</Text>
-          <ChevronDown size={18} color="#000" />
-        </TouchableOpacity>
+  style={styles.viewWorkoutButton}
+  onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+>
+  <Text style={styles.viewWorkoutText}>View workout</Text>
+  <ChevronDown size={18} color="#000" />
+</TouchableOpacity>
         </View>
         
         <View style={styles.headerRight}>
-          <TouchableOpacity 
-          style={styles.doneButton}
-          onPress={() => navigation.navigate('WorkoutExerciseOverview')}
-        >
-          <Text style={styles.doneButtonText}>Done</Text>
-          <Check size={18} color="#fff" />
-        </TouchableOpacity>
+        <TouchableOpacity 
+  style={styles.doneButton}
+  onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+>
+  <Text style={styles.doneButtonText}>Done</Text>
+  <Check size={18} color="#fff" />
+</TouchableOpacity>
         </View>
       </View>
       

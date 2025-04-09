@@ -1,3 +1,7 @@
+// [REFERENCE ONLY] - This file is kept for reference purposes only.
+// The active implementation is in WorkoutOverviewScreen.tsx
+// This file should not be imported anywhere in the project.
+
 import React, { useState, useEffect } from 'react';
 import { 
   View, 

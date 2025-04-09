@@ -29,19 +29,23 @@ const KEYS = {
  * Service to handle all workout-related data operations
  */
 class WorkoutService {
-  /**
-   * Loads the current workout from AsyncStorage
-   */
-  async getCurrentWorkout(): Promise<Workout | null> {
-    try {
-      const workoutJson = await AsyncStorage.getItem(KEYS.CURRENT_WORKOUT);
-      if (!workoutJson) return null;
-      return JSON.parse(workoutJson);
-    } catch (error) {
-      console.error('Error loading current workout:', error);
-      return null;
-    }
+/**
+ * Loads the current workout from AsyncStorage and enriches with exercise details
+ */
+async getCurrentWorkout(): Promise<Workout | null> {
+  try {
+    const workoutJson = await AsyncStorage.getItem(KEYS.CURRENT_WORKOUT);
+    if (!workoutJson) return null;
+    
+    const workout = JSON.parse(workoutJson);
+    
+    // Enrich with complete exercise details
+    return await this.enrichWorkoutWithExerciseDetails(workout);
+  } catch (error) {
+    console.error('Error loading current workout:', error);
+    return null;
   }
+}
 
   /**
    * Saves the current workout to AsyncStorage
@@ -218,47 +222,78 @@ class WorkoutService {
     }
   }
 
-  /**
-   * Try to sync any pending workouts in the background
-   */
-  async syncPendingWorkouts(): Promise<void> {
-    try {
-      const isConnected = await this.checkConnectivity();
-      if (!isConnected) return; // Skip if offline
-
-      // Get pending syncs
-      const pendingSyncsJson = await AsyncStorage.getItem(KEYS.PENDING_SYNCS);
-      if (!pendingSyncsJson) return; // No pending syncs
-      
-      const pendingSyncs = JSON.parse(pendingSyncsJson);
-      if (pendingSyncs.length === 0) return; // Empty array
-
-      // Track successful syncs
-      const successfulSyncs = [];
-
-      // Try to sync each pending workout
-      for (const workout of pendingSyncs) {
-        try {
-          await this.syncWorkoutToSupabase(workout);
-          successfulSyncs.push(workout.id);
-        } catch (error) {
-          console.error(`Error syncing workout ${workout.id}:`, error);
-          // Continue with next workout
-        }
-      }
-
-      // Remove successfully synced workouts from pending
-      if (successfulSyncs.length > 0) {
-        const remainingPendingSyncs = pendingSyncs.filter(
-          workout => !successfulSyncs.includes(workout.id)
-        );
-        await AsyncStorage.setItem(KEYS.PENDING_SYNCS, JSON.stringify(remainingPendingSyncs));
-      }
-    } catch (error) {
-      console.error('Error syncing pending workouts:', error);
-      // Don't throw - this runs in background
+/**
+ * Try to sync any pending workouts in the background
+ * @returns Promise that resolves when sync attempt is complete
+ */
+async syncPendingWorkouts(): Promise<void> {
+  try {
+    // Check if online first
+    const isConnected = await this.checkConnectivity();
+    if (!isConnected) {
+      console.log('Cannot sync - device is offline');
+      return;
     }
+
+    // Get pending syncs
+    const pendingSyncsJson = await AsyncStorage.getItem(KEYS.PENDING_SYNCS);
+    if (!pendingSyncsJson) {
+      console.log('No pending syncs found');
+      return;
+    }
+    
+    let pendingSyncs = JSON.parse(pendingSyncsJson);
+    if (pendingSyncs.length === 0) {
+      console.log('Pending syncs array is empty');
+      return;
+    }
+
+    console.log(`Found ${pendingSyncs.length} pending workout(s) to sync`);
+    
+    // Track successful syncs and failures
+    const successfulSyncs: string[] = [];
+    const failedSyncs: string[] = [];
+
+    // Try to sync each pending workout
+    for (const workout of pendingSyncs) {
+      try {
+        console.log(`Syncing workout: ${workout.id}`);
+        await this.syncWorkoutToSupabase(workout);
+        successfulSyncs.push(workout.id);
+        console.log(`Successfully synced workout: ${workout.id}`);
+      } catch (error) {
+        console.error(`Error syncing workout ${workout.id}:`, error);
+        failedSyncs.push(workout.id);
+        // Continue with next workout
+      }
+    }
+
+    // Report sync results
+    console.log(`Sync results: ${successfulSyncs.length} succeeded, ${failedSyncs.length} failed`);
+    
+    // Remove successfully synced workouts from pending
+    if (successfulSyncs.length > 0) {
+      const remainingPendingSyncs = pendingSyncs.filter(
+        workout => !successfulSyncs.includes(workout.id)
+      );
+      
+      if (remainingPendingSyncs.length === 0) {
+        // If all synced successfully, remove the key entirely
+        await AsyncStorage.removeItem(KEYS.PENDING_SYNCS);
+        console.log('All workouts synced - removed pending syncs key');
+      } else {
+        // Otherwise update with remaining workouts
+        await AsyncStorage.setItem(KEYS.PENDING_SYNCS, JSON.stringify(remainingPendingSyncs));
+        console.log(`Updated pending syncs: ${remainingPendingSyncs.length} remaining`);
+      }
+    }
+    
+    // If there were failures, we could potentially schedule a retry later
+  } catch (error) {
+    console.error('Error syncing pending workouts:', error);
+    // Don't throw - this runs in background
   }
+}
 
   /**
    * Get workout history
@@ -268,7 +303,7 @@ class WorkoutService {
       // Try to get from AsyncStorage first
       const historyJson = await AsyncStorage.getItem(KEYS.WORKOUT_HISTORY);
       let history = historyJson ? JSON.parse(historyJson) : [];
-
+  
       // If online, try to sync with Supabase to get latest
       const isConnected = await this.checkConnectivity();
       if (isConnected) {
@@ -381,7 +416,11 @@ class WorkoutService {
         }
       }
 
-      return history;
+      const enrichedLocalHistory = await Promise.all(
+        history.map(workout => this.enrichWorkoutWithExerciseDetails(workout))
+      );
+      
+      return enrichedLocalHistory;
     } catch (error) {
       console.error('Error getting workout history:', error);
       return [];
@@ -654,17 +693,22 @@ class WorkoutService {
       }
 
       // Build exercise objects for the new workout
-      const exercises: WorkoutExercise[] = template.exercises.map(templateExercise => {
+      const exercises: WorkoutExercise[] = await Promise.all(template.exercises.map(async templateExercise => {
+        // Fetch complete exercise details if available
+        const exerciseDetails = await this.getExerciseDetails(templateExercise.exerciseId);
         return {
           id: uuidv4(),
           exerciseId: templateExercise.exerciseId,
-          name: templateExercise.name,
-          primaryMuscles: templateExercise.primaryMuscles || '',
-          equipment: templateExercise.equipment || '',
+          name: exerciseDetails?.name || templateExercise.name,
+          primaryMuscles: exerciseDetails?.primary_muscles || templateExercise.primaryMuscles || '',
+          equipment: exerciseDetails?.equipment || templateExercise.equipment || '',
           order: templateExercise.order,
           supersetId: templateExercise.supersetId,
           supersetType: templateExercise.supersetType,
           restBetweenSets: templateExercise.restBetweenSets,
+          targetMuscleGroups: exerciseDetails?.target ? [exerciseDetails.target] : undefined,
+          description: exerciseDetails?.description,
+          instructions: exerciseDetails?.instructions,
           sets: Array.from({ length: templateExercise.sets }, (_, i) => ({
             id: uuidv4(),
             setNumber: i + 1,
@@ -675,7 +719,7 @@ class WorkoutService {
           notes: '',
           isExpanded: true
         };
-      });
+      }));
 
       // Create new workout
       const newWorkout: Workout = {
@@ -788,6 +832,200 @@ class WorkoutService {
     }
     return weight * (36 / (37 - reps));
   }
+
+/**
+ * Fetch complete exercise details by ID
+ * @param exerciseId The ID of the exercise to fetch
+ * @returns Complete exercise data or null if not found
+ */
+async getExerciseDetails(exerciseId: string): Promise<any | null> {
+  try {
+    // First try to get from Supabase if online
+    const isConnected = await this.checkConnectivity();
+    
+    if (isConnected) {
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .eq('id', exerciseId)
+        .single();
+        
+      if (error) {
+        console.error('Error fetching exercise details:', error);
+      }
+      
+      if (data) {
+        // Cache the result in AsyncStorage for offline use
+        try {
+          const exercisesCache = await AsyncStorage.getItem('exercise_details_cache') || '{}';
+          const cache = JSON.parse(exercisesCache);
+          cache[exerciseId] = {
+            data,
+            timestamp: Date.now()
+          };
+          await AsyncStorage.setItem('exercise_details_cache', JSON.stringify(cache));
+        } catch (cacheError) {
+          console.error('Error caching exercise data:', cacheError);
+        }
+        
+        return data;
+      }
+    }
+    
+    // If offline or Supabase fetch failed, try to get from cache
+    try {
+      const exercisesCache = await AsyncStorage.getItem('exercise_details_cache') || '{}';
+      const cache = JSON.parse(exercisesCache);
+      
+      if (cache[exerciseId]) {
+        console.log(`Using cached data for exercise ${exerciseId}`);
+        return cache[exerciseId].data;
+      }
+    } catch (cacheError) {
+      console.error('Error reading exercise cache:', cacheError);
+    }
+    
+    // If we got here, we couldn't get the data
+    return null;
+  } catch (error) {
+    console.error(`Error in getExerciseDetails for ${exerciseId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Enriches a workout with complete exercise details
+ * @param workout Workout to enrich
+ * @returns Promise resolving to enriched workout
+ */
+async enrichWorkoutWithExerciseDetails(workout: Workout): Promise<Workout> {
+  if (!workout || !workout.exercises) return workout;
+  
+  // Create a new workout object to avoid mutating the input
+  const enrichedWorkout = { ...workout };
+  
+  // Process each exercise in parallel for efficiency
+  const enrichedExercises = await Promise.all(
+    workout.exercises.map(async (exercise) => {
+      // Skip if already has complete data or no exerciseId
+      if (!exercise.exerciseId) return exercise;
+      
+      // Fetch complete details
+      const details = await this.getExerciseDetails(exercise.exerciseId);
+      
+      if (details) {
+        return {
+          ...exercise,
+          name: details.name || exercise.name,
+          primaryMuscles: details.primary_muscles || exercise.primaryMuscles,
+          equipment: details.equipment || exercise.equipment,
+          targetMuscleGroups: details.target ? [details.target] : undefined,
+          description: details.description,
+          instructions: details.instructions,
+          // Any other fields we want to include
+        };
+      }
+      
+      return exercise;
+    })
+  );
+  
+  enrichedWorkout.exercises = enrichedExercises;
+  return enrichedWorkout;
+}
+
+/**
+ * Cache the full exercise library for offline use
+ * @returns Promise that resolves when caching is complete
+ */
+async cacheExerciseLibrary(): Promise<void> {
+  try {
+    const isConnected = await this.checkConnectivity();
+    if (!isConnected) {
+      console.log('Cannot cache exercise library - device is offline');
+      return;
+    }
+    
+    console.log('Caching exercise library...');
+    
+    // Fetch all exercises from Supabase
+    const { data, error } = await supabase
+      .from('exercises')
+      .select('*');
+      
+    if (error) {
+      console.error('Error fetching exercises for caching:', error);
+      return;
+    }
+    
+    if (!data || data.length === 0) {
+      console.log('No exercises found to cache');
+      return;
+    }
+    
+    // Save to AsyncStorage
+    await AsyncStorage.setItem('exercise_library_cache', JSON.stringify({
+      timestamp: Date.now(),
+      exercises: data
+    }));
+    
+    console.log(`Successfully cached ${data.length} exercises`);
+  } catch (error) {
+    console.error('Error caching exercise library:', error);
+  }
+}
+
+/**
+ * Get exercise library - tries Supabase first, falls back to cache
+ * @returns Array of exercises
+ */
+async getExerciseLibrary(): Promise<any[]> {
+  try {
+    // Try to get from Supabase if online
+    const isConnected = await this.checkConnectivity();
+    
+    if (isConnected) {
+      try {
+        const { data, error } = await supabase
+          .from('exercises')
+          .select('*');
+          
+        if (error) {
+          console.error('Error fetching exercise library:', error);
+        } else if (data && data.length > 0) {
+          // Update cache with fresh data
+          await AsyncStorage.setItem('exercise_library_cache', JSON.stringify({
+            timestamp: Date.now(),
+            exercises: data
+          }));
+          
+          return data;
+        }
+      } catch (onlineError) {
+        console.error('Error accessing Supabase for exercise library:', onlineError);
+      }
+    }
+    
+    // If we're here, either offline or Supabase failed
+    // Try to get from cache
+    try {
+      const cacheJson = await AsyncStorage.getItem('exercise_library_cache');
+      if (cacheJson) {
+        const cache = JSON.parse(cacheJson);
+        console.log(`Using cached exercise library from ${new Date(cache.timestamp).toLocaleString()}`);
+        return cache.exercises || [];
+      }
+    } catch (cacheError) {
+      console.error('Error reading exercise library cache:', cacheError);
+    }
+    
+    // If all else fails, return empty array
+    return [];
+  } catch (error) {
+    console.error('Error in getExerciseLibrary:', error);
+    return [];
+  }
+}
 }
 
 // Export a singleton instance of the service
