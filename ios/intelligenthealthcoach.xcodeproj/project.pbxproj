@@ -11,8 +11,8 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		44B987C0B282740CD9D6FA89 /* libPods-intelligenthealthcoach.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACE7301704703B6864E2C555 /* libPods-intelligenthealthcoach.a */; };
 		4B1930F6DCF64EB4ACC15A8B /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CFA661FF23C4097A68CA705 /* noop-file.swift */; };
+		5CB948B83511C3C26BF95E0A /* libPods-intelligenthealthcoach.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBE6EF03FEA9E924DFABA9FC /* libPods-intelligenthealthcoach.a */; };
 		7D3FD891FC6CDC2E54B0E7D5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1A313F24EFA22AB6C1408D89 /* PrivacyInfo.xcprivacy */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -27,11 +27,11 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = intelligenthealthcoach/main.m; sourceTree = "<group>"; };
 		1A313F24EFA22AB6C1408D89 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = intelligenthealthcoach/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		1CFA661FF23C4097A68CA705 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "intelligenthealthcoach/noop-file.swift"; sourceTree = "<group>"; };
-		4118C81CD60B589766F84FAD /* Pods-intelligenthealthcoach.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-intelligenthealthcoach.debug.xcconfig"; path = "Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach.debug.xcconfig"; sourceTree = "<group>"; };
-		95A74BAD609D9E546D5D4356 /* Pods-intelligenthealthcoach.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-intelligenthealthcoach.release.xcconfig"; path = "Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = intelligenthealthcoach/SplashScreen.storyboard; sourceTree = "<group>"; };
-		ACE7301704703B6864E2C555 /* libPods-intelligenthealthcoach.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-intelligenthealthcoach.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C377F4E4C753303CC1ABD672 /* Pods-intelligenthealthcoach.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-intelligenthealthcoach.debug.xcconfig"; path = "Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach.debug.xcconfig"; sourceTree = "<group>"; };
+		E8A6DF2DD91251D89389DCD4 /* Pods-intelligenthealthcoach.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-intelligenthealthcoach.release.xcconfig"; path = "Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach.release.xcconfig"; sourceTree = "<group>"; };
+		EBE6EF03FEA9E924DFABA9FC /* libPods-intelligenthealthcoach.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-intelligenthealthcoach.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC4801F1C6F0469F932456E0 /* intelligenthealthcoach-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "intelligenthealthcoach-Bridging-Header.h"; path = "intelligenthealthcoach/intelligenthealthcoach-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-intelligenthealthcoach/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -42,7 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44B987C0B282740CD9D6FA89 /* libPods-intelligenthealthcoach.a in Frameworks */,
+				5CB948B83511C3C26BF95E0A /* libPods-intelligenthealthcoach.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				ACE7301704703B6864E2C555 /* libPods-intelligenthealthcoach.a */,
+				EBE6EF03FEA9E924DFABA9FC /* libPods-intelligenthealthcoach.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -125,8 +125,8 @@
 		D65327D7A22EEC0BE12398D9 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4118C81CD60B589766F84FAD /* Pods-intelligenthealthcoach.debug.xcconfig */,
-				95A74BAD609D9E546D5D4356 /* Pods-intelligenthealthcoach.release.xcconfig */,
+				C377F4E4C753303CC1ABD672 /* Pods-intelligenthealthcoach.debug.xcconfig */,
+				E8A6DF2DD91251D89389DCD4 /* Pods-intelligenthealthcoach.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -146,14 +146,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "intelligenthealthcoach" */;
 			buildPhases = (
-				E306C9A076F99CA90F948E5E /* [CP] Check Pods Manifest.lock */,
+				8560AF194395194B95FB345E /* [CP] Check Pods Manifest.lock */,
 				98036649FE5385E63EF247CB /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				4B9DDC54C96F699FD9929BB7 /* [CP] Embed Pods Frameworks */,
-				A3E68A519A94B6AD8705F57D /* [CP] Copy Pods Resources */,
+				6E387D217C20A8C85BD47473 /* [CP] Embed Pods Frameworks */,
+				93C10BEDBF2D8B006C0297FC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -225,7 +225,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
 		};
-		4B9DDC54C96F699FD9929BB7 /* [CP] Embed Pods Frameworks */ = {
+		6E387D217C20A8C85BD47473 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -243,26 +243,29 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		98036649FE5385E63EF247CB /* [Expo] Configure project */ = {
+		8560AF194395194B95FB345E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[Expo] Configure project";
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-intelligenthealthcoach-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-intelligenthealthcoach/expo-configure-project.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
-		A3E68A519A94B6AD8705F57D /* [CP] Copy Pods Resources */ = {
+		93C10BEDBF2D8B006C0297FC /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -336,27 +339,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-intelligenthealthcoach/Pods-intelligenthealthcoach-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E306C9A076F99CA90F948E5E /* [CP] Check Pods Manifest.lock */ = {
+		98036649FE5385E63EF247CB /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "[Expo] Configure project";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-intelligenthealthcoach-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-intelligenthealthcoach/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -377,7 +377,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4118C81CD60B589766F84FAD /* Pods-intelligenthealthcoach.debug.xcconfig */;
+			baseConfigurationReference = C377F4E4C753303CC1ABD672 /* Pods-intelligenthealthcoach.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -410,7 +410,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 95A74BAD609D9E546D5D4356 /* Pods-intelligenthealthcoach.release.xcconfig */;
+			baseConfigurationReference = E8A6DF2DD91251D89389DCD4 /* Pods-intelligenthealthcoach.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
