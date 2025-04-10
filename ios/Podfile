@@ -32,7 +32,7 @@ target 'intelligenthealthcoach' do
   end
 
   config = use_native_modules!(config_command)
-
+  
   use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
   use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
 
@@ -51,7 +51,22 @@ target 'intelligenthealthcoach' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => podfile_properties['apple.ccacheEnabled'] == 'true',
     )
-
+  
+    # Add this section to fix the RCT-Folly error
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # For RCT-Folly
+        if target.name == 'RCT-Folly'
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+          config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'FOLLY_HAVE_PTHREAD=1 FOLLY_NO_CONFIG=1'
+          config.build_settings['HEADER_SEARCH_PATHS'] ||= ['$(inherited)']
+          config.build_settings['HEADER_SEARCH_PATHS'] << "#{Pod::Config.instance.installation_root}/Pods/boost" 
+          config.build_settings['HEADER_SEARCH_PATHS'] << "#{Pod::Config.instance.installation_root}/Pods/RCT-Folly"
+        end
+      end
+    end
+  
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices.
     installer.target_installation_results.pod_target_installation_results
