@@ -12,11 +12,6 @@ install! 'cocoapods', :deterministic_uuids => false
 
 prepare_react_native_project!
 
-# Create a directory to ensure our fix file is found
-system('mkdir -p Pods/RCT-Folly/folly/coro')
-# Create empty Coroutine.h file to fix the compilation error
-system('touch Pods/RCT-Folly/folly/coro/Coroutine.h')
-
 target 'intelligenthealthcoach' do
   use_expo_modules!
 
@@ -70,7 +65,6 @@ target 'intelligenthealthcoach' do
     end
   
     # This is necessary for Xcode 14, because it signs resource bundles by default
-    # when building for devices.
     installer.target_installation_results.pod_target_installation_results
       .each do |pod_name, target_installation_result|
       target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
