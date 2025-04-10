@@ -22,7 +22,7 @@ export type MainTabParamList = {
 // Main Stack Param List (includes screens accessible from tabs)
 export type MainStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
-  WorkoutExerciseOverview: {
+  WorkoutOverviewScreen: {
     workoutId?: string;
   };
   WorkoutTracking: {

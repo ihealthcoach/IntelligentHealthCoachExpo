@@ -22,7 +22,7 @@ export default function WorkoutsScreen({ navigation }: MainTabScreenProps<'Worko
         <Text variant="bodyMedium">Exercises: {item.exercises}</Text>
       </Card.Content>
       <Card.Actions>
-      <Button onPress={() => navigation.navigate('WorkoutExerciseOverview', { workoutId: item.id })}>
+      <Button onPress={() => navigation.navigate('WorkoutOverviewScreen', { workoutId: item.id })}>
   View Details
 </Button>
       </Card.Actions>
@@ -48,7 +48,7 @@ export default function WorkoutsScreen({ navigation }: MainTabScreenProps<'Worko
           <Button 
   mode="contained" 
   style={styles.startButton}
-  onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+  onPress={() => navigation.navigate('WorkoutOverviewScreen')}
 >
   Start Your First Workout
 </Button>
@@ -63,12 +63,12 @@ export default function WorkoutsScreen({ navigation }: MainTabScreenProps<'Worko
     AsyncStorage.removeItem('current_workout')
       .then(() => {
         // Navigate to workout creation screen using the enhanced version
-        navigation.navigate('WorkoutExerciseOverview');
+        navigation.navigate('WorkoutOverviewScreen');
       })
       .catch(error => {
         console.error('Error clearing workout data:', error);
         // Navigate anyway
-        navigation.navigate('WorkoutExerciseOverview');
+        navigation.navigate('WorkoutOverviewScreen');
       });
   }}
 />

@@ -594,7 +594,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     
     setFilteredExercises(updatedFiltered);
     
-    // Save selected exercises to AsyncStorage for the WorkoutExerciseOverview screen
+    // Save selected exercises to AsyncStorage for the WorkoutOverviewScreen screen
     try {
       // First, try to get any existing workout data
       const existingWorkoutJson = await AsyncStorage.getItem('current_workout');
@@ -705,7 +705,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
           
           <TouchableOpacity 
   style={styles.viewWorkoutButton}
-  onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+  onPress={() => navigation.navigate('WorkoutOverviewScreen')}
 >
   <Text style={styles.viewWorkoutText}>View workout</Text>
   <ChevronDown size={18} color="#000" />
@@ -715,7 +715,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         <View style={styles.headerRight}>
         <TouchableOpacity 
   style={styles.doneButton}
-  onPress={() => navigation.navigate('WorkoutExerciseOverview')}
+  onPress={() => navigation.navigate('WorkoutOverviewScreen')}
 >
   <Text style={styles.doneButtonText}>Done</Text>
   <Check size={18} color="#fff" />

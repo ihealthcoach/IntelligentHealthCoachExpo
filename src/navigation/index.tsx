@@ -107,7 +107,7 @@ const MainNavigator = () => (
       component={TabNavigator} 
     />
     <MainStack.Screen 
-      name="WorkoutExerciseOverview" 
+      name="WorkoutOverviewScreen" 
       component={WorkoutOverviewScreen}  // Using the enhanced implementation
     />
     <MainStack.Screen 

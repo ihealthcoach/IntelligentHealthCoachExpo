@@ -4,6 +4,8 @@ import { PaperProvider } from 'react-native-paper';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { Navigation } from './src/navigation';
 import { networkSyncService } from './src/services/NetworkSyncService';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
 
 export default function App() {
     // Initialize network monitoring when app starts
@@ -21,10 +23,18 @@ export default function App() {
     }, []);
 
   return (
-    <PaperProvider>
-      <AuthProvider>
-        <Navigation />
-      </AuthProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <PaperProvider>
+        <AuthProvider>
+          <Navigation />
+        </AuthProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

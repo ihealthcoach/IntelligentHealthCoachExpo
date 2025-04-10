@@ -56,7 +56,7 @@ import SaveTemplateModal from '../../components/SaveTemplateModal';
 
 const { width } = Dimensions.get('window');
 
-export default function WorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutExerciseOverview'>) {
+export default function WorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutOverviewScreen'>) {
   const { user } = useAuth();
   
   // Workout state
@@ -144,9 +144,14 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const loadWorkoutData = async () => {
     try {
       setLoading(true);
+      
+      // Add a small delay to ensure AsyncStorage has time to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const currentWorkout = await workoutService.getCurrentWorkout();
       
       if (currentWorkout) {
+        console.log("Loaded workout data:", JSON.stringify(currentWorkout));
         setWorkout(currentWorkout);
         setWorkoutName(currentWorkout.name || 'New Workout');
         
@@ -156,6 +161,7 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
         );
         setWorkoutStarted(hasStarted);
       } else {
+        console.log("No workout data found, creating new workout");
         // Initialize with a new workout
         const newWorkout: Workout = {
           id: Date.now().toString(),
@@ -672,89 +678,96 @@ const saveAsTemplate = async () => {
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        <Animated.View 
-          style={[
-            styles.content,
-            { opacity: fadeAnim }
-          ]}
-        >
-          {/* Workout Title */}
-          <View style={styles.workoutTitleContainer}>
-            {editingName ? (
-              <View style={styles.workoutNameEditContainer}>
-                <TextInput
-                  style={styles.workoutNameInput}
-                  value={workoutName}
-                  onChangeText={setWorkoutName}
-                  autoFocus
-                  onBlur={updateWorkoutName}
-                  onSubmitEditing={updateWorkoutName}
-                />
-                <TouchableOpacity onPress={updateWorkoutName}>
-                  <Save size={22} color="#4F46E5" />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.workoutTitleRow}>
-                <Text style={styles.workoutTitle}>{workoutName}</Text>
-                <TouchableOpacity onPress={() => setEditingName(true)}>
-                  <Edit size={18} color="#6B7280" />
-                </TouchableOpacity>
-              </View>
-            )}
-            
-            <Text style={styles.workoutDate}>
-              {workout?.startedAt ? 
-                new Date(workout.startedAt).toLocaleDateString(undefined, {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
-                }) : 
-                new Date().toLocaleDateString(undefined, {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric'
-                })
-              }
-            </Text>
-          </View>
-          
-          {/* Workout Stats */}
-          {renderWorkoutStats()}
-          
-          {/* Exercise List */}
-          <View style={styles.exercisesContainer}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Exercises</Text>
-              {workout?.exercises.length > 0 && (
-                <TouchableOpacity 
-                  style={styles.sectionAction}
-                  onPress={() => navigation.navigate('MainTabs', { screen: 'Exercises' })}
-                >
-                  <Text style={styles.sectionActionText}>View Library</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-            
-            {workout?.exercises.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyStateText}>
-                  No exercises added yet. Add exercises to start your workout.
-                </Text>
-              </View>
-            ) : (
-              <DraggableFlatList
-                data={workout?.exercises || []}
-                renderItem={renderExerciseItem}
-                keyExtractor={(item) => item.id}
-                onDragEnd={({ data }) => reorderExercises(data)}
-                containerStyle={styles.exerciseList}
-              />
-            )}
-          </View>
-        </Animated.View>
-      </ScrollView>
+      <ScrollView 
+  style={styles.scrollView} 
+  nestedScrollEnabled={false}
+  scrollEnabled={!workout?.exercises.length}
+  contentContainerStyle={workout?.exercises.length ? styles.scrollViewContentWithExercises : null}
+>
+  <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+    {/* Workout Title */}
+    <View style={styles.workoutTitleContainer}>
+      {editingName ? (
+        <View style={styles.workoutNameEditContainer}>
+          <TextInput
+            style={styles.workoutNameInput}
+            value={workoutName}
+            onChangeText={setWorkoutName}
+            autoFocus
+            onBlur={updateWorkoutName}
+            onSubmitEditing={updateWorkoutName}
+          />
+          <TouchableOpacity onPress={updateWorkoutName}>
+            <Save size={22} color="#4F46E5" />
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.workoutTitleRow}>
+          <Text style={styles.workoutTitle}>{workoutName}</Text>
+          <TouchableOpacity onPress={() => setEditingName(true)}>
+            <Edit size={18} color="#6B7280" />
+          </TouchableOpacity>
+        </View>
+      )}
+      
+      <Text style={styles.workoutDate}>
+        {workout?.startedAt ? 
+          new Date(workout.startedAt).toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+          }) : 
+          new Date().toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+          })
+        }
+      </Text>
+    </View>
+    
+    {/* Workout Stats */}
+    {renderWorkoutStats()}
+    
+    {/* Exercise List Header */}
+    <View style={styles.exercisesContainer}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Exercises</Text>
+        {workout?.exercises.length > 0 && (
+          <TouchableOpacity
+            style={styles.sectionAction}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'Exercises' })}
+          >
+            <Text style={styles.sectionActionText}>View Library</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      {/* Only show the empty state in the ScrollView */}
+      {workout?.exercises.length === 0 && (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>
+            No exercises added yet. Add exercises to start your workout.
+          </Text>
+        </View>
+      )}
+    </View>
+  </Animated.View>
+</ScrollView>
+
+{/* Exercises list - now outside of ScrollView */}
+{workout?.exercises.length > 0 && (
+  <View style={styles.exerciseListContainer}>
+    <DraggableFlatList
+      data={workout?.exercises || []}
+      renderItem={renderExerciseItem}
+      keyExtractor={(item) => item.id}
+      onDragEnd={({ data }) => reorderExercises(data)}
+      contentContainerStyle={styles.exerciseList}
+      ListFooterComponent={<View style={styles.listFooterSpace} />}
+    />
+  </View>
+)}
 
       {/* Bottom Buttons */}
       <View style={styles.bottomButtons}>
@@ -1526,5 +1539,15 @@ const styles = StyleSheet.create({
   },
   templateDeleteButton: {
     borderColor: '#EF4444',
+  },
+  exerciseListContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  listFooterSpace: {
+    height: 120,
+  },
+  scrollViewContentWithExercises: {
+    paddingBottom: 0,
   },
 });
