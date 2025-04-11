@@ -2,13 +2,15 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { 
   Home as HomeIcon, 
   Dumbbell, 
   Calendar, 
   User, 
-  BarChart
+  BarChart3,
+  ChefHat,
+  Plus
 } from 'lucide-react-native';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -32,7 +34,6 @@ import ExercisesScreen from '../screens/main/ExercisesScreen';
 
 // Enhanced screens (new implementations)
 import WorkoutOverviewScreen from '../screens/main/WorkoutOverviewScreen';
-// import WorkoutExerciseOverviewScreen from '../screens/main/WorkoutOverviewScreen';
 import WorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
 import WorkoutHistoryScreen from '../screens/main/WorkoutHistoryScreen';
 import ExerciseDetailScreen from '../screens/main/ExerciseDetailScreen';
@@ -51,45 +52,61 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// Tab Navigator
+// Custom Tab Bar Component
+const CustomTabBar = ({ state, descriptors, navigation }) => {
+  return (
+    <View style={styles.bottomNav}>
+      <View style={styles.navContent}>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <HomeIcon size={24} color="#111827" />
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('History')}
+        >
+          <BarChart3 size={24} color="#111827" />
+          <Text style={styles.navText}>Activity</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => navigation.navigate('Workouts')}
+        >
+          <Plus size={24} color="#FCFDFD" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Exercises')}
+        >
+          <ChefHat size={24} color="#111827" />
+          <Text style={styles.navText}>Food</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Workouts')}
+        >
+          <Dumbbell size={24} color="#111827" />
+          <Text style={styles.navText}>Workouts</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+// Tab Navigator with Custom Tab Bar
 const TabNavigator = () => (
   <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        // Make sure size is a number
-        const iconSize = typeof size === 'number' ? size : 24;
-        
-        // Return the appropriate icon based on route name
-        switch (route.name) {
-          case 'Home':
-            return <HomeIcon size={iconSize} color={color} />;
-          case 'Workouts':
-            return <Dumbbell size={iconSize} color={color} />;
-          case 'Exercises':
-            return <Calendar size={iconSize} color={color} />;
-          case 'History':
-            return <BarChart size={iconSize} color={color} />;
-          case 'Profile':
-            return <User size={iconSize} color={color} />;
-          default:
-            return <HomeIcon size={iconSize} color={color} />;
-        }
-      },
-      tabBarActiveTintColor: '#4F46E5',
-      tabBarInactiveTintColor: '#6B7280',
-      tabBarStyle: {
-        backgroundColor: '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: '#F3F4F6',
-        height: 60,
-        paddingBottom: 8,
-        paddingTop: 8,
-      },
-      tabBarLabelStyle: {
-        fontSize: 12,
-      },
+    tabBar={props => <CustomTabBar {...props} />}
+    screenOptions={{
       headerShown: false,
-    })}
+    }}
   >
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="Workouts" component={WorkoutsScreen} />
@@ -108,7 +125,7 @@ const MainNavigator = () => (
     />
     <MainStack.Screen 
       name="WorkoutOverviewScreen" 
-      component={WorkoutOverviewScreen}  // Using the enhanced implementation
+      component={WorkoutOverviewScreen}
     />
     <MainStack.Screen 
       name="WorkoutTracking" 
@@ -145,3 +162,38 @@ export const Navigation = () => {
     </NavigationContainer>
   );
 };
+
+// Styles for the custom tab bar
+const styles = StyleSheet.create({
+  bottomNav: {
+    height: 60,
+    backgroundColor: 'rgba(252, 253, 253, 0.9)',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+  },
+  navContent: {
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    height: 52,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#111827',
+    marginTop: 2,
+  },
+  addButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
