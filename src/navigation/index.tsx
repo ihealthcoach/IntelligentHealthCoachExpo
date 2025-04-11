@@ -20,6 +20,7 @@ import {
   AuthStackParamList,
   MainStackParamList
 } from '../types/navigation';
+import CustomTabBar from '../components/CustomTabBar';
 
 // Auth screens
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -53,6 +54,7 @@ const AuthNavigator = () => (
 );
 
 // Custom Tab Bar Component
+/*
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.bottomNav}>
@@ -99,6 +101,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     </View>
   );
 };
+*/
 
 // Tab Navigator with Custom Tab Bar
 const TabNavigator = () => (
@@ -162,38 +165,3 @@ export const Navigation = () => {
     </NavigationContainer>
   );
 };
-
-// Styles for the custom tab bar
-const styles = StyleSheet.create({
-  bottomNav: {
-    height: 60,
-    backgroundColor: 'rgba(252, 253, 253, 0.9)',
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  navContent: {
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    height: 52,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#111827',
-    marginTop: 2,
-  },
-  addButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#4F46E5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

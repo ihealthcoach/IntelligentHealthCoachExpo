@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Home, BarChart3, Plus, ChefHat, Dumbbell } from 'lucide-react-native';
+import {BlurView} from '@react-native-community/blur';
 
 const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   return (
@@ -56,6 +57,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(252, 253, 253, 0.9)',
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
+    paddingBottom: 90,
   },
   navContent: {
     flexDirection: 'row',
