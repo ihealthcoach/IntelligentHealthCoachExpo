@@ -95,27 +95,27 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email</Text>
                 <TextInput
-                  style={styles.textInput}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  disabled={loading}
-                />
+  style={styles.textInput}
+  value={email}
+  onChangeText={setEmail}
+  placeholder="Enter your email"
+  autoCapitalize="none"
+  keyboardType="email-address"
+  editable={!loading}
+/>
               </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
                 <View style={styles.passwordContainer}>
-                  <TextInput
-                    style={styles.textInput}
-                    value={password}
-                    onChangeText={setPassword}
-                    placeholder="Enter your password"
-                    secureTextEntry={secureTextEntry}
-                    disabled={loading}
-                  />
+                <TextInput
+  style={styles.textInput}
+  value={password}
+  onChangeText={setPassword}
+  placeholder="Enter your password"
+  secureTextEntry={secureTextEntry}
+  editable={!loading}
+/>
                   <TouchableOpacity onPress={toggleSecureEntry} style={styles.eyeButton}>
                     {secureTextEntry ? (
                       <Eye width={20} height={20} color="#9ca3af" />
