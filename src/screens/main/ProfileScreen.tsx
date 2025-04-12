@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, TextInput, Modal } from 'react-native';
 import { ArrowLeft, User, ClipboardList, Globe, Bell, CreditCard, Moon, Star, ChevronRight, Plus } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
+import { supabase } from '../../services/supabase';
+import { Picker } from '@react-native-picker/picker';
 
 export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState({
-    username: 'fitnessuser',
-    fullName: 'John Doe',
-    age: '32',
-    height: '180',
-    weight: '75',
-    fitnessGoal: 'Build muscle and improve overall fitness',
+    username: '',
+    first_name: '',
+    last_name: '',
+    age: '',
+    height: '',
+    weight: '',
+    goal: '',
+    avatar_url: null
   });
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Account');
   const [faceIdEnabled, setFaceIdEnabled] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [goalPickerVisible, setGoalPickerVisible] = useState(false);
+  const handleGoalSelection = (selectedGoal) => {
+    handleChange('goal', selectedGoal);
+    setGoalPickerVisible(false);
+  };
 
   useEffect(() => {
     if (user) {
@@ -30,16 +39,29 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
     try {
       setLoading(true);
       
-      // In a real app, fetch profile from Supabase
-      // For now, we'll just use mock data
-      setProfile({
-        username: 'fitnessuser',
-        fullName: 'John Doe',
-        age: '32',
-        height: '180',
-        weight: '75',
-        fitnessGoal: 'Build muscle and improve overall fitness',
-      });
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else if (data) {
+        // Update state with actual profile data
+        setProfile({
+          username: data.username || '',
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          age: data.age?.toString() || '',
+          height: data.height?.toString() || '',
+          weight: data.weight?.toString() || '',
+          goal: data.goal || '',
+          avatar_url: data.avatar_url
+        });
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -50,13 +72,61 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
   const saveProfile = async () => {
     try {
       setLoading(true);
-      // In a real app, save the profile to Supabase
-      console.log('Saving profile:', profile);
       
-      // End editing mode
-      setEditing(false);
+      if (!user) {
+        console.error('No user found');
+        return;
+      }
+      
+      // First check if the profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+      
+      // Convert numeric strings to numbers
+      const profileData = {
+        user_id: user.id,
+        username: profile.username,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        age: profile.age ? parseInt(profile.age) : null,
+        height: profile.height ? parseFloat(profile.height) : null,
+        weight: profile.weight ? parseFloat(profile.weight) : null,
+        goal: profile.goal,
+        updated_at: new Date().toISOString()
+      };
+      
+      let error;
+      
+      if (existingProfile) {
+        // Update existing profile
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update(profileData)
+          .eq('id', existingProfile.id);
+        
+        error = updateError;
+      } else {
+        // Insert new profile
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert(profileData);
+        
+        error = insertError;
+      }
+      
+      if (error) {
+        console.error('Supabase error saving profile:', error);
+        alert(`Failed to save profile: ${error.message}`);
+      } else {
+        alert('Profile saved successfully!');
+        setEditing(false);
+      }
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error('Exception saving profile:', error);
+      alert(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -109,9 +179,13 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
             </View>
           </TouchableOpacity>
           <Image
-            source={{ uri: `https://ui-avatars.com/api/?name=${profile.fullName}&background=random` }}
-            style={styles.avatar}
-          />
+  source={
+    profile.avatar_url 
+      ? { uri: profile.avatar_url } 
+      : { uri: `https://ui-avatars.com/api/?name=${profile.first_name}+${profile.last_name}` }
+  }
+  style={styles.avatar}
+/>
         </View>
       </View>
 
@@ -170,14 +244,32 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
               {editing && (
                 <View style={styles.editFormContainer}>
                   <View style={styles.editField}>
-                    <Text style={styles.editLabel}>Name</Text>
-                    <TextInput
-                      style={styles.editInput}
-                      value={profile.fullName}
-                      onChangeText={(value) => handleChange('fullName', value)}
-                      placeholder="Enter your name"
-                    />
-                  </View>
+  <Text style={styles.editLabel}>Username</Text>
+  <TextInput
+    style={styles.editInput}
+    value={profile.username}
+    onChangeText={(value) => handleChange('username', value)}
+    placeholder="Enter your username"
+  />
+</View>
+<View style={styles.editField}>
+  <Text style={styles.editLabel}>First Name</Text>
+  <TextInput
+    style={styles.editInput}
+    value={profile.first_name}
+    onChangeText={(value) => handleChange('first_name', value)}
+    placeholder="Enter your first name"
+  />
+</View>
+<View style={styles.editField}>
+  <Text style={styles.editLabel}>Last Name</Text>
+  <TextInput
+    style={styles.editInput}
+    value={profile.last_name}
+    onChangeText={(value) => handleChange('last_name', value)}
+    placeholder="Enter your last name"
+  />
+</View>
                   <View style={styles.editField}>
                     <Text style={styles.editLabel}>Age</Text>
                     <TextInput
@@ -209,15 +301,43 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
                     />
                   </View>
                   <View style={styles.editField}>
-                    <Text style={styles.editLabel}>Fitness Goal</Text>
-                    <TextInput
-                      style={styles.editInput}
-                      value={profile.fitnessGoal}
-                      onChangeText={(value) => handleChange('fitnessGoal', value)}
-                      placeholder="Enter your fitness goal"
-                      multiline
-                    />
-                  </View>
+  <Text style={styles.editLabel}>Fitness Goal</Text>
+  <TouchableOpacity 
+    style={styles.dropdownButton}
+    onPress={() => setGoalPickerVisible(true)}
+  >
+    <Text style={[styles.dropdownButtonText, !profile.goal && styles.placeholderText]}>
+      {profile.goal || 'Select a fitness goal'}
+    </Text>
+  </TouchableOpacity>
+
+  {/* Goal Picker Modal */}
+  <Modal
+    visible={goalPickerVisible}
+    animationType="slide"
+    transparent={true}
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.pickerContainer}>
+        <View style={styles.pickerHeader}>
+          <Text style={styles.pickerTitle}>Select Goal</Text>
+          <TouchableOpacity onPress={() => setGoalPickerVisible(false)}>
+            <Text style={styles.pickerDoneButton}>Done</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <Picker
+          selectedValue={profile.goal}
+          onValueChange={handleGoalSelection}
+        >
+          <Picker.Item label="Look Muscular & Toned" value="Look Muscular & Toned" />
+          <Picker.Item label="Get Stronger, Faster" value="Get Stronger, Faster" />
+          <Picker.Item label="Lose Fat" value="Lose Fat" />
+        </Picker>
+      </View>
+    </View>
+  </Modal>
+</View>
                   <TouchableOpacity
                     style={styles.saveButton}
                     onPress={saveProfile}
@@ -541,4 +661,49 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     marginLeft: 8,
   },
+dropdownButton: {
+  height: 52,
+  backgroundColor: '#ffffff',
+  borderWidth: 1,
+  borderColor: '#e5e7eb',
+  borderRadius: 5,
+  paddingHorizontal: 16,
+  justifyContent: 'center',
+},
+dropdownButtonText: {
+  fontSize: 16,
+  color: '#111827',
+},
+placeholderText: {
+  color: '#9ca3af',
+},
+modalContainer: {
+  flex: 1,
+  justifyContent: 'flex-end',
+  backgroundColor: 'rgba(0,0,0,0.5)',
+},
+pickerContainer: {
+  backgroundColor: '#ffffff',
+  borderTopLeftRadius: 15,
+  borderTopRightRadius: 15,
+  paddingBottom: 20,
+},
+pickerHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: 16,
+  borderBottomWidth: 1,
+  borderBottomColor: '#e5e7eb',
+},
+pickerTitle: {
+  fontSize: 18,
+  fontWeight: '600',
+  color: '#111827',
+},
+pickerDoneButton: {
+  fontSize: 16,
+  color: '#4F46E5',
+  fontWeight: '500',
+},
 });

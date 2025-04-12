@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 import CustomTabBar from '../../components/CustomTabBar';
+import { supabase } from '../../services/supabase';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -46,11 +47,48 @@ export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     }
   }, []);
 
-  // Get user's first name from email (fallback until profile is implemented)
-  const getFirstName = () => {
-    if (!user?.email) return 'User';
-    return user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1);
+// Add this state
+const [profile, setProfile] = useState<{ first_name: string | null; avatar_url: string | null }>({
+  first_name: null,
+  avatar_url: null
+});
+
+// Add this useEffect
+useEffect(() => {
+  const fetchProfile = async () => {
+    if (user) {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('first_name, avatar_url')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (data && !error) {
+          setProfile(data);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    }
   };
+  
+  fetchProfile();
+}, [user]);
+
+// Replace with this improved function
+const getFirstName = () => {
+  if (profile?.first_name) {
+    return profile.first_name;
+  }
+  
+  // Fallback to email if no profile name exists
+  if (user?.email) {
+    return user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1);
+  }
+  
+  return 'User';
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -82,10 +120,14 @@ export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
             style={styles.avatarContainer}
             onPress={() => navigation.navigate('Profile')}
           >
-            <Image 
-              source={{ uri: 'https://ui-avatars.com/api/?name=' + getFirstName() }} 
-              style={styles.avatar} 
-            />
+<Image 
+  source={
+    profile?.avatar_url 
+      ? { uri: profile.avatar_url } 
+      : { uri: 'https://ui-avatars.com/api/?name=' + getFirstName() }
+  } 
+  style={styles.avatar} 
+/>
           </TouchableOpacity>
         </View>
       </View>
