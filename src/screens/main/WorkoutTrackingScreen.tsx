@@ -99,6 +99,7 @@ export default function WorkoutTrackingScreen({
   // Visual feedback states
   const [lastCompletedSetId, setLastCompletedSetId] = useState<string | null>(null);
   const [showPrConfetti, setShowPrConfetti] = useState(false);
+  const [isCheckingPR, setIsCheckingPR] = useState(false);
   
   // Note editing
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -379,22 +380,27 @@ export default function WorkoutTrackingScreen({
   };
   
   // Function to check for personal records
+  /*
   const checkForPersonalRecords = async () => {
-    if (!workout) return;
-    
-    const currentExercise = workout.exercises[currentExerciseIndex];
-    
     try {
-      // Update PRs through service
+      if (!workout) return;
+      
+      const currentExercise = workout.exercises[currentExerciseIndex];
+      
+      // Check for PRs
       const exerciseWithPRs = await workoutService.updatePersonalRecords(currentExercise);
       
-      // Check if we have new PRs
-      const hasPR = exerciseWithPRs.sets.some(set => set.isPR);
+      // Check if we have new PRs in the latest completed set
+      const newPRs = exerciseWithPRs.sets.filter(set => set.isPR);
       
-      if (hasPR) {
-        // Show confetti animation
-        setShowPrConfetti(true);
-        setTimeout(() => setShowPrConfetti(false), 3000);
+      if (newPRs.length > 0) {
+        // Show native alert for PR
+        Alert.alert(
+          "New Personal Record! 🏆",
+          "Congratulations! You've set a new personal record.",
+          [{ text: "Dismiss", style: "default" }],
+          { cancelable: true }
+        );
         
         // Provide strong haptic feedback
         if (Platform.OS === 'ios') {
@@ -403,24 +409,28 @@ export default function WorkoutTrackingScreen({
           Vibration.vibrate([0, 100, 50, 100, 50, 100]);
         }
         
-        // Update the workout with PR info
-        const updatedExercises = workout.exercises.map((exercise, index) => {
-          if (index === currentExerciseIndex) {
-            return exerciseWithPRs;
-          }
-          return exercise;
-        });
+        // Update the workout with PR flags only
+        const updatedWorkout = { ...workout };
+        updatedWorkout.exercises = [...workout.exercises];
+        updatedWorkout.exercises[currentExerciseIndex] = {
+          ...currentExercise,
+          sets: currentExercise.sets.map((set, i) => {
+            if (i < exerciseWithPRs.sets.length) {
+              return { ...set, isPR: exerciseWithPRs.sets[i].isPR };
+            }
+            return set;
+          })
+        };
         
-        setWorkout({ ...workout, exercises: updatedExercises });
-        
-        // Save the updated workout
-        await workoutService.saveCurrentWorkout({ ...workout, exercises: updatedExercises });
+        // Update state and save
+        setWorkout(updatedWorkout);
+        await workoutService.saveCurrentWorkout(updatedWorkout);
       }
     } catch (error) {
       console.error('Error checking for PRs:', error);
     }
   };
-  
+  */
   // Function to mark a set as complete or incomplete
   const toggleSetCompletion = async (setId: string) => {
     if (!workout) return;
@@ -464,12 +474,16 @@ export default function WorkoutTrackingScreen({
     const newWorkout = { ...workout, exercises: updatedExercises };
     setWorkout(newWorkout);
     
-    // Save workout data
-    await workoutService.saveCurrentWorkout(newWorkout);
-    
-    // Check for PRs if we completed a set
-    checkForPersonalRecords();
-  };
+  // Save workout data
+  await workoutService.saveCurrentWorkout(newWorkout);
+  
+  // Only check for PRs after completing a set, not when uncompleting
+  const setJustCompleted = updatedExercises[currentExerciseIndex].sets.find(s => s.id === setId)?.isComplete;
+  if (setJustCompleted) {
+    // Check for PRs with a slight delay to ensure state is updated
+    setTimeout(() => checkForPersonalRecords(), 500);
+  }
+};
   
   // Function to add a new set to the current exercise
   const addSet = async () => {
