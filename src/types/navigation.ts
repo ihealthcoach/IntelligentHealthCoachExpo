@@ -32,6 +32,8 @@ export type MainStackParamList = {
   ExerciseDetail: {
     exerciseId: string;
   };
+  // remove line below when gif checking is complete (only that line)
+  GifChecker: undefined;
 };
 
 // Root Stack Param List (combines Auth and Main)

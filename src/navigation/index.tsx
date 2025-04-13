@@ -39,6 +39,9 @@ import WorkoutTrackingScreen from '../screens/main/WorkoutTrackingScreen';
 import WorkoutHistoryScreen from '../screens/main/WorkoutHistoryScreen';
 import ExerciseDetailScreen from '../screens/main/ExerciseDetailScreen';
 
+//Gif checker
+import GifCheckerScreen from '../screens/dev/GifCheckerScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
@@ -137,6 +140,10 @@ const MainNavigator = () => (
     <MainStack.Screen 
       name="ExerciseDetail" 
       component={ExerciseDetailScreen}
+    />
+    <MainStack.Screen 
+      name="GifChecker" 
+      component={GifCheckerScreen}
     />
   </MainStack.Navigator>
 );

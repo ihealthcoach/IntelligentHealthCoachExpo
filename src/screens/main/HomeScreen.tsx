@@ -407,6 +407,17 @@ const getFirstName = () => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Developer Tools Section */}
+        <View style={styles.devToolsContainer}>
+  <TouchableOpacity 
+    style={styles.devToolButton}
+    onPress={() => navigation.navigate('GifChecker')}
+  >
+    <Text style={styles.devToolButtonText}>Check GIF References</Text>
+  </TouchableOpacity>
+</View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -758,5 +769,25 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+  },
+
+  devToolsContainer: {
+    marginTop: 24,
+    marginBottom: 48,
+    paddingHorizontal: 16,
+  },
+  devToolButton: {
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    alignItems: 'center',
+  },
+  devToolButtonText: {
+    fontSize: 14,
+    color: '#4B5563',
+    fontWeight: '500',
   },
 });
