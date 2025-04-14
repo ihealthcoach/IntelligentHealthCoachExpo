@@ -407,7 +407,6 @@ const ensureWorkoutSaved = async (updatedWorkout) => {
     })
   ).current;
 
-// Function to handle weight and reps updates
 // Function to handle weight and reps updates with improved storage handling
 const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', value: string | number) => {
   if (!workout) return;
@@ -425,50 +424,22 @@ const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', v
     // Create a deep copy to avoid reference issues
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
-    const updatedExercises = workoutCopy.exercises.map((exercise, index) => {
-      if (index === currentExerciseIndex) {
-        const updatedSets = exercise.sets.map(set => {
-          if (set.id === setId) {
-            const updatedSet: ExerciseSet = { ...set, [field]: numValue };
-            
-            // Store previous values for comparison if completing the set
-            if (field === 'weight' || field === 'reps') {
-              if (set.isComplete) {
-                // Already completed, just update the value
-                return updatedSet;
-              }
-              
-              // Automatically mark as complete if both weight and reps have values
-              const otherField = field === 'weight' ? 'reps' : 'weight';
-              const otherValue = field === 'weight' ? updatedSet.reps : updatedSet.weight;
-              
-              if (numValue !== null && otherValue !== null) {
-                updatedSet.isComplete = true;
-                updatedSet.completedAt = new Date().toISOString();
-                
-                // Set this as the last completed set for animation
-                setLastCompletedSetId(setId);
-                
-                // Trigger completion animation
-                setCompleteAnimation.setValue(0);
-                Animated.timing(setCompleteAnimation, {
-                  toValue: 1,
-                  duration: 500,
-                  useNativeDriver: true,
-                }).start();
-                
-                // Provide haptic feedback for set completion
-                if (Platform.OS === 'ios') {
-                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                } else {
-                  Vibration.vibrate(100);
-                }
-                
-                // Start rest timer if set is completed
-                startRestTimer(exercise.id, setId);
-              }
-            }
-            
+    // Find the exercise and set to update
+    let updatedExercise = null;
+    let updatedSet = null;
+    
+    const updatedExercises = workoutCopy.exercises.map(exercise => {
+      const foundSetIndex = exercise.sets.findIndex(set => set.id === setId);
+      
+      if (foundSetIndex !== -1) {
+        // We found the set to update
+        updatedExercise = exercise;
+        
+        // Create updated sets array with the modified set
+        const updatedSets = exercise.sets.map((set, index) => {
+          if (index === foundSetIndex) {
+            // Simply update the field value without changing completion status
+            updatedSet = { ...set, [field]: numValue };
             return updatedSet;
           }
           return set;
@@ -476,10 +447,17 @@ const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', v
         
         return { ...exercise, sets: updatedSets };
       }
+      
       return exercise;
     });
     
     const newWorkout = { ...workoutCopy, exercises: updatedExercises };
+    
+    // Log the update for debugging
+    console.log(`Updating ${field} to ${numValue} for set ${setId}`);
+    if (updatedSet) {
+      console.log(`Set now has weight=${updatedSet.weight}, reps=${updatedSet.reps}, isComplete=${updatedSet.isComplete}`);
+    }
     
     // Update state
     setWorkout(newWorkout);
@@ -489,9 +467,6 @@ const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', v
     
     // Then also save through the service
     await workoutService.saveCurrentWorkout(newWorkout);
-    
-    // Check for PRs without alerts
-    checkForPersonalRecords();
     
   } catch (error) {
     console.error('Error updating set value:', error);
@@ -561,41 +536,49 @@ const toggleSetCompletion = async (setId: string) => {
     // Log the workout state before updating
     await logFullWorkout("Before toggling set completion");
     
-    // Find the exercise and set to update
-    const exerciseToUpdate = workoutCopy.exercises[currentExerciseIndex];
-    if (!exerciseToUpdate) {
-      console.error("Exercise not found at index", currentExerciseIndex);
-      return;
-    }
-    
     // Find the set to update
-    const setToUpdate = exerciseToUpdate.sets.find(s => s.id === setId);
-    if (!setToUpdate) {
+    let foundAndUpdated = false;
+    
+    const updatedExercises = workoutCopy.exercises.map(exercise => {
+      // Find the set in this exercise
+      const updatedSets = exercise.sets.map(set => {
+        if (set.id === setId) {
+          foundAndUpdated = true;
+          
+          // Toggle the completion status
+          const newCompletionState = !set.isComplete;
+          console.log(`Toggling set completion from ${set.isComplete} to ${newCompletionState}`);
+          console.log(`Set weight=${set.weight}, reps=${set.reps} (not changing these values)`);
+          
+          // Update only the completion status and timestamp
+          return {
+            ...set, 
+            isComplete: newCompletionState,
+            completedAt: newCompletionState ? new Date().toISOString() : undefined
+          };
+        }
+        return set;
+      });
+      
+      if (foundAndUpdated) {
+        return { ...exercise, sets: updatedSets };
+      }
+      
+      return exercise;
+    });
+    
+    if (!foundAndUpdated) {
       console.error("Set not found with id", setId);
       return;
     }
     
-    // Toggle the completion status
-    const newCompletionState = !setToUpdate.isComplete;
-    console.log(`Toggling set completion from ${setToUpdate.isComplete} to ${newCompletionState}`);
-    
-    // Update the set
-    setToUpdate.isComplete = newCompletionState;
-    if (newCompletionState) {
-      setToUpdate.completedAt = new Date().toISOString();
-    } else {
-      delete setToUpdate.completedAt;
-    }
-    
     // Update the workout state
-    setWorkout(workoutCopy);
+    const updatedWorkout = { ...workoutCopy, exercises: updatedExercises };
+    setWorkout(updatedWorkout);
     
     // Save to AsyncStorage
     console.log("Saving to AsyncStorage after toggling set completion");
-    await saveWorkoutToStorage(workoutCopy);
-    
-    // Log the updated workout state
-    await logFullWorkout("After toggling set completion");
+    await saveWorkoutToStorage(updatedWorkout);
     
     // Provide haptic feedback
     if (Platform.OS === 'ios') {
@@ -604,10 +587,20 @@ const toggleSetCompletion = async (setId: string) => {
       Vibration.vibrate(100);
     }
     
-    // Additional UI updates
-    if (newCompletionState) {
-      setLastCompletedSetId(setId);
-      startRestTimer(exerciseToUpdate.id, setId);
+    // Start rest timer if completing the set
+    const completedSet = updatedWorkout.exercises
+      .flatMap(ex => ex.sets)
+      .find(set => set.id === setId);
+      
+    if (completedSet?.isComplete) {
+      const exercise = updatedWorkout.exercises.find(ex => 
+        ex.sets.some(set => set.id === setId)
+      );
+      
+      if (exercise) {
+        setLastCompletedSetId(setId);
+        startRestTimer(exercise.id, setId);
+      }
     }
     
   } catch (error) {
@@ -1191,37 +1184,39 @@ const handleBackToOverview = async () => {
                     
                     {/* Weight */}
                     <View style={styles.weightContainer}>
-                      {editingWeight && editingWeight.setId === set.id ? (
-                        <TextInput
-                          style={styles.valueInput}
-                          value={editingWeight.value}
-                          onChangeText={(text) => setEditingWeight({...editingWeight, value: text})}
-                          keyboardType="numeric"
-                          autoFocus
-                          onBlur={() => {
-                            updateSetValue(set.id, 'weight', editingWeight.value);
-                            setEditingWeight(null);
-                          }}
-                          onSubmitEditing={() => {
-                            updateSetValue(set.id, 'weight', editingWeight.value);
-                            setEditingWeight(null);
-                          }}
-                        />
-                      ) : (
-                        <TouchableOpacity
-                          onPress={() => setEditingWeight({setId: set.id, value: set.weight?.toString() || ''})}
-                          disabled={isInactive}
-                        >
-                          <Text style={[
-                            styles.weightValue, 
-                            !set.weight && styles.emptyValue,
-                            isInactive && styles.inactiveText
-                          ]}>
-                            {set.weight?.toString() || '-'}
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+  {editingWeight && editingWeight.setId === set.id ? (
+    <TextInput
+      style={styles.valueInput}
+      value={editingWeight.value}
+      onChangeText={(text) => setEditingWeight({...editingWeight, value: text})}
+      keyboardType="numeric"
+      autoFocus
+      onBlur={() => {
+        updateSetValue(set.id, 'weight', editingWeight.value);
+        setEditingWeight(null);
+      }}
+      onSubmitEditing={() => {
+        updateSetValue(set.id, 'weight', editingWeight.value);
+        setEditingWeight(null);
+      }}
+    />
+  ) : (
+    <TouchableOpacity
+      onPress={() => setEditingWeight({setId: set.id, value: set.weight?.toString() || ''})}
+      disabled={isInactive}
+    >
+      <Text style={[
+        styles.weightValue, 
+        !set.weight && styles.emptyValue,
+        isInactive && styles.inactiveText,
+        // Add a visual indicator if value is saved but set not completed
+        (set.weight && !set.isComplete) && styles.savedButNotCompletedText
+      ]}>
+        {set.weight?.toString() || '-'}
+      </Text>
+    </TouchableOpacity>
+  )}
+</View>
                     
                     {/* Reps */}
                     <View style={styles.repsContainer}>
@@ -2024,5 +2019,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#111827',
-  }
+  },
+  savedButNotCompletedText: {
+    color: '#4F46E5', // Use a different color to show it's saved but not completed
+    fontStyle: 'normal',
+    fontWeight: '500',
+  },
 });
