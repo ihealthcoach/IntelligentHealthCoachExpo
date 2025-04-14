@@ -128,8 +128,10 @@ export default function WorkoutTrackingScreen({
         clearInterval(timerInterval.current);
       }
       
-      // Save workout data when unmounting
-      saveWorkoutData();
+      // Save workout data when unmounting - use IIFE for async
+      (async () => {
+        await saveWorkoutData();
+      })();
     };
   }, []);
   
@@ -199,48 +201,78 @@ export default function WorkoutTrackingScreen({
 */
 
   // Load workout data from route params or AsyncStorage
-  const loadWorkoutData = async () => {
-    try {
-      setLoading(true);
+// In WorkoutTrackingScreen.tsx - modify loadWorkoutData:
+
+// For WorkoutTrackingScreen.tsx:
+const loadWorkoutData = async () => {
+  try {
+    setLoading(true);
+    
+    // Get the starting exercise index from route params (default to 0)
+    const startIndex = route.params?.exerciseIndex || 0;
+    setCurrentExerciseIndex(startIndex);
+    
+    // Try direct AsyncStorage access for debugging
+    const asyncStorageData = await AsyncStorage.getItem('current_workout');
+    if (asyncStorageData) {
+      console.log("Raw AsyncStorage workout data available:", 
+        asyncStorageData.substring(0, 100) + "...");
+    } else {
+      console.log("No raw AsyncStorage workout data found");
+    }
+    
+    // Try to get workout data from route params first
+    if (route.params?.workout) {
+      console.log("Loading workout from route params");
+      const paramWorkout = route.params.workout;
       
-      // Get the starting exercise index from route params (default to 0)
-      const startIndex = route.params?.exerciseIndex || 0;
-      setCurrentExerciseIndex(startIndex);
-      
-      // Try to get workout data from route params first
-      if (route.params?.workout) {
-        setWorkout(route.params.workout);
+      // Verify the workout has valid structure
+      if (paramWorkout && paramWorkout.exercises) {
+        const completedSets = paramWorkout.exercises.reduce((total, ex) => 
+          total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0);
         
-        // Set notes for the current exercise
-        if (route.params.workout.exercises[startIndex]) {
-          setExerciseNotes(route.params.workout.exercises[startIndex].notes || '');
+        console.log("Param workout has", 
+          paramWorkout.exercises.length, "exercises and", 
+          completedSets, "completed sets");
+      }
+      
+      setWorkout(paramWorkout);
+      if (paramWorkout.exercises[startIndex]) {
+        setExerciseNotes(paramWorkout.exercises[startIndex].notes || '');
+      }
+    } else {
+      // Otherwise load from AsyncStorage via our service
+      console.log("Loading workout from AsyncStorage via service");
+      const currentWorkout = await workoutService.getCurrentWorkout();
+      
+      if (currentWorkout) {
+        const completedSets = currentWorkout.exercises.reduce((total, ex) => 
+          total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0);
+        
+        console.log("AsyncStorage workout has", 
+          currentWorkout.exercises.length, "exercises and", 
+          completedSets, "completed sets");
+          
+        setWorkout(currentWorkout);
+        if (currentWorkout.exercises[startIndex]) {
+          setExerciseNotes(currentWorkout.exercises[startIndex].notes || '');
         }
       } else {
-        // Otherwise load from AsyncStorage via our service
-        const currentWorkout = await workoutService.getCurrentWorkout();
-        if (currentWorkout) {
-          setWorkout(currentWorkout);
-          
-          // Set notes for the current exercise
-          if (currentWorkout.exercises[startIndex]) {
-            setExerciseNotes(currentWorkout.exercises[startIndex].notes || '');
-          }
-        } else {
-          Alert.alert('Error', 'No workout data found');
-          navigation.goBack();
-        }
+        Alert.alert('Error', 'No workout data found');
+        navigation.goBack();
       }
-    } catch (error) {
-      console.error('Error loading workout data:', error);
-      Alert.alert('Error', 'Failed to load workout data');
-      navigation.goBack();
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error loading workout data:', error);
+    Alert.alert('Error', 'Failed to load workout data');
+    navigation.goBack();
+  } finally {
+    setLoading(false);
+  }
+};
   
   // Save workout data
-  const saveWorkoutData = async () => {
+  const saveWorkoutData = async (): Promise<void> => {
     if (workout) {
       try {
         // Update workout duration if it was started
@@ -252,14 +284,42 @@ export default function WorkoutTrackingScreen({
           workout.duration = durationInSeconds;
         }
         
-        // Save to service
+        // Save to service and await completion
         await workoutService.saveCurrentWorkout(workout);
         console.log('Workout data saved successfully');
       } catch (error) {
         console.error('Error saving workout data:', error);
+        // Consider showing an alert here
       }
     }
   };
+
+  // Add this function to ensure workout data is always saved after set changes
+const ensureWorkoutSaved = async (updatedWorkout) => {
+  try {
+    // Create a deep copy to avoid reference issues
+    const workoutToSave = JSON.parse(JSON.stringify(updatedWorkout));
+    
+    // Log the workout we're saving for debugging
+    console.log("Saving workout with sets:", 
+      workoutToSave.exercises.map(ex => ({
+        name: ex.name,
+        sets: ex.sets.map(s => ({id: s.id, isComplete: s.isComplete}))
+      }))
+    );
+    
+    // Save to AsyncStorage directly for maximum reliability
+    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutToSave));
+    
+    // Also save through service for consistency
+    await workoutService.saveCurrentWorkout(workoutToSave);
+    
+    return true;
+  } catch (error) {
+    console.error("Error saving workout:", error);
+    return false;
+  }
+};
   
   // Set up PanResponder for swipe gesture handling
   const panResponder = useRef(
@@ -300,87 +360,87 @@ export default function WorkoutTrackingScreen({
     })
   ).current;
 
-  // Function to handle weight and reps updates
-  const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', value: string | number) => {
-    if (!workout) return;
-    
-    let numValue: number | null = null;
-    
-    // Handle different types of values
-    if (field === 'rpe') {
-      numValue = typeof value === 'number' ? value : (value === '' ? null : parseFloat(value as string));
-    } else {
-      numValue = value === '' ? null : parseFloat(value as string);
-    }
-    
-    const updatedExercises = workout.exercises.map((exercise, index) => {
-      if (index === currentExerciseIndex) {
-        const updatedSets = exercise.sets.map(set => {
-          if (set.id === setId) {
-            const updatedSet: ExerciseSet = { ...set, [field]: numValue };
-            
-            // Store previous values for comparison if completing the set
-            if (field === 'weight' || field === 'reps') {
-              if (set.isComplete) {
-                // Already completed, just update the value
-                return updatedSet;
-              }
-              
-              // Automatically mark as complete if both weight and reps have values
-              const otherField = field === 'weight' ? 'reps' : 'weight';
-              const otherValue = field === 'weight' ? updatedSet.reps : updatedSet.weight;
-              
-              if (numValue !== null && otherValue !== null) {
-                updatedSet.isComplete = true;
-                updatedSet.completedAt = new Date().toISOString();
-                
-                // Set this as the last completed set for animation
-                setLastCompletedSetId(setId);
-                
-                // Trigger completion animation
-                setCompleteAnimation.setValue(0);
-                Animated.timing(setCompleteAnimation, {
-                  toValue: 1,
-                  duration: 500,
-                  useNativeDriver: true,
-                }).start();
-                
-                // Provide haptic feedback for set completion
-                if (Platform.OS === 'ios') {
-                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                } else {
-                  Vibration.vibrate(100);
-                }
-                
-                // Start rest timer if set is completed
-                startRestTimer(exercise.id, setId);
-              }
+// Function to handle weight and reps updates
+const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', value: string | number) => {
+  if (!workout) return;
+  
+  let numValue: number | null = null;
+  
+  // Handle different types of values
+  if (field === 'rpe') {
+    numValue = typeof value === 'number' ? value : (value === '' ? null : parseFloat(value as string));
+  } else {
+    numValue = value === '' ? null : parseFloat(value as string);
+  }
+  
+  const updatedExercises = workout.exercises.map((exercise, index) => {
+    if (index === currentExerciseIndex) {
+      const updatedSets = exercise.sets.map(set => {
+        if (set.id === setId) {
+          const updatedSet: ExerciseSet = { ...set, [field]: numValue };
+          
+          // Store previous values for comparison if completing the set
+          if (field === 'weight' || field === 'reps') {
+            if (set.isComplete) {
+              // Already completed, just update the value
+              return updatedSet;
             }
             
-            return updatedSet;
+            // Automatically mark as complete if both weight and reps have values
+            const otherField = field === 'weight' ? 'reps' : 'weight';
+            const otherValue = field === 'weight' ? updatedSet.reps : updatedSet.weight;
+            
+            if (numValue !== null && otherValue !== null) {
+              updatedSet.isComplete = true;
+              updatedSet.completedAt = new Date().toISOString();
+              
+              // Set this as the last completed set for animation
+              setLastCompletedSetId(setId);
+              
+              // Trigger completion animation
+              setCompleteAnimation.setValue(0);
+              Animated.timing(setCompleteAnimation, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+              }).start();
+              
+              // Provide haptic feedback for set completion
+              if (Platform.OS === 'ios') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              } else {
+                Vibration.vibrate(100);
+              }
+              
+              // Start rest timer if set is completed
+              startRestTimer(exercise.id, setId);
+            }
           }
-          return set;
-        });
-        
-        // Check for personal records after updating
-        const updatedExercise = { ...exercise, sets: updatedSets };
-        return updatedExercise;
-      }
-      return exercise;
-    });
-    
-    const newWorkout = { ...workout, exercises: updatedExercises };
-    setWorkout(newWorkout);
-    
-    // Save workout data after update
-    await workoutService.saveCurrentWorkout(newWorkout);
-    
-    // Check for PRs
-    checkForPersonalRecords();
-  };
+          
+          return updatedSet;
+        }
+        return set;
+      });
+      
+      // Check for personal records after updating
+      return { ...exercise, sets: updatedSets };
+    }
+    return exercise;
+  });
+  
+  const newWorkout = { ...workout, exercises: updatedExercises };
+  
+  // Update state
+  setWorkout(newWorkout);
+  
+  // Save workout data after update - ensure this is awaited
+  await workoutService.saveCurrentWorkout(newWorkout);
+  
+  // Check for PRs
+  checkForPersonalRecords();
+};
   
   // Function to check for personal records
-  /*
   const checkForPersonalRecords = async () => {
     try {
       if (!workout) return;
@@ -430,59 +490,59 @@ export default function WorkoutTrackingScreen({
       console.error('Error checking for PRs:', error);
     }
   };
-  */
-  // Function to mark a set as complete or incomplete
-  const toggleSetCompletion = async (setId: string) => {
-    if (!workout) return;
-    
-    const updatedExercises = workout.exercises.map((exercise, index) => {
-      if (index === currentExerciseIndex) {
-        const updatedSets = exercise.sets.map(set => {
-          if (set.id === setId) {
-            const wasComplete = set.isComplete;
-            const newState = !wasComplete;
-            
-            // If marking complete, record completion time
-            const updatedSet = { 
-              ...set, 
-              isComplete: newState, 
-              completedAt: newState ? new Date().toISOString() : undefined
-            };
-            
-            // If completing, set as last completed and start timer
-            if (newState) {
-              setLastCompletedSetId(setId);
-              startRestTimer(exercise.id, setId);
-              
-              // Provide haptic feedback
-              if (Platform.OS === 'ios') {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              } else {
-                Vibration.vibrate(100);
-              }
-            }
-            
-            return updatedSet;
-          }
-          return set;
-        });
-        return { ...exercise, sets: updatedSets };
-      }
-      return exercise;
-    });
-    
-    const newWorkout = { ...workout, exercises: updatedExercises };
-    setWorkout(newWorkout);
-    
-  // Save workout data
-  await workoutService.saveCurrentWorkout(newWorkout);
+
+// Function to mark a set as complete or incomplete
+const toggleSetCompletion = async (setId: string) => {
+  if (!workout) return;
   
-  // Only check for PRs after completing a set, not when uncompleting
-  const setJustCompleted = updatedExercises[currentExerciseIndex].sets.find(s => s.id === setId)?.isComplete;
-  if (setJustCompleted) {
-    // Check for PRs with a slight delay to ensure state is updated
-    setTimeout(() => checkForPersonalRecords(), 500);
-  }
+  // Create a deep copy of the current workout to avoid reference issues
+  const workoutCopy = JSON.parse(JSON.stringify(workout));
+  
+  // Update the copied workout
+  const updatedExercises = workoutCopy.exercises.map((exercise, index) => {
+    if (index === currentExerciseIndex) {
+      const updatedSets = exercise.sets.map(set => {
+        if (set.id === setId) {
+          const newState = !set.isComplete;
+          
+          // If marking complete, record completion time
+          return { 
+            ...set, 
+            isComplete: newState, 
+            completedAt: newState ? new Date().toISOString() : undefined
+          };
+        }
+        return set;
+      });
+      return { ...exercise, sets: updatedSets };
+    }
+    return exercise;
+  });
+  
+ // Create updated workout
+ const updatedWorkout = { ...workoutCopy, exercises: updatedExercises };
+  
+ // Update React state
+ setWorkout(updatedWorkout);
+ 
+ // Force immediate save
+ await ensureWorkoutSaved(updatedWorkout);
+ 
+ // Provide haptic feedback
+ if (Platform.OS === 'ios') {
+   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+ } else {
+   Vibration.vibrate(100);
+ }
+ 
+ // Get the updated set for reference
+ const completedSet = updatedWorkout.exercises[currentExerciseIndex].sets.find(s => s.id === setId);
+ 
+ // If set was completed, handle related actions
+ if (completedSet && completedSet.isComplete) {
+   setLastCompletedSetId(setId);
+   startRestTimer(updatedWorkout.exercises[currentExerciseIndex].id, setId);
+ }
 };
   
   // Function to add a new set to the current exercise
@@ -646,85 +706,102 @@ export default function WorkoutTrackingScreen({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
-  // Navigate to the previous exercise
-  const handlePreviousExercise = () => {
-    if (!workout) return;
-    
-    // Save current exercise notes
-    updateExerciseNotes();
-    
-    // Force save current workout data
-    saveWorkoutData();
-    
-    // Skip or stop any active timer
-    skipRestTimer();
-    
-    Animated.timing(position, {
-      toValue: width,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => {
-      position.setValue(-width);
-      
-      if (currentExerciseIndex > 0) {
-        const newIndex = currentExerciseIndex - 1;
-        setCurrentExerciseIndex(newIndex);
-        
-        // Update notes for the new exercise
-        setExerciseNotes(workout.exercises[newIndex].notes || '');
-      } else {
-        // If at the first exercise, go back to overview
-        navigation.goBack();
-        return;
-      }
-      
-      Animated.timing(position, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
+// Navigate to the previous exercise
+const handlePreviousExercise = async () => {
+  if (!workout) return;
   
-  // Navigate to the next exercise
-  const handleNextExercise = () => {
-    if (!workout) return;
+  // Save current exercise notes
+  await updateExerciseNotes();
+  
+  // Force save current workout data
+  await saveWorkoutData();
+  
+  // Skip or stop any active timer
+  skipRestTimer();
+  
+  Animated.timing(position, {
+    toValue: width,
+    duration: 250,
+    useNativeDriver: true,
+  }).start(() => {
+    position.setValue(-width);
     
-    // Save current exercise notes
-    updateExerciseNotes();
-    
-    // Force save current workout data
-    saveWorkoutData();
-    
-    // Skip or stop any active timer
-    skipRestTimer();
+    if (currentExerciseIndex > 0) {
+      const newIndex = currentExerciseIndex - 1;
+      setCurrentExerciseIndex(newIndex);
+      
+      // Update notes for the new exercise
+      setExerciseNotes(workout.exercises[newIndex].notes || '');
+    } else {
+      // If at the first exercise, go back to overview
+      navigation.goBack();
+      return;
+    }
     
     Animated.timing(position, {
-      toValue: -width,
+      toValue: 0,
       duration: 250,
       useNativeDriver: true,
-    }).start(() => {
-      position.setValue(width);
+    }).start();
+  });
+};
+
+// Navigate to the next exercise
+// Navigate to the next exercise
+const handleNextExercise = async () => {
+  if (!workout) return;
+  
+  // Create a deep copy of the current workout
+  const workoutCopy = JSON.parse(JSON.stringify(workout));
+  
+  // Force immediate save before navigation
+  await ensureWorkoutSaved(workoutCopy);
+  
+  // Skip any active timer
+  skipRestTimer();
+  
+  Animated.timing(position, {
+    toValue: -width,
+    duration: 250,
+    useNativeDriver: true,
+  }).start(() => {
+    position.setValue(width);
+    
+    if (currentExerciseIndex < workoutCopy.exercises.length - 1) {
+      const newIndex = currentExerciseIndex + 1;
+      setCurrentExerciseIndex(newIndex);
       
-      if (currentExerciseIndex < workout.exercises.length - 1) {
-        const newIndex = currentExerciseIndex + 1;
-        setCurrentExerciseIndex(newIndex);
-        
-        // Update notes for the new exercise
-        setExerciseNotes(workout.exercises[newIndex].notes || '');
-      } else {
-        // If at the last exercise, show completion modal
-        setCompletionModalVisible(true);
-        return;
-      }
-      
-      Animated.timing(position, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
+      // Update notes for the new exercise
+      setExerciseNotes(workoutCopy.exercises[newIndex].notes || '');
+    } else {
+      // If at the last exercise, show completion modal
+      setCompletionModalVisible(true);
+      return;
+    }
+    
+    Animated.timing(position, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  });
+};
+
+// Handle navigation back to overview screen
+const handleBackToOverview = async () => {
+  // Force save the current workout state
+  if (workout) {
+    try {
+      await saveWorkoutData();
+      console.log("Saved workout before returning to overview");
+    } catch (error) {
+      console.error("Error saving workout:", error);
+    }
+  }
+  
+  // Navigate back
+  navigation.goBack();
+};
   
   // Update exercise notes
   const updateExerciseNotes = async () => {
@@ -871,25 +948,25 @@ export default function WorkoutTrackingScreen({
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="#111827" />
-          </TouchableOpacity>
-          
-          <View style={styles.headerTitle}>
-            <Text style={styles.headerText}>Exercise</Text>
-            <Text style={styles.headerCount}>
-              {currentExerciseIndex + 1} of {workout.exercises.length}
-            </Text>
-          </View>
-          
-          <TouchableOpacity>
-            <MoreHorizontal size={24} color="#111827" />
-          </TouchableOpacity>
-        </View>
-      </View>
+{/* Header */}
+<View style={styles.header}>
+  <View style={styles.headerContent}>
+    <TouchableOpacity onPress={handleBackToOverview}>
+      <ArrowLeft size={24} color="#111827" />
+    </TouchableOpacity>
+    
+    <View style={styles.headerTitle}>
+      <Text style={styles.headerText}>Exercise</Text>
+      <Text style={styles.headerCount}>
+        {currentExerciseIndex + 1} of {workout.exercises.length}
+      </Text>
+    </View>
+    
+    <TouchableOpacity>
+      <MoreHorizontal size={24} color="#111827" />
+    </TouchableOpacity>
+  </View>
+</View>
 
       {/* Rest Timer Modal */}
       {restTimer.isActive && (

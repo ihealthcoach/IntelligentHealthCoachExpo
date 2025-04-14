@@ -34,13 +34,35 @@ class WorkoutService {
  */
 async getCurrentWorkout(): Promise<Workout | null> {
   try {
+    // Try to get directly from AsyncStorage first for maximum reliability
     const workoutJson = await AsyncStorage.getItem(KEYS.CURRENT_WORKOUT);
-    if (!workoutJson) return null;
     
-    const workout = JSON.parse(workoutJson);
+    if (!workoutJson) {
+      console.log("No current workout found in AsyncStorage");
+      return null;
+    }
     
-    // Enrich with complete exercise details
-    return await this.enrichWorkoutWithExerciseDetails(workout);
+    try {
+      const parsedWorkout = JSON.parse(workoutJson);
+      console.log("Retrieved workout from AsyncStorage with exercises:", 
+        parsedWorkout.exercises.length,
+        "First exercise sets:", 
+        parsedWorkout.exercises[0]?.sets?.length || 0,
+        "Completed sets in first exercise:", 
+        parsedWorkout.exercises[0]?.sets?.filter(s => s.isComplete)?.length || 0
+      );
+      
+      // Sanity check - ensure the workout has valid structure
+      if (!parsedWorkout.exercises || !Array.isArray(parsedWorkout.exercises)) {
+        console.error("Retrieved workout has invalid structure");
+        return null;
+      }
+      
+      return parsedWorkout;
+    } catch (parseError) {
+      console.error("Error parsing workout JSON:", parseError);
+      return null;
+    }
   } catch (error) {
     console.error('Error loading current workout:', error);
     return null;
@@ -52,10 +74,22 @@ async getCurrentWorkout(): Promise<Workout | null> {
    */
   async saveCurrentWorkout(workout: Workout): Promise<void> {
     try {
+      if (!workout) {
+        console.error('Cannot save null workout');
+        return;
+      }
+      
+      // Ensure the workout has an ID
+      if (!workout.id) {
+        workout.id = Date.now().toString();
+      }
+      
+      // Serialize and save to AsyncStorage with proper error handling
       await AsyncStorage.setItem(KEYS.CURRENT_WORKOUT, JSON.stringify(workout));
+      console.log('Workout saved successfully, ID:', workout.id);
     } catch (error) {
       console.error('Error saving current workout:', error);
-      throw error;
+      throw error; // Rethrow to allow calling code to handle
     }
   }
 

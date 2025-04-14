@@ -40,6 +40,7 @@ import {
 } from 'lucide-react-native';
 import { Portal, Modal, Button, Divider, Badge } from 'react-native-paper';
 import { MainStackScreenProps } from '../../types/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { workoutService } from '../../services/workoutService';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -141,46 +142,59 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
       };
   
   // Load workout data from service
-  const loadWorkoutData = async () => {
-    try {
-      setLoading(true);
-      
-      // Add a small delay to ensure AsyncStorage has time to update
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const currentWorkout = await workoutService.getCurrentWorkout();
-      
-      if (currentWorkout) {
-        console.log("Loaded workout data:", JSON.stringify(currentWorkout));
-        setWorkout(currentWorkout);
-        setWorkoutName(currentWorkout.name || 'New Workout');
-        
-        // Check if workout has been started
-        const hasStarted = currentWorkout.exercises?.some(exercise => 
-          exercise.sets?.some(set => set.isComplete)
-        );
-        setWorkoutStarted(hasStarted);
-      } else {
-        console.log("No workout data found, creating new workout");
-        // Initialize with a new workout
-        const newWorkout: Workout = {
-          id: Date.now().toString(),
-          name: 'New Workout',
-          exercises: [],
-          status: 'not_started',
-          startedAt: new Date().toISOString()
-        };
-        
-        setWorkout(newWorkout);
-        await workoutService.saveCurrentWorkout(newWorkout);
-      }
-    } catch (error) {
-      console.error('Error loading workout data:', error);
-      Alert.alert('Error', 'Failed to load workout data');
-    } finally {
-      setLoading(false);
+const loadWorkoutData = async () => {
+  try {
+    setLoading(true);
+    
+    // Direct AsyncStorage check for debugging
+    const asyncStorageWorkout = await AsyncStorage.getItem('current_workout');
+    
+    if (asyncStorageWorkout) {
+      console.log("Raw AsyncStorage workout data available:", 
+        asyncStorageWorkout.substring(0, 100) + "...");
+    } else {
+      console.log("No raw AsyncStorage workout data found");
     }
-  };
+    
+    // Load workout from service
+    const currentWorkout = await workoutService.getCurrentWorkout();
+    
+    if (currentWorkout) {
+      const completedSets = currentWorkout.exercises.reduce((total, ex) => 
+        total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0);
+      
+      console.log("Loaded workout with", 
+        currentWorkout.exercises.length, "exercises and", 
+        completedSets, "completed sets");
+      
+      setWorkout(currentWorkout);
+      
+      // Check if workout has been started
+      const hasStarted = currentWorkout.exercises?.some(exercise => 
+        exercise.sets?.some(set => set.isComplete)
+      );
+      setWorkoutStarted(hasStarted);
+    } else {
+      console.log("No workout data found, creating new workout");
+      // Initialize with a new workout
+      const newWorkout: Workout = {
+        id: Date.now().toString(),
+        name: 'New Workout',
+        exercises: [],
+        status: 'not_started',
+        startedAt: new Date().toISOString()
+      };
+      
+      setWorkout(newWorkout);
+      await workoutService.saveCurrentWorkout(newWorkout);
+    }
+  } catch (error) {
+    console.error('Error loading workout data:', error);
+    Alert.alert('Error', 'Failed to load workout data');
+  } finally {
+    setLoading(false);
+  }
+};
   
   // Load workout templates
   const loadWorkoutTemplates = async () => {
@@ -232,19 +246,32 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   };
   
   // Handle exercise click to navigate to tracking
-  const handleExerciseClick = (exerciseIndex: number) => {
+  const handleExerciseClick = async (exerciseIndex: number) => {
     if (!workout) return;
     
-    // Save current workout data first
-    workoutService.saveCurrentWorkout(workout);
+    // Save current workout data first and await its completion
+    await workoutService.saveCurrentWorkout(workout);
     
-    // Set workout as started
+    // Set workout as started if not already
+    if (workout.status !== 'in_progress') {
+      const updatedWorkout = {
+        ...workout,
+        status: 'in_progress' as WorkoutStatus,
+        startedAt: workout.startedAt || new Date().toISOString()
+      };
+      setWorkout(updatedWorkout);
+      
+      // Save the updated status before navigating
+      await workoutService.saveCurrentWorkout(updatedWorkout);
+    }
+    
+    // Set workout as started in UI
     setWorkoutStarted(true);
     
-    // Navigate to workout tracking with the selected exercise
+    // Navigate to workout tracking with the updated workout object
     navigation.navigate('WorkoutTracking', {
       exerciseIndex: exerciseIndex,
-      workout: workout
+      workout: workout // Pass the actual state directly, not a copy
     });
   };
   
