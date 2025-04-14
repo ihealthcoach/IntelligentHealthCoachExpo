@@ -22,7 +22,9 @@ import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 
 // Icons
-import FireMini from '../../assets/icons/fire-mini.svg';
+//import StepsIcon from '../../src/assets/icons/fire-mini.svg';
+//import StepsIcon from '../../src/assets/icons/clock-outline.svg';
+import StepsIcon from 'steps.svg';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -182,7 +184,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <FireMini width={24} height={24} color="#6B7280" />
+                      <StepsIcon width={24} height={24} color="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
@@ -204,7 +206,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Clock width={24} height={24} color="#6B7280" />
+                      <StepsIcon width={24} height={24} stroke="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Active time</Text>
                   </View>
@@ -229,7 +231,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <View style={styles.stepsIcon} />
+                      <StepsIcon width={24} height={24} stroke="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Steps</Text>
                   </View>
@@ -343,7 +345,7 @@ const getFirstName = () => {
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <FireMini width={24} height={24} color="#6B7280" />
+                    <StepsIcon width={24} height={24} color="#6B7280" />
                     <Text style={styles.activityStatValue}>140 kcal</Text>
                   </View>
                   
@@ -368,7 +370,7 @@ const getFirstName = () => {
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <FireMini width={24} height={24} color="#6B7280" />
+                    <StepsIcon width={24} height={24} color="#6B7280" />
                     <Text style={styles.activityStatValue}>812 kcal</Text>
                   </View>
                   
