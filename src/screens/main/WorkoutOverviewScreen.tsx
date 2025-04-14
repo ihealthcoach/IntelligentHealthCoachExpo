@@ -268,10 +268,10 @@ const loadWorkoutData = async () => {
     // Set workout as started in UI
     setWorkoutStarted(true);
     
-    // Navigate to workout tracking with the updated workout object
+    // Navigate to workout tracking WITHOUT passing the workout object
+    // This forces WorkoutTrackingScreen to load from AsyncStorage
     navigation.navigate('WorkoutTracking', {
-      exerciseIndex: exerciseIndex,
-      workout: workout // Pass the actual state directly, not a copy
+      exerciseIndex: exerciseIndex
     });
   };
   
