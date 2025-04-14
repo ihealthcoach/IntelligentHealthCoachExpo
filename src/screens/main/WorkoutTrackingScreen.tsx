@@ -89,13 +89,13 @@ export default function WorkoutTrackingScreen({
   const [editingRPE, setEditingRPE] = useState<{setId: string, value: number | null} | null>(null);
   
   // Rest timer state
-  const [restTimer, setRestTimer] = useState<RestTimerState>({
-    isActive: false,
-    timeRemaining: 0,
-    defaultDuration: 90, // Default 90 seconds rest
-    exerciseId: null,
-    setId: null
-  });
+// const [restTimer, setRestTimer] = useState<RestTimerState>({
+//   isActive: false,
+//   timeRemaining: 0,
+//   defaultDuration: 90,
+//   exerciseId: null,
+//   setId: null
+// });
   
   // Visual feedback states
   const [lastCompletedSetId, setLastCompletedSetId] = useState<string | null>(null);
@@ -238,26 +238,25 @@ const verifyWorkoutData = async (label: string) => {
   }, []);
   
   // Effect for rest timer
-  useEffect(() => {
-    if (restTimer.isActive && restTimer.timeRemaining > 0) {
-      timerInterval.current = setInterval(() => {
-        setRestTimer(prev => ({
-          ...prev,
-          timeRemaining: prev.timeRemaining - 1
-        }));
-      }, 1000);
-      
-      return () => {
-        if (timerInterval.current) {
-          clearInterval(timerInterval.current);
-          timerInterval.current = null;
-        }
-      };
-    } else if (restTimer.isActive && restTimer.timeRemaining <= 0) {
-      // Timer completed
-      handleTimerComplete();
-    }
-  }, [restTimer.isActive, restTimer.timeRemaining]);
+// useEffect(() => {
+//   if (restTimer.isActive && restTimer.timeRemaining > 0) {
+//     timerInterval.current = setInterval(() => {
+//       setRestTimer(prev => ({
+//         ...prev,
+//         timeRemaining: prev.timeRemaining - 1
+//       }));
+//     }, 1000);
+//     
+//     return () => {
+//       if (timerInterval.current) {
+//         clearInterval(timerInterval.current);
+//         timerInterval.current = null;
+//       }
+//     };
+//   } else if (restTimer.isActive && restTimer.timeRemaining <= 0) {
+//     handleTimerComplete();
+//   }
+// }, [restTimer.isActive, restTimer.timeRemaining]);
   
   // Handle timer completion
   const handleTimerComplete = () => {
@@ -272,14 +271,14 @@ const verifyWorkoutData = async (label: string) => {
     }
     
     // Reset timer
-    setRestTimer(prev => ({
-      ...prev,
-      isActive: false
-    }));
+    //setRestTimer(prev => ({
+      //...prev,
+      //isActive: false
+    //}));
     
     // Show alert
-    Alert.alert('Rest Complete', 'Ready for your next set!');
-  };
+    //Alert.alert('Rest Complete', 'Ready for your next set!');
+  //};
   
 /*
   // Initialize sound effects
@@ -550,7 +549,12 @@ const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', v
   
   // Function to check for personal records
 // Function to check for personal records - modified to remove disruptive alerts
+// Temporarily disabled PR checking to focus on AsyncStorage issues
 const checkForPersonalRecords = async () => {
+  // Return immediately without doing anything
+  return;
+  
+  /* Original implementation
   try {
     if (!workout) return;
     
@@ -595,6 +599,7 @@ const checkForPersonalRecords = async () => {
   } catch (error) {
     console.error('Error checking for PRs:', error);
   }
+  */
 };
 
 // Function to mark a set as complete or incomplete
