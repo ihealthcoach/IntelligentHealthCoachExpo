@@ -113,6 +113,18 @@ async getCurrentWorkout(): Promise<Workout | null> {
   }
 
   /**
+ * Clears the current workout from AsyncStorage
+ */
+async clearCurrentWorkout(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(KEYS.CURRENT_WORKOUT);
+  } catch (error) {
+    console.error('Error clearing current workout:', error);
+    throw error;
+  }
+}
+
+  /**
    * Completes a workout - saves to history and syncs to Supabase if online
    */
   async completeWorkout(workout: Workout): Promise<void> {

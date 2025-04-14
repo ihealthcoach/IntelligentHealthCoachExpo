@@ -44,7 +44,8 @@ import {
   Workout,
   WorkoutExercise,
   ExerciseSet,
-  SupersetType
+  SupersetType,
+  WorkoutStatus
 } from '../../types/workout';
 import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
@@ -303,7 +304,7 @@ export default function WorkoutTrackingScreen({
         id: Date.now().toString(),
         name: 'New Workout',
         exercises: [],
-        status: 'not_started',
+        status: WorkoutStatus.NOT_STARTED, // Use the enum value instead of string
         startedAt: new Date().toISOString()
       };
       
