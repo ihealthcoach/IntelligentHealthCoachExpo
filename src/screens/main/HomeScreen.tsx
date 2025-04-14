@@ -7,24 +7,22 @@ import {
   TouchableOpacity, 
   Image, 
   SafeAreaView, 
-  StatusBar 
+  StatusBar
 } from 'react-native';
 import { 
   ChevronDown, 
-  ArrowRight, 
-  Flame as Fire, 
+  ArrowRight,  
   Clock, 
   MapPin, 
   Plus, 
-  BarChart3, 
-  Home, 
-  ChefHat, 
   Dumbbell 
 } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
-import CustomTabBar from '../../components/CustomTabBar';
 import { supabase } from '../../services/supabase';
+
+// Icons
+import FireMini from '../../assets/icons/fire-mini.svg';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -184,7 +182,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Fire width={24} height={24} color="#6B7280" />
+                      <FireMini width={24} height={24} color="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
@@ -345,7 +343,7 @@ const getFirstName = () => {
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Fire width={24} height={24} color="#6B7280" />
+                    <FireMini width={24} height={24} color="#6B7280" />
                     <Text style={styles.activityStatValue}>140 kcal</Text>
                   </View>
                   
@@ -370,7 +368,7 @@ const getFirstName = () => {
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Fire width={24} height={24} color="#6B7280" />
+                    <FireMini width={24} height={24} color="#6B7280" />
                     <Text style={styles.activityStatValue}>812 kcal</Text>
                   </View>
                   
