@@ -169,6 +169,51 @@ export default function WorkoutTrackingScreen({
     }
   };
 
+  // Function to help verify data between operations
+const verifyWorkoutData = async (label: string) => {
+  try {
+    // Compare in-memory workout with stored workout
+    const storedJson = await AsyncStorage.getItem('current_workout');
+    if (!storedJson) {
+      console.log(`${label}: No workout in AsyncStorage`);
+      return;
+    }
+    
+    if (!workout) {
+      console.log(`${label}: No workout in memory`);
+      return;
+    }
+    
+    const storedWorkout = JSON.parse(storedJson);
+    
+    // Count sets and completed sets
+    const memoryCompletedSets = workout.exercises.reduce((total, ex) => 
+      total + ex.sets.filter(s => s.isComplete).length, 0);
+    
+    const storedCompletedSets = storedWorkout.exercises.reduce((total, ex) => 
+      total + ex.sets.filter(s => s.isComplete).length, 0);
+    
+    console.log(`${label}: Memory: ${memoryCompletedSets} completed sets, Stored: ${storedCompletedSets} completed sets`);
+    
+    if (memoryCompletedSets !== storedCompletedSets) {
+      console.error(`${label}: DATA MISMATCH - Different completed set counts!`);
+    }
+    
+    // Check first exercise details for both versions
+    if (workout.exercises[0] && storedWorkout.exercises[0]) {
+      const memEx = workout.exercises[0];
+      const storedEx = storedWorkout.exercises[0];
+      
+      console.log(`${label}: First exercise comparison:`);
+      console.log(`Memory: ${memEx.sets.length} sets, ${memEx.sets.filter(s => s.isComplete).length} completed`);
+      console.log(`Stored: ${storedEx.sets.length} sets, ${storedEx.sets.filter(s => s.isComplete).length} completed`);
+    }
+    
+  } catch (error) {
+    console.error(`Error in verifyWorkoutData (${label}):`, error);
+  }
+};
+
   // Timer interval reference
   const timerInterval = useRef<NodeJS.Timeout | null>(null);
   
@@ -292,11 +337,7 @@ const logWorkoutState = (label: string) => {
       const startIndex = route.params?.exerciseIndex || 0;
       setCurrentExerciseIndex(startIndex);
       
-      // Log all AsyncStorage keys to debug
-      const allKeys = await AsyncStorage.getAllKeys();
-      console.log("All AsyncStorage keys:", allKeys);
-      
-      // Always load from AsyncStorage first
+      // DIRECT READ: Always read directly from AsyncStorage first
       const workoutJson = await AsyncStorage.getItem('current_workout');
       
       if (workoutJson) {
@@ -305,8 +346,22 @@ const logWorkoutState = (label: string) => {
         try {
           const loadedWorkout = JSON.parse(workoutJson);
           
-          // Log the full workout details for debugging
-          await logFullWorkout("Loaded from AsyncStorage");
+          // Calculate total completed sets
+          const completedSets = loadedWorkout.exercises.reduce((total, ex) => 
+            total + ex.sets.filter(s => s.isComplete).length, 0);
+          
+          // Log detailed workout info
+          console.log(`Loaded from AsyncStorage - ID: ${loadedWorkout.id}, Total exercises: ${loadedWorkout.exercises.length}, Total completed sets: ${completedSets}`);
+          
+          // Log each exercise and its sets
+          loadedWorkout.exercises.forEach((ex, i) => {
+            const exCompletedSets = ex.sets.filter(s => s.isComplete).length;
+            console.log(`Exercise ${i+1}: ${ex.name}, Sets: ${ex.sets.length}, Completed: ${exCompletedSets}`);
+            
+            ex.sets.forEach((set, j) => {
+              console.log(`  Set ${j+1}: isComplete=${set.isComplete}, weight=${set.weight}, reps=${set.reps}`);
+            });
+          });
           
           // Set the workout state
           setWorkout(loadedWorkout);
@@ -315,33 +370,40 @@ const logWorkoutState = (label: string) => {
             setExerciseNotes(loadedWorkout.exercises[startIndex].notes || '');
           }
           
-          setLoading(false);
-          return;
         } catch (parseError) {
           console.error("Error parsing workout from AsyncStorage:", parseError);
+          createNewWorkout();
         }
       } else {
         console.log("No workout data found in AsyncStorage");
+        createNewWorkout();
       }
-      
-      // Fallback to creating a new workout
-      console.log("Creating a new workout as fallback");
-      const newWorkout = {
-        id: Date.now().toString(),
-        name: 'New Workout',
-        exercises: [],
-        status: WorkoutStatus.NOT_STARTED, // Use the enum value instead of string
-        startedAt: new Date().toISOString()
-      };
-      
-      setWorkout(newWorkout);
-      await saveWorkoutToStorage(newWorkout);
       
     } catch (error) {
       console.error('Error in loadWorkoutData:', error);
+      createNewWorkout();
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Helper function to create a new workout
+  const createNewWorkout = async () => {
+    const newWorkout: Workout = {
+      id: Date.now().toString(),
+      name: 'New Workout',
+      exercises: [],
+      status: 'not_started',
+      startedAt: new Date().toISOString()
+    };
+    
+    setWorkout(newWorkout);
+    
+    // DIRECT SAVE: Always save directly to AsyncStorage first
+    await AsyncStorage.setItem('current_workout', JSON.stringify(newWorkout));
+    
+    // Then save through service
+    await workoutService.saveCurrentWorkout(newWorkout);
   };
   
   // Save workout data
@@ -471,10 +533,11 @@ const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', v
     // Update state
     setWorkout(workoutCopy);
     
-    // Save to AsyncStorage directly first for reliability
-    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+    // DIRECT SAVE: Save directly to AsyncStorage for maximum reliability
+    const workoutJson = JSON.stringify(workoutCopy);
+    await AsyncStorage.setItem('current_workout', workoutJson);
     
-    // Then save through service for proper handling
+    // Then also save through service
     await workoutService.saveCurrentWorkout(workoutCopy);
     
     console.log(`Successfully updated ${field} to ${numValue} for set ${setId}`);
@@ -553,7 +616,7 @@ const toggleSetCompletion = async (setId: string) => {
           // Toggle completion status
           newCompletionState = !exercise.sets[i].isComplete;
           
-          // Update only completion status, preserve other fields
+          // Update the set with toggled completion, preserving other fields
           exercise.sets[i] = {
             ...exercise.sets[i],
             isComplete: newCompletionState,
@@ -567,20 +630,30 @@ const toggleSetCompletion = async (setId: string) => {
     }
     
     if (!updatedSet) {
-      console.error(`Set with ID ${setId} not found`);
+      console.error(`Set ${setId} not found`);
       return;
     }
     
     console.log(`Toggled set ${setId} completion to ${newCompletionState}`);
     
-    // Update state
+    // Update state FIRST
     setWorkout(workoutCopy);
     
-    // Save directly to AsyncStorage first
-    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+    // DIRECT SAVE: Save directly to AsyncStorage first
+    const workoutJson = JSON.stringify(workoutCopy);
+    await AsyncStorage.setItem('current_workout', workoutJson);
     
     // Then save through service
     await workoutService.saveCurrentWorkout(workoutCopy);
+    
+    // Verify the save by reading it back
+    const savedJson = await AsyncStorage.getItem('current_workout');
+    if (savedJson) {
+      const savedData = JSON.parse(savedJson);
+      const totalCompletedSets = savedData.exercises.reduce((total, ex) => 
+        total + ex.sets.filter(s => s.isComplete).length, 0);
+      console.log(`Verified after toggle: ${totalCompletedSets} total completed sets`);
+    }
     
     // Provide haptic feedback
     if (Platform.OS === 'ios') {
@@ -589,7 +662,7 @@ const toggleSetCompletion = async (setId: string) => {
       Vibration.vibrate(100);
     }
     
-    // Only start rest timer if completing the set - simplified for now
+    // Only start rest timer if completing the set
     if (newCompletionState) {
       setLastCompletedSetId(setId);
     }
@@ -610,7 +683,7 @@ const toggleSetCompletion = async (setId: string) => {
     
     // Create new set with values from the last set for convenience
     const newSet: ExerciseSet = {
-      id: `${currentExercise.id}-set-${Date.now()}`,
+      id: `${currentExercise.id}-set-${Date.now()}`, // Simpler ID format
       setNumber: newSetNumber,
       weight: lastSet?.weight || null,
       reps: lastSet?.reps || null,
@@ -618,7 +691,11 @@ const toggleSetCompletion = async (setId: string) => {
       rpe: lastSet?.rpe || null
     };
     
-    const updatedExercises = workout.exercises.map((exercise, index) => {
+    // Create deep copy to avoid reference issues
+    const workoutCopy = JSON.parse(JSON.stringify(workout));
+    
+    // Add the new set to the specific exercise
+    workoutCopy.exercises = workoutCopy.exercises.map((exercise, index) => {
       if (index === currentExerciseIndex) {
         return {
           ...exercise,
@@ -628,11 +705,15 @@ const toggleSetCompletion = async (setId: string) => {
       return exercise;
     });
     
-    const newWorkout = { ...workout, exercises: updatedExercises };
-    setWorkout(newWorkout);
+    // Update state
+    setWorkout(workoutCopy);
     
-    // Save workout data
-    await workoutService.saveCurrentWorkout(newWorkout);
+    // DIRECT SAVE: Save directly to AsyncStorage first
+    const workoutJson = JSON.stringify(workoutCopy);
+    await AsyncStorage.setItem('current_workout', workoutJson);
+    
+    // Then save through service
+    await workoutService.saveCurrentWorkout(workoutCopy);
     
     // Provide haptic feedback
     if (Platform.OS === 'ios') {
@@ -848,15 +929,46 @@ const handleBackToOverview = async () => {
     console.log("Saving workout before navigating back");
     
     // Log the workout state before saving
-    await logFullWorkout("Before returning to overview");
+    const completedSets = workout.exercises.reduce((total, ex) => 
+      total + ex.sets.filter(s => s.isComplete).length, 0);
     
-    // Save to AsyncStorage
-    await saveWorkoutToStorage(workout);
+    console.log(`Before returning to overview - ID: ${workout.id}, Total exercises: ${workout.exercises.length}, Total completed sets: ${completedSets}`);
     
-    // Log after saving to verify
-    await logFullWorkout("After saving before return to overview");
+    workout.exercises.forEach((ex, i) => {
+      const exCompletedSets = ex.sets.filter(s => s.isComplete).length;
+      console.log(`Exercise ${i+1}: ${ex.name}, Sets: ${ex.sets.length}, Completed: ${exCompletedSets}`);
+      
+      ex.sets.forEach((set, j) => {
+        console.log(`  Set ${j+1}: isComplete=${set.isComplete}, weight=${set.weight}, reps=${set.reps}`);
+      });
+    });
+    
+    // DIRECT SAVE: Always save directly to AsyncStorage first
+    const workoutJson = JSON.stringify(workout);
+    await AsyncStorage.setItem('current_workout', workoutJson);
+    
+    // Then save through service
+    await workoutService.saveCurrentWorkout(workout);
+    
+    // Verify the save was successful
+    const savedJson = await AsyncStorage.getItem('current_workout');
+    if (savedJson) {
+      const savedWorkout = JSON.parse(savedJson);
+      
+      // Count completed sets
+      const savedCompletedSets = savedWorkout.exercises.reduce((total, ex) => 
+        total + ex.sets.filter(s => s.isComplete).length, 0);
+      
+      console.log(`After saving before return to overview - Total completed sets: ${savedCompletedSets}`);
+      
+      // Check if we lost any data
+      if (savedCompletedSets !== completedSets) {
+        console.error(`DATA LOSS ERROR: Expected ${completedSets} completed sets but found ${savedCompletedSets}`);
+      }
+    }
   }
   
+  // Navigate back
   navigation.goBack();
 };
   
