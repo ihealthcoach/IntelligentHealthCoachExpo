@@ -84,31 +84,36 @@ async getCurrentWorkout(): Promise<Workout | null> {
         workout.id = Date.now().toString();
       }
       
-      // Log workout before saving for debugging
-      console.log(`WorkoutService: Saving workout ID ${workout.id}`);
-      const completedSets = workout.exercises.reduce((total, ex) => 
-        total + ex.sets.filter(s => s.isComplete).length, 0);
-      console.log(`WorkoutService: Total completed sets before saving: ${completedSets}`);
-      
       // Create a deep copy to avoid reference issues
       const workoutCopy = JSON.parse(JSON.stringify(workout));
       
-      // Serialize and save to AsyncStorage with proper error handling
-      await AsyncStorage.setItem(KEYS.CURRENT_WORKOUT, JSON.stringify(workoutCopy));
+      // Calculate and log statistics for debugging
+      const completedSets = workoutCopy.exercises.reduce((total, ex) => 
+        total + ex.sets.filter(s => s.isComplete).length, 0);
       
-      // Log after saving to verify
-      const savedData = await AsyncStorage.getItem(KEYS.CURRENT_WORKOUT);
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        const savedCompletedSets = parsed.exercises.reduce((total, ex) => 
+      console.log(`Saving workout ${workoutCopy.id} with ${workoutCopy.exercises.length} exercises and ${completedSets} completed sets`);
+      
+      // Save directly to AsyncStorage
+      await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+      
+      // Verify the save by reading it back
+      const savedDataJson = await AsyncStorage.getItem('current_workout');
+      if (savedDataJson) {
+        const savedData = JSON.parse(savedDataJson);
+        const savedCompletedSets = savedData.exercises.reduce((total, ex) => 
           total + ex.sets.filter(s => s.isComplete).length, 0);
-        console.log(`WorkoutService: Saved workout has ${savedCompletedSets} completed sets`);
+        
+        console.log(`Verified saved workout: ${savedCompletedSets} completed sets`);
+        
+        // If there's a discrepancy, log it as an error
+        if (savedCompletedSets !== completedSets) {
+          console.error(`DATA INTEGRITY ERROR: Expected ${completedSets} completed sets but found ${savedCompletedSets}`);
+        }
       }
       
-      console.log('Workout saved successfully, ID:', workout.id);
     } catch (error) {
       console.error('Error saving current workout:', error);
-      throw error; // Rethrow to allow calling code to handle
+      throw error; 
     }
   }
 

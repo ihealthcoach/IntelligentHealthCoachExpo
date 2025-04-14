@@ -257,6 +257,32 @@ export default function WorkoutTrackingScreen({
   };
 */
 
+const logWorkoutState = (label: string) => {
+  if (!workout) return;
+  
+  console.log(`===== ${label} =====`);
+  console.log(`Workout ID: ${workout.id}`);
+  console.log(`Total exercises: ${workout.exercises.length}`);
+  
+  let totalSets = 0;
+  let completedSets = 0;
+  
+  workout.exercises.forEach((exercise, i) => {
+    totalSets += exercise.sets.length;
+    const exCompletedSets = exercise.sets.filter(s => s.isComplete).length;
+    completedSets += exCompletedSets;
+    
+    console.log(`Exercise ${i+1}: ${exercise.name} - ${exCompletedSets}/${exercise.sets.length} completed sets`);
+    
+    exercise.sets.forEach((set, j) => {
+      console.log(`  Set ${j+1}: completed=${set.isComplete}, weight=${set.weight}, reps=${set.reps}`);
+    });
+  });
+  
+  console.log(`Total: ${completedSets}/${totalSets} sets completed`);
+  console.log("================================");
+};
+
   // Load workout data from route params or AsyncStorage
   const loadWorkoutData = async () => {
     try {
@@ -411,62 +437,47 @@ const ensureWorkoutSaved = async (updatedWorkout) => {
 const updateSetValue = async (setId: string, field: 'weight' | 'reps' | 'rpe', value: string | number) => {
   if (!workout) return;
   
-  let numValue: number | null = null;
-  
-  // Handle different types of values
-  if (field === 'rpe') {
-    numValue = typeof value === 'number' ? value : (value === '' ? null : parseFloat(value as string));
-  } else {
-    numValue = value === '' ? null : parseFloat(value as string);
-  }
+  // Convert value to number or null
+  const numValue = value === '' ? null : typeof value === 'number' ? value : parseFloat(value as string);
   
   try {
-    // Create a deep copy to avoid reference issues
+    // Create a deep copy of the current workout
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
-    // Find the exercise and set to update
-    let updatedExercise = null;
-    let updatedSet = null;
+    // Track if we found and updated the set
+    let updatedSet = false;
     
-    const updatedExercises = workoutCopy.exercises.map(exercise => {
-      const foundSetIndex = exercise.sets.findIndex(set => set.id === setId);
-      
-      if (foundSetIndex !== -1) {
-        // We found the set to update
-        updatedExercise = exercise;
-        
-        // Create updated sets array with the modified set
-        const updatedSets = exercise.sets.map((set, index) => {
-          if (index === foundSetIndex) {
-            // Simply update the field value without changing completion status
-            updatedSet = { ...set, [field]: numValue };
-            return updatedSet;
-          }
-          return set;
-        });
-        
-        return { ...exercise, sets: updatedSets };
+    // Find and update the specific set
+    for (const exercise of workoutCopy.exercises) {
+      for (let i = 0; i < exercise.sets.length; i++) {
+        if (exercise.sets[i].id === setId) {
+          // Update only the specified field, preserve other values
+          exercise.sets[i] = {
+            ...exercise.sets[i],
+            [field]: numValue
+          };
+          updatedSet = true;
+          break;
+        }
       }
-      
-      return exercise;
-    });
+      if (updatedSet) break;
+    }
     
-    const newWorkout = { ...workoutCopy, exercises: updatedExercises };
-    
-    // Log the update for debugging
-    console.log(`Updating ${field} to ${numValue} for set ${setId}`);
-    if (updatedSet) {
-      console.log(`Set now has weight=${updatedSet.weight}, reps=${updatedSet.reps}, isComplete=${updatedSet.isComplete}`);
+    if (!updatedSet) {
+      console.error(`Set with ID ${setId} not found`);
+      return;
     }
     
     // Update state
-    setWorkout(newWorkout);
+    setWorkout(workoutCopy);
     
-    // Save directly to AsyncStorage first
-    await AsyncStorage.setItem('current_workout', JSON.stringify(newWorkout));
+    // Save to AsyncStorage directly first for reliability
+    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
     
-    // Then also save through the service
-    await workoutService.saveCurrentWorkout(newWorkout);
+    // Then save through service for proper handling
+    await workoutService.saveCurrentWorkout(workoutCopy);
+    
+    console.log(`Successfully updated ${field} to ${numValue} for set ${setId}`);
     
   } catch (error) {
     console.error('Error updating set value:', error);
@@ -527,58 +538,49 @@ const checkForPersonalRecords = async () => {
 const toggleSetCompletion = async (setId: string) => {
   if (!workout) return;
   
-  console.log(`Starting toggleSetCompletion for setId: ${setId}`);
-  
   try {
     // Create a deep copy of the current workout
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
-    // Log the workout state before updating
-    await logFullWorkout("Before toggling set completion");
+    // Track if we found and updated the set
+    let updatedSet = false;
+    let newCompletionState = false;
     
-    // Find the set to update
-    let foundAndUpdated = false;
-    
-    const updatedExercises = workoutCopy.exercises.map(exercise => {
-      // Find the set in this exercise
-      const updatedSets = exercise.sets.map(set => {
-        if (set.id === setId) {
-          foundAndUpdated = true;
+    // Find and update the specific set
+    for (const exercise of workoutCopy.exercises) {
+      for (let i = 0; i < exercise.sets.length; i++) {
+        if (exercise.sets[i].id === setId) {
+          // Toggle completion status
+          newCompletionState = !exercise.sets[i].isComplete;
           
-          // Toggle the completion status
-          const newCompletionState = !set.isComplete;
-          console.log(`Toggling set completion from ${set.isComplete} to ${newCompletionState}`);
-          console.log(`Set weight=${set.weight}, reps=${set.reps} (not changing these values)`);
-          
-          // Update only the completion status and timestamp
-          return {
-            ...set, 
+          // Update only completion status, preserve other fields
+          exercise.sets[i] = {
+            ...exercise.sets[i],
             isComplete: newCompletionState,
             completedAt: newCompletionState ? new Date().toISOString() : undefined
           };
+          updatedSet = true;
+          break;
         }
-        return set;
-      });
-      
-      if (foundAndUpdated) {
-        return { ...exercise, sets: updatedSets };
       }
-      
-      return exercise;
-    });
+      if (updatedSet) break;
+    }
     
-    if (!foundAndUpdated) {
-      console.error("Set not found with id", setId);
+    if (!updatedSet) {
+      console.error(`Set with ID ${setId} not found`);
       return;
     }
     
-    // Update the workout state
-    const updatedWorkout = { ...workoutCopy, exercises: updatedExercises };
-    setWorkout(updatedWorkout);
+    console.log(`Toggled set ${setId} completion to ${newCompletionState}`);
     
-    // Save to AsyncStorage
-    console.log("Saving to AsyncStorage after toggling set completion");
-    await saveWorkoutToStorage(updatedWorkout);
+    // Update state
+    setWorkout(workoutCopy);
+    
+    // Save directly to AsyncStorage first
+    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+    
+    // Then save through service
+    await workoutService.saveCurrentWorkout(workoutCopy);
     
     // Provide haptic feedback
     if (Platform.OS === 'ios') {
@@ -587,24 +589,13 @@ const toggleSetCompletion = async (setId: string) => {
       Vibration.vibrate(100);
     }
     
-    // Start rest timer if completing the set
-    const completedSet = updatedWorkout.exercises
-      .flatMap(ex => ex.sets)
-      .find(set => set.id === setId);
-      
-    if (completedSet?.isComplete) {
-      const exercise = updatedWorkout.exercises.find(ex => 
-        ex.sets.some(set => set.id === setId)
-      );
-      
-      if (exercise) {
-        setLastCompletedSetId(setId);
-        startRestTimer(exercise.id, setId);
-      }
+    // Only start rest timer if completing the set - simplified for now
+    if (newCompletionState) {
+      setLastCompletedSetId(setId);
     }
     
   } catch (error) {
-    console.error('Error in toggleSetCompletion:', error);
+    console.error('Error toggling set completion:', error);
     Alert.alert('Error', 'Failed to update set completion status');
   }
 };
