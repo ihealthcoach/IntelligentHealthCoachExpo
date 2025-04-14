@@ -24,7 +24,7 @@ import { supabase } from '../../services/supabase';
 // Icons
 //import StepsIcon from '../../src/assets/icons/fire-mini.svg';
 //import StepsIcon from '../../src/assets/icons/clock-outline.svg';
-import StepsIcon from 'steps.svg';
+import StepsIcon from './steps.svg';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
