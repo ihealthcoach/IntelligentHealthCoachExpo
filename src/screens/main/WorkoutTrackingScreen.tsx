@@ -14,7 +14,7 @@ import {
   TextInput,
   Image,
   Vibration,
-  Platform
+  Platform,
 } from 'react-native';
 import { 
   Check, 
@@ -51,7 +51,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import { BottomSheet } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
@@ -91,6 +91,7 @@ export default function WorkoutTrackingScreen({
   const [allSetsCompleted, setAllSetsCompleted] = useState(false);
   const [completionSheetVisible, setCompletionSheetVisible] = useState(false);
   const completionSheetRef = useRef(null);
+  const [showSetSheet, setShowSetSheet] = useState(false);
   
   // Set editing state
   const [editingWeight, setEditingWeight] = useState<{setId: string, value: string} | null>(null);
@@ -314,7 +315,7 @@ const verifyWorkoutData = async (label: string) => {
     setShowSetSheet(true);
   };
   
-  const handleNextExercise = async () => {
+  const handleGoToNextExercise = async () => {
     setCompletionSheetVisible(false);
     await handleNextExercise();
   };
@@ -326,7 +327,7 @@ const verifyWorkoutData = async (label: string) => {
   const handleAddExercise = () => {
     setCompletionSheetVisible(false);
     // Navigate to exercise selection
-    navigation.navigate('Exercises');
+    navigation.navigate('MainTabs', { screen: 'Exercises' });
   };
   
   // Effect for rest timer
@@ -972,7 +973,6 @@ const handlePreviousExercise = async () => {
   });
 };
 
-// Navigate to the next exercise
 // Navigate to the next exercise
 const handleNextExercise = async () => {
   if (!workout) return;
@@ -1697,41 +1697,41 @@ const handleBackToOverview = async () => {
       )}
 
 {/* Completion Bottom Sheet */}
-<BottomSheet
-  ref={completionSheetRef}
-  index={completionSheetVisible ? 0 : -1}
-  snapPoints={['30%']}
-  onChange={(index) => {
-    if (index === -1) setCompletionSheetVisible(false);
-  }}
->
-  <View style={styles.completionSheetContainer}>
-    <Text style={styles.completionSheetTitle}>Exercise Complete!</Text>
-    <Text style={styles.completionSheetSubtitle}>All sets for this exercise are completed</Text>
-    
-    <View style={styles.completionButtonsContainer}>
-      <TouchableOpacity style={styles.completionButton} onPress={handleAddMoreSets}>
-        <Plus size={18} color="#111827" />
-        <Text style={styles.completionButtonText}>Add more sets</Text>
-      </TouchableOpacity>
+<Portal>
+  <Modal
+    visible={completionSheetVisible}
+    onDismiss={() => setCompletionSheetVisible(false)}
+    contentContainerStyle={styles.completionModal}
+  >
+    <View style={styles.completionSheetContainer}>
+      <Text style={styles.completionSheetTitle}>Exercise Complete!</Text>
+      <Text style={styles.completionSheetSubtitle}>All sets for this exercise are completed</Text>
       
-      <TouchableOpacity style={styles.completionButton} onPress={handleNextExercise}>
-        <ChevronRightMini size={18} color="#111827" />
-        <Text style={styles.completionButtonText}>Next exercise</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.completionButton} onPress={handleContinueEditing}>
-        <Edit size={18} color="#111827" />
-        <Text style={styles.completionButtonText}>Continue editing</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.completionButton} onPress={handleAddExercise}>
-        <Plus size={18} color="#111827" />
-        <Text style={styles.completionButtonText}>Add exercise</Text>
-      </TouchableOpacity>
+      <View style={styles.completionButtonsContainer}>
+        <TouchableOpacity style={styles.completionButton} onPress={handleAddMoreSets}>
+          <Plus size={18} color="#111827" />
+          <Text style={styles.completionButtonText}>Add more sets</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.completionButton} onPress={handleGoToNextExercise}>
+          {/* Fix for ChevronRightMini */}
+          <ChevronRightMini width={18} height={18} stroke="#111827" />
+          <Text style={styles.completionButtonText}>Next exercise</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.completionButton} onPress={handleContinueEditing}>
+          <Edit size={18} color="#111827" />
+          <Text style={styles.completionButtonText}>Continue editing</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.completionButton} onPress={handleAddExercise}>
+          <Plus size={18} color="#111827" />
+          <Text style={styles.completionButtonText}>Add exercise</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-</BottomSheet>
+  </Modal>
+</Portal>
     </SafeAreaView>
   );
 }
