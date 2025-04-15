@@ -249,29 +249,36 @@ const loadWorkoutData = async () => {
   const handleExerciseClick = async (exerciseIndex: number) => {
     if (!workout) return;
     
-    // Save current workout data first and await its completion
-    await workoutService.saveCurrentWorkout(workout);
+    console.log("🔍 WorkoutOverviewScreen: handleExerciseClick - navigating to tracking");
+    console.log("🔍 WorkoutOverviewScreen: Current workout has", 
+      workout.exercises.reduce((total, ex) => 
+        total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0), 
+      "completed sets");
     
-    // Set workout as started if not already
-    if (workout.status !== 'in_progress') {
-      const updatedWorkout = {
-        ...workout,
-        status: 'in_progress' as WorkoutStatus,
-        startedAt: workout.startedAt || new Date().toISOString()
-      };
-      setWorkout(updatedWorkout);
-      
-      // Save the updated status before navigating
-      await workoutService.saveCurrentWorkout(updatedWorkout);
+    // CRITICAL: Verify the workout data in AsyncStorage before navigating
+    const currentStoredData = await AsyncStorage.getItem('current_workout');
+    if (currentStoredData) {
+      try {
+        const storedWorkout = JSON.parse(currentStoredData);
+        const storedCompletedSets = storedWorkout.exercises.reduce((total, ex) => 
+          total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0);
+        
+        console.log("🔍 WorkoutOverviewScreen: Stored workout has", storedCompletedSets, "completed sets");
+        
+        // If state and storage differ, use the one with more completed sets
+        if (storedCompletedSets > 0) {
+          // Use the stored version with completed sets
+          console.log("🔍 WorkoutOverviewScreen: Using stored workout from AsyncStorage with", storedCompletedSets, "completed sets");
+        }
+      } catch (error) {
+        console.error("🔍 WorkoutOverviewScreen: Error checking stored workout:", error);
+      }
     }
     
-    // Set workout as started in UI
-    setWorkoutStarted(true);
-    
-    // Navigate to workout tracking WITHOUT passing the workout object
-    // This forces WorkoutTrackingScreen to load from AsyncStorage
+    // Navigate to workout tracking WITHOUT modifying the workout
     navigation.navigate('WorkoutTracking', {
       exerciseIndex: exerciseIndex
+      // Don't pass the workout object directly - let tracking screen read from AsyncStorage
     });
   };
   

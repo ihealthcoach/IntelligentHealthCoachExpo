@@ -78,65 +78,120 @@ async getCurrentWorkout(): Promise<Workout | null> {
   /**
    * Saves the current workout to AsyncStorage
    */
-  async saveCurrentWorkout(workout: Workout): Promise<void> {
-    try {
-      if (!workout) {
-        console.error('Cannot save null workout');
-        return;
-      }
-      
-      // Ensure the workout has an ID
-      if (!workout.id) {
-        workout.id = Date.now().toString();
-      }
-      
-      // Create a deep copy to avoid reference issues
-      const workoutCopy = JSON.parse(JSON.stringify(workout));
-      
-      // Calculate completed sets for logging
-      const completedSets = workoutCopy.exercises.reduce((total, ex) => 
-        total + ex.sets.filter(s => s.isComplete).length, 0);
-      
-      console.log(`Saving workout ${workoutCopy.id} with ${workoutCopy.exercises.length} exercises and ${completedSets} completed sets`);
-      
-      // CRUCIAL: Set status to in_progress if exercise data exists
-      if (workoutCopy.exercises && workoutCopy.exercises.length > 0) {
-        workoutCopy.status = 'in_progress';
-        
-        // Ensure startedAt exists
-        if (!workoutCopy.startedAt) {
-          workoutCopy.startedAt = new Date().toISOString();
-        }
-      }
-      
-      // DIRECT SAVE: Save directly to AsyncStorage without using service methods
-      await AsyncStorage.setItem(KEYS.CURRENT_WORKOUT, JSON.stringify(workoutCopy));
-      
-      // Verify the save was successful
-      const savedJson = await AsyncStorage.getItem(KEYS.CURRENT_WORKOUT);
-      if (savedJson) {
-        const savedData = JSON.parse(savedJson);
-        const savedCompletedSets = savedData.exercises.reduce((total, ex) => 
-          total + ex.sets.filter(s => s.isComplete).length, 0);
-        
-        console.log(`Verified saved workout: ${savedCompletedSets} completed sets`);
-        
-        // If there's a discrepancy, log it as an error
-        if (savedCompletedSets !== completedSets) {
-          console.error(`DATA INTEGRITY ERROR: Expected ${completedSets} completed sets but found ${savedCompletedSets}`);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error saving current workout:', error);
-      throw error;
+// In workoutService.ts - Enhance saveCurrentWorkout function
+
+async saveCurrentWorkout(workout: Workout): Promise<void> {
+  try {
+    if (!workout) {
+      console.error('DEBUG: Cannot save null workout');
+      return;
     }
+    
+    // Ensure the workout has an ID
+    if (!workout.id) {
+      workout.id = Date.now().toString();
+    }
+    
+    // Create a fresh deep copy to avoid reference issues
+    const workoutCopy = JSON.parse(JSON.stringify(workout));
+    
+    console.log(`DEBUG: saveCurrentWorkout - ID: ${workoutCopy.id}`);
+    
+    // Debug details for each exercise's sets
+    workoutCopy.exercises.forEach((ex, i) => {
+      const completedSets = ex.sets.filter(s => s.isComplete).length;
+      console.log(`DEBUG: saveCurrentWorkout - Exercise ${i+1}: ${completedSets}/${ex.sets.length} completed sets`);
+      
+      // Verify that isComplete flags are intact
+      ex.sets.forEach((set, j) => {
+        if (set.isComplete === undefined) {
+          console.error(`DEBUG: CRITICAL DATA ERROR - Set ${j+1} in Exercise ${i+1} has undefined isComplete`);
+          // Fix it
+          set.isComplete = false;
+        }
+      });
+    });
+    
+    // Calculate completed sets for logging
+    const completedSets = workoutCopy.exercises.reduce((total, ex) => 
+      total + ex.sets.filter(s => s.isComplete).length, 0);
+    
+    console.log(`DEBUG: saveCurrentWorkout - Saving workout with ${completedSets} completed sets`);
+    
+    // CRITICAL: Set status to in_progress if exercise data exists
+    if (workoutCopy.exercises && workoutCopy.exercises.length > 0) {
+      workoutCopy.status = 'in_progress';
+      
+      // Ensure startedAt exists
+      if (!workoutCopy.startedAt) {
+        workoutCopy.startedAt = new Date().toISOString();
+      }
+    }
+    
+    try {
+      // DIRECT SAVE: Use a specific key name for easy debugging
+      const storageKey = 'current_workout';
+      const workoutJson = JSON.stringify(workoutCopy);
+      
+      console.log(`DEBUG: About to save workout (${workoutJson.length} bytes)`);
+      await AsyncStorage.setItem(storageKey, workoutJson);
+      console.log(`DEBUG: AsyncStorage.setItem completed for key: ${storageKey}`);
+      
+      // Verify the save was successful with detailed error tracking
+      try {
+        const savedJson = await AsyncStorage.getItem(storageKey);
+        if (!savedJson) {
+          console.error(`DEBUG: CRITICAL ERROR - Saved workout not found`);
+          return;
+        }
+        
+        try {
+          const savedData = JSON.parse(savedJson);
+          // Check for data integrity
+          if (!savedData.exercises || !Array.isArray(savedData.exercises)) {
+            console.error(`DEBUG: CRITICAL DATA INTEGRITY ERROR - Saved workout has invalid exercise structure`);
+            return;
+          }
+          
+          const savedCompletedSets = savedData.exercises.reduce((total, ex) => 
+            total + ex.sets.filter(s => s.isComplete).length, 0);
+          
+          console.log(`DEBUG: Saved workout verified: ${savedCompletedSets} completed sets`);
+          
+          // If there's a discrepancy, log it as an error with detailed info
+          if (savedCompletedSets !== completedSets) {
+            console.error(`DEBUG: DATA INTEGRITY ERROR - Expected ${completedSets} completed sets but found ${savedCompletedSets}`);
+            
+            // Log specific differences
+            savedData.exercises.forEach((ex, i) => {
+              const expectedSets = workoutCopy.exercises[i]?.sets.filter(s => s.isComplete).length || 0;
+              const actualSets = ex.sets.filter(s => s.isComplete).length;
+              
+              if (expectedSets !== actualSets) {
+                console.error(`DEBUG: Mismatch in Exercise ${i+1}: Expected ${expectedSets} completed sets, found ${actualSets}`);
+              }
+            });
+          }
+        } catch (parseError) {
+          console.error(`DEBUG: ERROR parsing saved workout: ${parseError}`);
+        }
+      } catch (verifyError) {
+        console.error(`DEBUG: ERROR verifying saved workout: ${verifyError}`);
+      }
+    } catch (saveError) {
+      console.error(`DEBUG: ERROR in AsyncStorage.setItem: ${saveError}`);
+      throw saveError;
+    }
+  } catch (error) {
+    console.error('DEBUG: Error in saveCurrentWorkout:', error);
+    throw error;
   }
+}
 
   /**
  * Clears the current workout from AsyncStorage
  */
-  async clearCurrentWorkout(): Promise<void> {
+  /*async clearCurrentWorkout(): Promise<void> {
     try {
       console.log("Clearing current workout data from AsyncStorage");
       await AsyncStorage.removeItem(KEYS.CURRENT_WORKOUT);
@@ -145,7 +200,19 @@ async getCurrentWorkout(): Promise<Workout | null> {
       console.error('Error clearing current workout:', error);
       throw error;
     }
-  }
+  }*/
+
+    async clearCurrentWorkout(): Promise<void> {
+      try {
+        console.log("🔴🔴🔴 RESETTING WORKOUT STATE: clearCurrentWorkout() called 🔴🔴🔴");
+        console.log("🔴 Call stack:", new Error().stack);
+        await AsyncStorage.removeItem(KEYS.CURRENT_WORKOUT);
+        console.log("🔴🔴🔴 Current workout CLEARED from AsyncStorage 🔴🔴🔴");
+      } catch (error) {
+        console.error('❌ Error clearing current workout:', error);
+        throw error;
+      }
+    }
 
   /**
    * Completes a workout - saves to history and syncs to Supabase if online
