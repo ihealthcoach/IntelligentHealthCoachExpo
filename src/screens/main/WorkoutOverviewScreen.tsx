@@ -246,41 +246,29 @@ const loadWorkoutData = async () => {
   };
   
   // Handle exercise click to navigate to tracking
-const handleExerciseClick = async (exerciseIndex: number) => {
-  if (!workout) return;
-  
-  console.log("🔍 WorkoutOverviewScreen: handleExerciseClick - navigating to tracking");
-  console.log("🔍 WorkoutOverviewScreen: Current workout has", 
-    workout.exercises.reduce((total, ex) => 
-      total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0), 
-    "completed sets");
-  
-  // CRITICAL: Verify the workout data in AsyncStorage before navigating
-  const currentStoredData = await AsyncStorage.getItem('current_workout');
-  if (currentStoredData) {
+  const handleExerciseClick = async (exerciseIndex: number) => {
+    if (!workout) return;
+    
+    console.log("🔍 WorkoutOverviewScreen: handleExerciseClick - navigating to tracking");
+    console.log("🔍 WorkoutOverviewScreen: Current workout has", 
+      workout.exercises.reduce((total, ex) => 
+        total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0), 
+      "completed sets");
+    
     try {
-      const storedWorkout = JSON.parse(currentStoredData);
-      const storedCompletedSets = storedWorkout.exercises.reduce((total, ex) => 
-        total + (ex.sets?.filter(s => s.isComplete)?.length || 0), 0);
+      // Save current workout state first
+      await workoutService.saveCurrentWorkout(workout);
       
-      console.log("🔍 WorkoutOverviewScreen: Stored workout has", storedCompletedSets, "completed sets");
-      
-      // If state and storage differ, use the one with more completed sets
-      if (storedCompletedSets > 0) {
-        // Use the stored version with completed sets
-        console.log("🔍 WorkoutOverviewScreen: Using stored workout from AsyncStorage with", storedCompletedSets, "completed sets");
-      }
+      // Navigate to the specific exercise by index
+      navigation.navigate('WorkoutTracking', {
+        exerciseIndex: exerciseIndex 
+        // Pass the specific exercise index selected by the user
+      });
     } catch (error) {
-      console.error("🔍 WorkoutOverviewScreen: Error checking stored workout:", error);
+      console.error("Error navigating to exercise:", error);
+      Alert.alert("Error", "Failed to start tracking this exercise");
     }
-  }
-  
-  // Navigate to workout tracking WITHOUT modifying the workout
-  navigation.navigate('WorkoutTracking', {
-    exerciseIndex: exerciseIndex
-    // Don't pass the workout object directly - let tracking screen read from AsyncStorage
-  });
-};
+  };
   
   // Start the workout
   const startWorkout = async () => {

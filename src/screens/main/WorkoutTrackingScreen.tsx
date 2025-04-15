@@ -40,6 +40,7 @@ import { Portal, Modal, Button, ProgressBar } from 'react-native-paper';
 import { MainStackScreenProps } from '../../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { workoutService } from '../../services/workoutService';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Workout,
   WorkoutExercise,
@@ -50,6 +51,10 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
+import { BottomSheet } from '@gorhom/bottom-sheet';
+
+// Icons
+import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 
 // Get screen dimensions for swipe calculations
 const { width } = Dimensions.get('window');
@@ -83,6 +88,9 @@ export default function WorkoutTrackingScreen({
   const [loading, setLoading] = useState(true);
   const [completionModalVisible, setCompletionModalVisible] = useState(false);
   const [workoutStarted, setWorkoutStarted] = useState(false);
+  const [allSetsCompleted, setAllSetsCompleted] = useState(false);
+  const [completionSheetVisible, setCompletionSheetVisible] = useState(false);
+  const completionSheetRef = useRef(null);
   
   // Set editing state
   const [editingWeight, setEditingWeight] = useState<{setId: string, value: string} | null>(null);
@@ -237,6 +245,89 @@ const verifyWorkoutData = async (label: string) => {
       })();
     };
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // This runs when the screen comes into focus
+      loadWorkoutData();
+      return () => {
+        // Optional cleanup
+      };
+    }, [])
+  );
+
+  // Add this effect to check if all sets are completed
+  useEffect(() => {
+    if (!workout) return;
+    
+    const currentExercise = workout.exercises[currentExerciseIndex];
+    const allCompleted = currentExercise.sets.length > 0 && 
+      currentExercise.sets.every(set => set.isComplete);
+    
+    if (allCompleted && !allSetsCompleted) {
+      setAllSetsCompleted(true);
+      setCompletionSheetVisible(true);
+    } else if (!allCompleted && allSetsCompleted) {
+      setAllSetsCompleted(false);
+    }
+  }, [workout, currentExerciseIndex]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      
+      try {
+        // Get exercise index from navigation params
+        const exerciseIndex = route.params?.exerciseIndex ?? 0;
+        
+        // Load workout data from AsyncStorage
+        const currentWorkout = await workoutService.getCurrentWorkout();
+        
+        if (currentWorkout) {
+          setWorkout(currentWorkout);
+          
+          // Set exercise index from params
+          if (exerciseIndex >= 0 && exerciseIndex < currentWorkout.exercises.length) {
+            setCurrentExerciseIndex(exerciseIndex);
+          }
+          
+          // Check if workout has been started
+          const hasStarted = currentWorkout.exercises?.some(exercise => 
+            exercise.sets?.some(set => set.isComplete)
+          );
+          setWorkoutStarted(hasStarted);
+        }
+      } catch (error) {
+        console.error('Error loading workout data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
+  
+  // Add these functions to handle sheet actions
+  const handleAddMoreSets = () => {
+    setCompletionSheetVisible(false);
+    // Show set picker bottom sheet
+    setShowSetSheet(true);
+  };
+  
+  const handleNextExercise = async () => {
+    setCompletionSheetVisible(false);
+    await handleNextExercise();
+  };
+  
+  const handleContinueEditing = () => {
+    setCompletionSheetVisible(false);
+  };
+  
+  const handleAddExercise = () => {
+    setCompletionSheetVisible(false);
+    // Navigate to exercise selection
+    navigation.navigate('Exercises');
+  };
   
   // Effect for rest timer
   useEffect(() => {
@@ -1604,6 +1695,43 @@ const handleBackToOverview = async () => {
           </View>
         </View>
       )}
+
+{/* Completion Bottom Sheet */}
+<BottomSheet
+  ref={completionSheetRef}
+  index={completionSheetVisible ? 0 : -1}
+  snapPoints={['30%']}
+  onChange={(index) => {
+    if (index === -1) setCompletionSheetVisible(false);
+  }}
+>
+  <View style={styles.completionSheetContainer}>
+    <Text style={styles.completionSheetTitle}>Exercise Complete!</Text>
+    <Text style={styles.completionSheetSubtitle}>All sets for this exercise are completed</Text>
+    
+    <View style={styles.completionButtonsContainer}>
+      <TouchableOpacity style={styles.completionButton} onPress={handleAddMoreSets}>
+        <Plus size={18} color="#111827" />
+        <Text style={styles.completionButtonText}>Add more sets</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.completionButton} onPress={handleNextExercise}>
+        <ChevronRightMini size={18} color="#111827" />
+        <Text style={styles.completionButtonText}>Next exercise</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.completionButton} onPress={handleContinueEditing}>
+        <Edit size={18} color="#111827" />
+        <Text style={styles.completionButtonText}>Continue editing</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.completionButton} onPress={handleAddExercise}>
+        <Plus size={18} color="#111827" />
+        <Text style={styles.completionButtonText}>Add exercise</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</BottomSheet>
     </SafeAreaView>
   );
 }
@@ -2157,5 +2285,42 @@ const styles = StyleSheet.create({
     color: '#4F46E5', // Use a different color to show it's saved but not completed
     fontStyle: 'normal',
     fontWeight: '500',
+  },
+  completionSheetContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  completionSheetTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  completionSheetSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  completionButtonsContainer: {
+    gap: 12,
+  },
+  completionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  completionButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111827',
   },
 });
