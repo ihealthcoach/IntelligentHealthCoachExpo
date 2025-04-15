@@ -9,22 +9,22 @@ import {
   SafeAreaView, 
   StatusBar
 } from 'react-native';
-import { 
-  ChevronDown, 
-  ArrowRight,  
-  Clock, 
-  MapPin, 
-  Plus, 
-  Dumbbell 
-} from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 
 // Icons
-//import StepsIcon from '../../src/assets/icons/fire-mini.svg';
-//import StepsIcon from '../../src/assets/icons/clock-outline.svg';
-import StepsIcon from './steps.svg';
+import FireMini from '../../assets/icons/fire-mini.svg';
+import ClockOutline from '../../assets/icons/clock-outline.svg';
+import StepsIcon from '../../assets/icons/steps.svg';
+import MapPinOutline from '../../assets/icons/map-pin-outline.svg';
+import DumbbellIcon from '../../assets/icons/dumbbell.svg';
+import ArrowRightMini from '../../assets/icons/arrow-right-mini.svg';
+import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
+import ChevronDownMini from '../../assets/icons/chevron-down-mini.svg';
+import PlusMini from '../../assets/icons/plus-mini.svg';
+import BellOutline from '../../assets/icons/bell-outline.svg';
+import ChatBubbleOutline from '../../assets/icons/chat-bubble-oval-left-ellipsis-outline.svg';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -111,10 +111,12 @@ const getFirstName = () => {
           <TouchableOpacity style={styles.iconButton}>
             <View style={styles.notificationContainer}>
               <View style={styles.notificationDot} />
+                <BellOutline width={30} height={30} stroke="#111827" />
             </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <View style={styles.messageIcon} />
+             <ChatBubbleOutline width={30} height={30} stroke="#111827" />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.avatarContainer}
@@ -168,12 +170,12 @@ const getFirstName = () => {
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleContainer}>
                 <Text style={styles.sectionTitle}>Today's goals</Text>
-                <ChevronDown width={20} height={20} color="#111827" />
+                <ChevronDownMini width={20} height={20} fill="#111827" />
               </View>
               
               <TouchableOpacity style={styles.editLink}>
                 <Text style={styles.editLinkText}>Edit goals</Text>
-                <ArrowRight width={14} height={14} color="#111827" />
+                <ArrowRightMini width={14} height={14} fill="#111827" />
               </TouchableOpacity>
             </View>
             
@@ -184,7 +186,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <StepsIcon width={24} height={24} color="#6B7280" />
+                      <FireMini width={24} height={24} fill="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
@@ -206,7 +208,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <StepsIcon width={24} height={24} stroke="#6B7280" />
+                      <ClockOutline width={24} height={24} stroke="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Active time</Text>
                   </View>
@@ -253,7 +255,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <MapPin width={24} height={24} color="#6B7280" />
+                      <MapPinOutline width={24} height={24} stroke="#6B7280" />
                     </View>
                     <Text style={styles.goalTitle}>Distance</Text>
                   </View>
@@ -281,7 +283,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Workouts (week 36)</Text>
                   <Text style={styles.statsValue}>3/5</Text>
                 </View>
-                <ChevronRight width={20} height={20} color="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
               </TouchableOpacity>
               
               {/* Weight Row */}
@@ -293,7 +295,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Weight</Text>
                   <Text style={styles.statsValue}>86/92 kg</Text>
                 </View>
-                <ChevronRight width={20} height={20} color="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
               </TouchableOpacity>
               
               {/* Calories Row */}
@@ -302,7 +304,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Calories</Text>
                   <Text style={styles.statsValue}>1.350/2.500</Text>
                 </View>
-                <ChevronRight width={20} height={20} color="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
               </TouchableOpacity>
             </View>
             
@@ -312,7 +314,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Workouts')}
             >
               <Text style={styles.trackButtonText}>Track a workout</Text>
-              <ArrowRight width={24} height={24} color="#FCFDFD" />
+              <ArrowRightMini width={24} height={24} fill="#FCFEFE"/>
             </TouchableOpacity>
           </View>
           
@@ -326,7 +328,7 @@ const getFirstName = () => {
                 onPress={() => navigation.navigate('History')}
               >
                 <Text style={styles.editLinkText}>Show history</Text>
-                <ArrowRight width={14} height={14} color="#111827" />
+                <ArrowRightMini width={14} height={14} fill="#111827" />
               </TouchableOpacity>
             </View>
             
@@ -335,22 +337,22 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Running</Text>
-                  <ArrowRight width={20} height={20} color="#111827" />
+                  <ArrowRightMini width={20} height={20} fill="#111827" />
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                    <Clock width={24} height={24} color="#6B7280" />
+                    <ClockOutline width={24} height={24} stroke="#6B7280" />
                     <Text style={styles.activityStatValue}>00:40:17</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <StepsIcon width={24} height={24} color="#6B7280" />
+                    <FireMini width={24} height={24} fill="#6B7280" />
                     <Text style={styles.activityStatValue}>140 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <MapPin width={24} height={24} color="#6B7280" />
+                    <MapPinOutline width={24} height={24} stroke="#6B7280" />
                     <Text style={styles.activityStatValue}>4,2 km</Text>
                   </View>
                 </View>
@@ -360,27 +362,27 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Gym</Text>
-                  <ArrowRight width={20} height={20} color="#111827" />
+                  <ArrowRightMini width={20} height={20} fill="#111827" />
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                    <Clock width={24} height={24} color="#6B7280" />
+                    <ClockOutline width={24} height={24} stroke="#6B7280" />
                     <Text style={styles.activityStatValue}>01:15:00</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <StepsIcon width={24} height={24} color="#6B7280" />
+                    <FireMini width={24} height={24} fill="#6B7280" />
                     <Text style={styles.activityStatValue}>812 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Dumbbell width={24} height={24} color="#6B7280" />
+                    <DumbbellIcon width={24} height={24} fill="#6B7280" />
                     <Text style={styles.activityStatValue}>8 exercises</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Dumbbell width={24} height={24} color="#6B7280" />
+                    <DumbbellIcon width={24} height={24} fill="#6B7280" />
                     <Text style={styles.activityStatValue}>00:15</Text>
                   </View>
                 </View>
@@ -393,7 +395,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Exercises')}
             >
               <View style={styles.addWidgetContent}>
-                <Plus width={20} height={20} color="#9CA3AF" />
+                <PlusMini width={20} height={20} stroke="#9CA3AF" />
                 <Text style={styles.addWidgetText}>add widget</Text>
               </View>
             </TouchableOpacity>
@@ -426,7 +428,7 @@ const getFirstName = () => {
 const ChevronRight = ({ width, height, color }) => {
   return (
     <View style={{ width, height, transform: [{ rotate: '90deg' }] }}>
-      <ChevronDown width={width} height={height} color={color} />
+      <ChevronDownMini width={width} height={height} fill={color} />
     </View>
   );
 };
@@ -480,18 +482,21 @@ const styles = StyleSheet.create({
   },
   notificationDot: {
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: 3,
+    right: 3,
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: '#F05252',
   },
   messageIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#E5E7EB',
+    position: 'absolute',
+    top: 3,
+    right: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F05252',
   },
   avatarContainer: {
     width: 48,
@@ -693,7 +698,7 @@ const styles = StyleSheet.create({
   trackButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#FCFDFD',
+    color: '#FCFEFE',
   },
   activitiesSection: {
     gap: 12,
