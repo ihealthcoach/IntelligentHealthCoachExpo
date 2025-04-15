@@ -51,9 +51,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 
-// Workout
-const [workoutStarted, setWorkoutStarted] = useState(false);
-
 // Get screen dimensions for swipe calculations
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 120; // Minimum distance required for a swipe
@@ -85,6 +82,7 @@ export default function WorkoutTrackingScreen({
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [completionModalVisible, setCompletionModalVisible] = useState(false);
+  const [workoutStarted, setWorkoutStarted] = useState(false);
   
   // Set editing state
   const [editingWeight, setEditingWeight] = useState<{setId: string, value: string} | null>(null);
