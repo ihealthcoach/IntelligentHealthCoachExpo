@@ -4,6 +4,9 @@ import { Text, Card, Button, FAB } from 'react-native-paper';
 import { MainTabScreenProps } from '../../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 // Mock data for now
 const mockWorkouts = [
   { id: '1', name: 'Upper Body Strength', date: '2023-04-01', exercises: 5 },

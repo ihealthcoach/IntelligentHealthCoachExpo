@@ -7,6 +7,9 @@ import { workoutService } from '../services/workoutService';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface SaveTemplateModalProps {
   visible: boolean;
   onDismiss: () => void;
@@ -277,7 +280,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.bold,
     fontSize: 22,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 16,
   },
   errorText: {
@@ -302,7 +305,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 8,
   },
   optionsContainer: {

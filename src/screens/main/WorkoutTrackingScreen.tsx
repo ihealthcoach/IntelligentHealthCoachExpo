@@ -58,6 +58,9 @@ import { fonts } from '../../styles/fonts';
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 // Get screen dimensions for swipe calculations
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 120; // Minimum distance required for a swipe
@@ -1250,7 +1253,7 @@ const handleBackToOverview = async () => {
 <View style={styles.header}>
   <View style={styles.headerContent}>
     <TouchableOpacity onPress={handleBackToOverview}>
-      <ArrowLeft size={24} color="#111827" />
+      <ArrowLeft size={24} color="colors.gray[100]" />
     </TouchableOpacity>
     
     <View style={styles.headerTitle}>
@@ -1261,7 +1264,7 @@ const handleBackToOverview = async () => {
     </View>
     
     <TouchableOpacity>
-      <MoreHorizontal size={24} color="#111827" />
+      <MoreHorizontal size={24} color="colors.gray[100]" />
     </TouchableOpacity>
   </View>
 </View>
@@ -1286,11 +1289,11 @@ const handleBackToOverview = async () => {
               
               {restTimer.isActive ? (
                 <TouchableOpacity style={styles.restTimerButton} onPress={pauseRestTimer}>
-                  <Pause size={20} color="#111827" />
+                  <Pause size={20} color="colors.gray[100]" />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.restTimerButton} onPress={resumeRestTimer}>
-                  <Play size={20} color="#111827" />
+                  <Play size={20} color="colors.gray[100]" />
                 </TouchableOpacity>
               )}
               
@@ -1298,7 +1301,7 @@ const handleBackToOverview = async () => {
                 style={styles.restTimerButton} 
                 onPress={() => startRestTimer(restTimer.exerciseId!, restTimer.setId!)}
               >
-                <RefreshCw size={20} color="#111827" />
+                <RefreshCw size={20} color="colors.gray[100]" />
               </TouchableOpacity>
             </View>
           </View>
@@ -1570,9 +1573,9 @@ const handleBackToOverview = async () => {
             >
               <Text style={styles.historySectionTitle}>Exercise History</Text>
               {showExerciseHistory ? (
-                <ChevronUp size={20} color="#111827" />
+                <ChevronUp size={20} color="colors.gray[100]" />
               ) : (
-                <ChevronDown size={20} color="#111827" />
+                <ChevronDown size={20} color="colors.gray[100]" />
               )}
             </TouchableOpacity>
             
@@ -1717,7 +1720,7 @@ const handleBackToOverview = async () => {
       
       <View style={styles.completionButtonsContainer}>
         <TouchableOpacity style={styles.completionButton} onPress={handleAddMoreSets}>
-          <Plus size={18} color="#111827" />
+          <Plus size={18} color="colors.gray[100]" />
           <Text style={styles.completionButtonText}>Add more sets</Text>
         </TouchableOpacity>
         
@@ -1728,12 +1731,12 @@ const handleBackToOverview = async () => {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.completionButton} onPress={handleContinueEditing}>
-          <Edit size={18} color="#111827" />
+          <Edit size={18} color="colors.gray[100]" />
           <Text style={styles.completionButtonText}>Continue editing</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.completionButton} onPress={handleAddExercise}>
-          <Plus size={18} color="#111827" />
+          <Plus size={18} color="colors.gray[100]" />
           <Text style={styles.completionButtonText}>Add exercise</Text>
         </TouchableOpacity>
       </View>
@@ -1787,7 +1790,7 @@ const styles = StyleSheet.create({
   headerCount: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   scrollView: {
     flex: 1,
@@ -1807,7 +1810,7 @@ const styles = StyleSheet.create({
   headline: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   subtitleSection: {
@@ -1822,7 +1825,7 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
   badge: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 4,
@@ -1861,7 +1864,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
   },
   noteSaveButton: {
     padding: 16,
@@ -1915,7 +1918,7 @@ const styles = StyleSheet.create({
   setNumber: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   previousContainer: {
     width: 60,
@@ -1934,7 +1937,7 @@ const styles = StyleSheet.create({
   weightValue: {
     fontFamily: fonts.medium,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   repsContainer: {
@@ -1945,7 +1948,7 @@ const styles = StyleSheet.create({
   repsValue: {
     fontFamily: fonts.medium,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   rpeContainer: {
@@ -1956,7 +1959,7 @@ const styles = StyleSheet.create({
   rpeValue: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   rpeSlider: {
@@ -1968,7 +1971,7 @@ const styles = StyleSheet.create({
   valueInput: {
     fontFamily: fonts.medium,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
     width: 45,
     padding: 0,
@@ -2051,7 +2054,7 @@ const styles = StyleSheet.create({
   historySectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   historyContent: {
     padding: 16,
@@ -2073,21 +2076,21 @@ const styles = StyleSheet.create({
     width: 60,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   historyReps: {
     width: 60,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   historyVolume: {
     width: 60,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
   },
   noHistoryText: {
@@ -2111,7 +2114,7 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 8,
   },
   infoDescription: {
@@ -2166,7 +2169,7 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 999,
     paddingHorizontal: 24,
     paddingVertical: 12,
@@ -2192,7 +2195,7 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontFamily: fonts.bold,
     fontSize: 22,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -2245,7 +2248,7 @@ const styles = StyleSheet.create({
   restTimerTime: {
     fontFamily: fonts.bold,
     fontSize: 32,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -2272,7 +2275,7 @@ const styles = StyleSheet.create({
   restTimerButtonText: {
     fontFamily: fonts.medium,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
   },
   prConfettiContainer: {
     position: 'absolute',
@@ -2302,7 +2305,7 @@ const styles = StyleSheet.create({
   prBannerText: {
     fontFamily: fonts.bold,
     fontSize: 20,
-    color: '#111827',
+    color: colors.gray[900],
   },
   savedButNotCompletedText: {
     color: '#4F46E5', // Use a different color to show it's saved but not completed
@@ -2315,7 +2318,7 @@ const styles = StyleSheet.create({
   completionSheetTitle: {
     fontFamily: fonts.bold,
     fontSize: 20,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -2344,6 +2347,6 @@ const styles = StyleSheet.create({
   completionButtonText: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
 });

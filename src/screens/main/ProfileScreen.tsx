@@ -12,6 +12,9 @@ import { MainTabScreenProps } from '../../types/navigation';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState({
@@ -219,7 +222,7 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
               >
                 <View style={styles.settingItemLeft}>
                   <View style={styles.iconContainer}>
-                    <User size={24} color="#111827" />
+                    <User size={24} color="colors.gray[100]" />
                   </View>
                   <View style={styles.settingTextContainer}>
                     <Text style={styles.settingTitle}>Profile</Text>
@@ -338,12 +341,12 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
                 </View>
               )}
               
-              {renderSettingItem(<ClipboardList size={24} color="#111827" />, "Questionary")}
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Password")}
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Language", "English")}
-              {renderSettingItem(<Bell size={24} color="#111827" />, "Notifications")}
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Subscription", "Free")}
-              {renderSettingItem(<CreditCard size={24} color="#111827" />, "Payment method", "Credit card")}
+              {renderSettingItem(<ClipboardList size={24} color="colors.gray[100]" />, "Questionary")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Password")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Language", "English")}
+              {renderSettingItem(<Bell size={24} color="colors.gray[100]" />, "Notifications")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Subscription", "Free")}
+              {renderSettingItem(<CreditCard size={24} color="colors.gray[100]" />, "Payment method", "Credit card")}
               
               <View style={styles.settingItem}>
                 <View style={styles.settingItemLeft}>
@@ -394,16 +397,16 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
               <View style={styles.settingItem}>
                 <View style={styles.settingItemLeft}>
                   <View style={styles.iconContainer}>
-                    <Moon size={24} color="#111827" />
+                    <Moon size={24} color="colors.gray[100]" />
                   </View>
                   <Text style={styles.settingTitle}>Dark mode</Text>
                 </View>
                 {renderToggle(darkModeEnabled, () => setDarkModeEnabled(!darkModeEnabled))}
               </View>
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Integrations")}
-              {renderSettingItem(<Star size={24} color="#111827" />, "Rate & review")}
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Restore purchase")}
-              {renderSettingItem(<Globe size={24} color="#111827" />, "Help & support")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Integrations")}
+              {renderSettingItem(<Star size={24} color="colors.gray[100]" />, "Rate & review")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Restore purchase")}
+              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Help & support")}
             </View>
           </View>
         )}
@@ -479,7 +482,7 @@ const styles = StyleSheet.create({
   headline: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   subtitleContainer: {
@@ -506,8 +509,8 @@ const styles = StyleSheet.create({
     borderColor: '#FAFBFC',
   },
   activeTabButton: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: colors.gray[900],
+    borderColor: colors.gray[900],
   },
   tabText: {
     fontFamily: fonts.medium,
@@ -523,7 +526,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 24,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 12,
   },
   sectionContent: {
@@ -561,7 +564,7 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   settingSubtitle: {
     fontFamily: fonts.medium,
@@ -602,7 +605,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#111827',
+    borderColor: colors.gray[900],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -664,7 +667,7 @@ dropdownButton: {
 dropdownButtonText: {
   fontFamily: fonts.medium,
   fontSize: 16,
-  color: '#111827',
+  color: colors.gray[900],
 },
 placeholderText: {
   color: '#9ca3af',
@@ -691,7 +694,7 @@ pickerHeader: {
 pickerTitle: {
   fontFamily: fonts.semiBold,
   fontSize: 18,
-  color: '#111827',
+  color: colors.gray[900],
 },
 pickerDoneButton: {
   fontFamily: fonts.medium,

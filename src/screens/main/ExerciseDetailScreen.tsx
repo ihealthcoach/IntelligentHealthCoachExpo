@@ -37,6 +37,9 @@ import { Video } from 'expo-av';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 // Get screen dimensions
 const { width } = Dimensions.get('window');
 
@@ -263,13 +266,13 @@ export default function ExerciseDetailScreen({ route, navigation }: ExerciseDeta
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="#111827" />
+          <ArrowLeft size={24} color="colors.gray[100]" />
         </TouchableOpacity>
         
         <Text style={styles.headerTitle}>Exercise Details</Text>
         
         <TouchableOpacity>
-          <Info size={24} color="#111827" />
+          <Info size={24} color="colors.gray[100]" />
         </TouchableOpacity>
       </View>
       
@@ -664,7 +667,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: fonts.bold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   scrollView: {
     flex: 1,
@@ -679,7 +682,7 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     fontFamily: fonts.bold,
     fontSize: 24,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 12,
   },
   exerciseTags: {
@@ -786,7 +789,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   sectionAction: {
     fontFamily: fonts.medium,
@@ -813,7 +816,7 @@ const styles = StyleSheet.create({
   },
   timeRangeTextActive: {
     fontFamily: fonts.medium,
-    color: '#111827',
+    color: colors.gray[900],
   },
   progressStats: {
     flexDirection: 'row',
@@ -840,7 +843,7 @@ const styles = StyleSheet.create({
   progressStatValue: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 2,
   },
   progressStatLabel: {
@@ -972,7 +975,7 @@ const styles = StyleSheet.create({
   historyDetailValue: {
     fontFamily: fonts.semiBold,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
   },
   emptyHistory: {
     padding: 24,
@@ -1018,7 +1021,7 @@ const styles = StyleSheet.create({
   videoModalTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   videoModalClose: {
     fontFamily: fonts.medium,
@@ -1056,7 +1059,7 @@ const styles = StyleSheet.create({
   videoInstructionsTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 16,
   },
   videoInstructionItem: {

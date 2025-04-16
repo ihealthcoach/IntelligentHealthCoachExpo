@@ -33,6 +33,9 @@ import { MainTabScreenProps } from '../../types/navigation';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 // Duration formatting helper
 const formatDuration = (seconds: number | undefined): string => {
   if (!seconds) return '0m';
@@ -337,7 +340,7 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
         <Text style={styles.headerTitle}>Workout History</Text>
         
         <TouchableOpacity style={styles.filterButton} onPress={() => setShowFilterModal(true)}>
-          <Filter size={20} color="#111827" />
+          <Filter size={20} color="colors.gray[100]" />
         </TouchableOpacity>
       </View>
       
@@ -742,7 +745,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   filterButton: {
     padding: 8,
@@ -778,7 +781,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   timeRangeTextActive: {
-    color: '#111827',
+    color: colors.gray[900],
   },
   statsOverview: {
     flexDirection: 'row',
@@ -810,7 +813,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: fonts.bold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 4,
   },
   statLabel: {
@@ -840,7 +843,7 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   chartContainer: {
     height: 200,
@@ -897,7 +900,7 @@ const styles = StyleSheet.create({
   muscleDistributionPercentage: {
     fontFamily: fonts.medium,
     fontSize: 12,
-    color: '#111827',
+    color: colors.gray[900],
   },
   muscleDistributionBarContainer: {
     height: 8,
@@ -941,12 +944,12 @@ const styles = StyleSheet.create({
   frequencyCount: {
     fontFamily: fonts.medium,
     fontSize: 12,
-    color: '#111827',
+    color: colors.gray[900],
   },
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 12,
@@ -972,7 +975,7 @@ const styles = StyleSheet.create({
   workoutName: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   workoutDate: {
     fontFamily: fonts.regular,
@@ -1043,7 +1046,7 @@ const styles = StyleSheet.create({
   filterModalTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 16,
   },
   filterSectionTitle: {

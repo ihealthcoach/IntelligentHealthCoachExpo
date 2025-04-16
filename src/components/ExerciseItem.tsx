@@ -6,6 +6,9 @@ import { Check } from 'lucide-react-native';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface ExerciseItemProps {
   exercise: any;
   onPress: () => void;
@@ -108,7 +111,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   exerciseDetails: {

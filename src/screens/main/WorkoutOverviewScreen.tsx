@@ -59,6 +59,9 @@ import { useFocusEffect } from '@react-navigation/native';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 const { width } = Dimensions.get('window');
 
 export default function WorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutOverviewScreen'>) {
@@ -660,7 +663,7 @@ const saveAsTemplate = async () => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="#111827" />
+            <ArrowLeft size={24} color="colors.gray[100]" />
           </TouchableOpacity>
           
           <View style={styles.headerActions}>
@@ -668,7 +671,7 @@ const saveAsTemplate = async () => {
               style={styles.headerIconButton}
               onPress={() => setShowTemplateModal(true)}
             >
-              <Calendar size={22} color="#111827" />
+              <Calendar size={22} color="colors.gray[100]" />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -783,7 +786,7 @@ const saveAsTemplate = async () => {
           // Edit exercise logic
         }}
       >
-        <Edit size={16} color="#111827" />
+        <Edit size={16} color="colors.gray[100]" />
         <Text style={styles.exerciseMenuItemText}>Edit</Text>
       </TouchableOpacity>
       
@@ -803,7 +806,7 @@ const saveAsTemplate = async () => {
               // Superset logic
             }}
           >
-            <Star size={16} color="#111827" />
+            <Star size={16} color="colors.gray[100]" />
             <Text style={styles.exerciseMenuItemText}>Make Superset</Text>
           </TouchableOpacity>
         ) : null;
@@ -1009,7 +1012,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerSaveButton: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
@@ -1041,7 +1044,7 @@ const styles = StyleSheet.create({
   workoutTitle: {
     fontFamily: fonts.bold,
     fontSize: 32,
-    color: '#111827',
+    color: colors.gray[900],
   },
   workoutDate: {
     fontFamily: fonts.regular,
@@ -1064,7 +1067,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: fonts.regular,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
     padding: 0,
   },
   statsContainer: {
@@ -1093,7 +1096,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   statValueWithIcon: {
     flexDirection: 'row',
@@ -1136,7 +1139,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   sectionAction: {
     padding: 4,
@@ -1259,7 +1262,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 2,
   },
   progressBar: {
@@ -1320,7 +1323,7 @@ const styles = StyleSheet.create({
   exerciseMenuItemText: {
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
   },
   exerciseMenuItemDanger: {
     borderTopWidth: 1,
@@ -1393,7 +1396,7 @@ const styles = StyleSheet.create({
   templateModalTitle: {
     fontFamily: fonts.bold,
     fontSize: 20,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 16,
   },
   templateInput: {
@@ -1450,7 +1453,7 @@ const styles = StyleSheet.create({
   templatesListTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   templatesListClose: {
     fontFamily: fonts.medium,
@@ -1486,7 +1489,7 @@ const styles = StyleSheet.create({
   templateItemName: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 4,
   },
   templateItemInfo: {
@@ -1549,7 +1552,7 @@ const styles = StyleSheet.create({
   templateDetailsTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   templateDetailsClose: {
     fontFamily: fonts.regular,
@@ -1566,7 +1569,7 @@ const styles = StyleSheet.create({
   templateDetailsSectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 12,
   },
   templateDetailsDescription: {
@@ -1594,7 +1597,7 @@ const styles = StyleSheet.create({
   templateExerciseName: {
     fontFamily: fonts.medium,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
   },
   templateExerciseInfo: {
     fontFamily: fonts.regular,

@@ -7,6 +7,9 @@ import { AuthScreenProps } from '../../types/navigation';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPassword'>) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);

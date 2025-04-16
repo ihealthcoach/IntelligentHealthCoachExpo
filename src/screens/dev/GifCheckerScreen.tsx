@@ -17,6 +17,9 @@ import { supabase } from '../../services/supabase';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 type Exercise = {
     id: string;
     name: string;
@@ -335,7 +338,7 @@ const renderFilterToggle = () => (
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="#111827" />
+          <ArrowLeft size={24} color="colors.gray[100]" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>GIF Reference Checker</Text>
         <View style={{ width: 24 }} />
@@ -500,7 +503,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   statsContainer: {
     flexDirection: 'row',
@@ -532,7 +535,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: fonts.bold,
     fontSize: 24,
-    color: '#111827',
+    color: colors.gray[900],
   },
   statLabel: {
     fontSize: 14,
@@ -618,7 +621,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   exerciseUrl: {
     fontSize: 12,
@@ -744,7 +747,7 @@ const styles = StyleSheet.create({
   exerciseName1: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 2,
   },
   exerciseUrl1: {

@@ -10,6 +10,9 @@ import ArrowLeft from '../assets/icons/arrow-left-solid.svg';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface HeaderProps {
   profile?: {
     first_name: string | null;
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
   },
   menuLine: {
     height: 2,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 1,
   },
   titleContainer: {
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   headerRight: {
     flexDirection: 'row',

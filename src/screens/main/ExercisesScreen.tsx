@@ -40,6 +40,9 @@ import ExerciseItem from '../../components/ExerciseItem';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 const { width, height } = Dimensions.get('window');
 
 // Define the exercise type based on the Supabase table structure
@@ -667,7 +670,7 @@ const styles = StyleSheet.create({
   doneButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
@@ -684,7 +687,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   subtitle: {
@@ -709,7 +712,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   activeFilterBadge: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
   },
   inactiveFilterBadge: {
     backgroundColor: '#F9FAFC',
@@ -751,7 +754,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 4,
   },
   retryButtonText: {
@@ -777,7 +780,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   addExercisesButton: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
@@ -800,7 +803,7 @@ const styles = StyleSheet.create({
   },
   buildSuperSetButtonText: {
     fontFamily: fonts.medium,
-    color: '#111827',
+    color: colors.gray[900],
     fontSize: 16,
   },
   filterCountButton: {
@@ -810,7 +813,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 20,
@@ -847,7 +850,7 @@ const styles = StyleSheet.create({
   setSheetTitle: {
     fontFamily: fonts.bold,
     fontSize: 22,
-    color: '#111827',
+    color: colors.gray[900],
   },
   setSheetCancel: {
     fontFamily: fonts.medium,
@@ -866,7 +869,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   confirmButton: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 16,
     borderRadius: 25,
     alignItems: 'center',

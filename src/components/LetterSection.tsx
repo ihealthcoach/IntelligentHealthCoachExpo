@@ -5,6 +5,9 @@ import ExerciseItem from './ExerciseItem';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface LetterSectionProps {
   letter: string;
   exercises: any[];
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
   letterHeader: {
     fontFamily: fonts.semiBold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     textAlign: 'right',
     marginBottom: 6,
   },

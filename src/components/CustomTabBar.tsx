@@ -6,8 +6,11 @@ import {BlurView} from '@react-native-community/blur';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 // Icons
-import HomeOutline from '../assets/icons/home-outline.svg';
+import Icon from './Icons';
 import ChartBarOutline from '../assets/icons/chart-bar-outline.svg';
 import ChefsHatIcon from '../assets/icons/chefs-hat.svg';
 import DumbbellIcon from '../assets/icons/dumbbell.svg';
@@ -21,7 +24,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Home')}
         >
-          <HomeOutline width={24} height={24} stroke="#111827" />
+          <Icon name="home-outline" width={24} height={24} color="colors.gray[100]" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
         
@@ -29,7 +32,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('History')}
         >
-          <ChartBarOutline width={24} height={24} stroke="#111827" />
+          <Icon name="chart-bar-outline" width={24} height={24} color="colors.gray[100]" fill="none" />
           <Text style={styles.navText}>Activity</Text>
         </TouchableOpacity>
         
@@ -37,14 +40,14 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.addButton}
           onPress={() => navigation.navigate('Workouts')}
         >
-          <PlusMini width={24} height={24} fill="#FCFEFE" />
+          <Icon name="plus-mini" width={24} height={24} fill="#FCFEFE" />
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Exercises')}
         >
-          <ChefsHatIcon width={24} height={24} fill="#111827" />
+          <Icon name="chefs-hat" width={24} height={24} fill="#111827" stroke="none" />
           <Text style={styles.navText}>Food</Text>
         </TouchableOpacity>
         
@@ -82,7 +85,7 @@ const styles = StyleSheet.create({
   navText: {
     fontFamily: fonts.medium,
     fontSize: 11,
-    color: '#111827',
+    color: colors.gray[900],
     marginTop: 2,
   },
   addButton: {

@@ -34,6 +34,9 @@ import PlusMini from '../../assets/icons/plus-mini.svg';
 // Fonts
 import { fonts } from '../../styles/fonts';
 
+// Colors
+import { colors } from '../../styles/colors';
+
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
   const [greeting, setGreeting] = useState<string>('Good morning');
@@ -498,7 +501,7 @@ const styles = StyleSheet.create({
   },
   menuLine: {
     height: 2,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 1,
   },
   headerRight: {
@@ -560,12 +563,12 @@ const styles = StyleSheet.create({
   greetingText: {
     fontFamily: fonts.light,
     fontSize: 30,
-    color: '#111827',
+    color: colors.gray[900],
   },
   nameText: {
     fontFamily: fonts.bold,
     fontSize: 30,
-    color: '#111827',
+    color: colors.gray[900],
   },
   badgesContainer: {
     flexDirection: 'row',
@@ -577,17 +580,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#111827',
+    borderColor: colors.gray[900],
   },
   badgeText: {
     fontFamily: fonts.medium,
     fontSize: 11,
-    color: '#111827',
+    color: colors.gray[900],
   },
   subText: {
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: '#111827',
+    color: colors.gray[900],
     lineHeight: 18,
   },
   goalsSection: {
@@ -606,7 +609,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 18,
-    color: '#111827',
+    color: colors.gray[900],
   },
   editLink: {
     flexDirection: 'row',
@@ -616,7 +619,7 @@ const styles = StyleSheet.create({
   editLinkText: {
     fontFamily: fonts.medium,
     fontSize: 12,
-    color: '#111827',
+    color: colors.gray[900],
   },
   goalsCard: {
     backgroundColor: '#FCFDFD',
@@ -657,7 +660,7 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   goalValueContainer: {
     flexDirection: 'row',
@@ -667,12 +670,12 @@ const styles = StyleSheet.create({
   goalValue: {
     fontFamily: fonts.bold,
     fontSize: 30,
-    color: '#111827',
+    color: colors.gray[900],
   },
   goalUnit: {
     fontFamily: fonts.medium,
     fontSize: 12,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 8,
     marginLeft: 4,
   },
@@ -690,7 +693,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 2,
   },
   goalTarget: {
@@ -716,18 +719,18 @@ const styles = StyleSheet.create({
   statsTitle: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   statsValue: {
     fontFamily: fonts.medium,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   trackButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 5,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -764,7 +767,7 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontFamily: fonts.semiBold,
     fontSize: 16,
-    color: '#111827',
+    color: colors.gray[900],
   },
   activityStats: {
     flexDirection: 'row',
@@ -777,7 +780,7 @@ const styles = StyleSheet.create({
   activityStatValue: {
     fontFamily: fonts.semiBold,
     fontSize: 12,
-    color: '#111827',
+    color: colors.gray[900],
     marginTop: 6,
   },
   addWidgetButton: {
@@ -840,7 +843,7 @@ const styles = StyleSheet.create({
     right: 16,
   },
   snackbar: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
   },
   snackbarContent: {
     flexDirection: 'row',
