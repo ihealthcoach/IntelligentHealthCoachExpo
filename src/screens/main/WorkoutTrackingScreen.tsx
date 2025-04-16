@@ -51,7 +51,6 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';

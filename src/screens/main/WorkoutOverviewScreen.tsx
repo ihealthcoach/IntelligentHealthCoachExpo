@@ -77,6 +77,7 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
   const [templateCategory, setTemplateCategory] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState({ y: 0, x: 0 });
   
   // Animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -605,55 +606,22 @@ const saveAsTemplate = async () => {
           </View>
           
           <View style={styles.exerciseActions}>
-            <TouchableOpacity 
-              style={styles.exerciseMenuButton}
-              onPress={() => exerciseMenuOpen === item.id ? 
-                setExerciseMenuOpen(null) : setExerciseMenuOpen(item.id)}
-            >
-              <MoreHorizontal size={18} color="#6B7280" />
-            </TouchableOpacity>
+          <TouchableOpacity 
+  style={styles.exerciseMenuButton}
+  onPress={(event) => {
+    // Get the position from the event
+    const { pageY, pageX } = event.nativeEvent;
+    setMenuPosition({ y: pageY, x: 20 }); // Position it below the button, 20px from right edge
+    
+    // Toggle menu
+    exerciseMenuOpen === item.id ? 
+      setExerciseMenuOpen(null) : setExerciseMenuOpen(item.id);
+  }}
+>
+  <MoreHorizontal size={18} color="#6B7280" />
+</TouchableOpacity>
           </View>
         </TouchableOpacity>
-        
-        {/* Exercise Menu */}
-        {exerciseMenuOpen === item.id && (
-          <View style={styles.exerciseMenu}>
-            <TouchableOpacity 
-              style={styles.exerciseMenuItem}
-              onPress={() => {
-                setExerciseMenuOpen(null);
-                // Edit exercise logic
-              }}
-            >
-              <Edit size={16} color="#111827" />
-              <Text style={styles.exerciseMenuItemText}>Edit</Text>
-            </TouchableOpacity>
-            
-            {!isSuperset && supersetPartners.length === 0 && (
-              <TouchableOpacity 
-                style={styles.exerciseMenuItem}
-                onPress={() => {
-                  setExerciseMenuOpen(null);
-                  // Superset logic
-                }}
-              >
-                <Star size={16} color="#111827" />
-                <Text style={styles.exerciseMenuItemText}>Make Superset</Text>
-              </TouchableOpacity>
-            )}
-            
-            <TouchableOpacity 
-              style={[styles.exerciseMenuItem, styles.exerciseMenuItemDanger]}
-              onPress={() => {
-                setExerciseMenuOpen(null);
-                removeExercise(item.id);
-              }}
-            >
-              <Trash2 size={16} color="#EF4444" />
-              <Text style={styles.exerciseMenuItemTextDanger}>Remove</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </Animated.View>
     );
   };
@@ -789,6 +757,57 @@ const saveAsTemplate = async () => {
       ListFooterComponent={<View style={styles.listFooterSpace} />}
     />
   </View>
+)}
+
+{exerciseMenuOpen && (
+  <Portal>
+    <View style={[styles.exerciseMenu, { position: 'absolute', top: menuPosition.y, right: menuPosition.x }]}>
+      <TouchableOpacity 
+        style={styles.exerciseMenuItem}
+        onPress={() => {
+          setExerciseMenuOpen(null);
+          // Edit exercise logic
+        }}
+      >
+        <Edit size={16} color="#111827" />
+        <Text style={styles.exerciseMenuItemText}>Edit</Text>
+      </TouchableOpacity>
+      
+      {/* Get the selected exercise */}
+      {(() => {
+        const selectedExercise = workout?.exercises.find(ex => ex.id === exerciseMenuOpen);
+        const isSuperset = selectedExercise?.supersetId !== undefined && selectedExercise?.supersetId !== null;
+        const supersetPartners = workout?.exercises.filter(
+          ex => ex.supersetId === selectedExercise?.supersetId && ex.id !== selectedExercise?.id
+        ) || [];
+        
+        return !isSuperset && supersetPartners.length === 0 ? (
+          <TouchableOpacity 
+            style={styles.exerciseMenuItem}
+            onPress={() => {
+              setExerciseMenuOpen(null);
+              // Superset logic
+            }}
+          >
+            <Star size={16} color="#111827" />
+            <Text style={styles.exerciseMenuItemText}>Make Superset</Text>
+          </TouchableOpacity>
+        ) : null;
+      })()}
+      
+      <TouchableOpacity 
+        style={[styles.exerciseMenuItem, styles.exerciseMenuItemDanger]}
+        onPress={() => {
+          const id = exerciseMenuOpen;
+          setExerciseMenuOpen(null);
+          removeExercise(id);
+        }}
+      >
+        <Trash2 size={16} color="#EF4444" />
+        <Text style={styles.exerciseMenuItemTextDanger}>Remove</Text>
+      </TouchableOpacity>
+    </View>
+  </Portal>
 )}
 
       {/* Bottom Buttons */}
@@ -1270,7 +1289,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    zIndex: 10,
+    zIndex: 100,
   },
   exerciseMenuItem: {
     flexDirection: 'row',
