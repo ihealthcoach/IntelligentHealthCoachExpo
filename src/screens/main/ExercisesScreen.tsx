@@ -30,6 +30,7 @@ import { workoutService } from '../../services/workoutService';
 import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -50,252 +51,6 @@ type Exercise = {
   selected?: boolean;
 };
 
-// Mock exercises for development
-/*
-const mockExercises: Exercise[] = [
-  {
-    id: '1',
-    name: 'Barbell Bench Press',
-    primary_muscles: 'Chest',
-    equipment: 'Barbell',
-    gif_url: null,
-    description: 'A compound exercise that targets the chest, shoulders, and triceps.',
-    instructions: 'Lie on a bench, grip the barbell with hands slightly wider than shoulder-width, lower the bar to chest level, and push back up.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Pectorals',
-  },
-  {
-    id: '2',
-    name: 'Barbell Squat',
-    primary_muscles: 'Quadriceps',
-    equipment: 'Barbell',
-    gif_url: null,
-    description: 'A compound leg exercise that targets the quadriceps, hamstrings, and glutes.',
-    instructions: 'Position barbell on shoulders, feet shoulder-width apart, bend knees and hips to lower your body, then return to standing.',
-    muscle_group: 'Legs',
-    body_part: 'Lower Body',
-    target: 'Quadriceps',
-  },
-  {
-    id: '3',
-    name: 'Cable Row',
-    primary_muscles: 'Back',
-    equipment: 'Cable',
-    gif_url: null,
-    description: 'An exercise that targets the middle back muscles.',
-    instructions: 'Sit at a cable row station, grab the handle, pull it towards your abdomen while keeping your back straight.',
-    muscle_group: 'Pull',
-    body_part: 'Upper Body',
-    target: 'Latissimus Dorsi',
-  },
-  {
-    id: '4',
-    name: 'Dumbbell Curl',
-    primary_muscles: 'Biceps',
-    equipment: 'Dumbbells',
-    gif_url: null,
-    description: 'An isolation exercise for the biceps.',
-    instructions: 'Hold a dumbbell in each hand, arms extended, curl the weights up by bending at the elbow, then lower back down.',
-    muscle_group: 'Pull',
-    body_part: 'Upper Body',
-    target: 'Biceps',
-  },
-  {
-    id: '5',
-    name: 'Deadlift',
-    primary_muscles: 'Lower Back',
-    equipment: 'Barbell',
-    gif_url: null,
-    description: 'A compound exercise that targets multiple muscle groups.',
-    instructions: 'Stand with feet hip-width apart, bend at hips and knees to grasp barbell, then lift by extending hips and knees.',
-    muscle_group: 'Pull',
-    body_part: 'Full Body',
-    target: 'Erector Spinae',
-  },
-  {
-    id: '6',
-    name: 'Lateral Raise',
-    primary_muscles: 'Shoulders',
-    equipment: 'Dumbbells',
-    gif_url: null,
-    description: 'An isolation exercise that targets the lateral deltoids.',
-    instructions: 'Hold dumbbells at sides, raise arms laterally until parallel with floor, then lower back down.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Deltoids',
-  },
-  {
-    id: '7',
-    name: 'Pull-Up',
-    primary_muscles: 'Back',
-    equipment: 'Body Weight',
-    gif_url: null,
-    description: 'A compound bodyweight exercise that targets the back muscles.',
-    instructions: 'Hang from a bar with hands wider than shoulder-width, pull your body up until chin is above the bar, then lower back down.',
-    muscle_group: 'Pull',
-    body_part: 'Upper Body',
-    target: 'Latissimus Dorsi',
-  },
-  {
-    id: '8',
-    name: 'Push-Up',
-    primary_muscles: 'Chest',
-    equipment: 'Body Weight',
-    gif_url: null,
-    description: 'A compound bodyweight exercise that targets the chest, shoulders, and triceps.',
-    instructions: 'Start in plank position with hands shoulder-width apart, lower body until chest nearly touches floor, then push back up.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Pectorals',
-  },
-  {
-    id: '9',
-    name: 'Romanian Deadlift',
-    primary_muscles: 'Hamstrings',
-    equipment: 'Barbell',
-    gif_url: null,
-    description: 'A variation of the deadlift that targets the hamstrings and lower back.',
-    instructions: 'Stand with feet hip-width apart, hold barbell in front of thighs, hinge at hips while keeping back straight, then return to standing.',
-    muscle_group: 'Pull',
-    body_part: 'Lower Body',
-    target: 'Hamstrings',
-  },
-  {
-    id: '10',
-    name: 'Tricep Pushdown',
-    primary_muscles: 'Triceps',
-    equipment: 'Cable',
-    gif_url: null,
-    description: 'An isolation exercise for the triceps.',
-    instructions: 'Stand facing a cable machine with high pulley, grasp the bar, push down until arms are fully extended, then return to starting position.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Triceps',
-  },
-  {
-    id: '11',
-    name: 'Leg Press',
-    primary_muscles: 'Quadriceps',
-    equipment: 'Machine',
-    gif_url: null,
-    description: 'A compound exercise that targets the quadriceps, hamstrings, and glutes.',
-    instructions: 'Sit in the leg press machine, feet shoulder-width apart on platform, extend legs, then bend knees to return to starting position.',
-    muscle_group: 'Legs',
-    body_part: 'Lower Body',
-    target: 'Quadriceps',
-  },
-  {
-    id: '12',
-    name: 'Dumbbell Shoulder Press',
-    primary_muscles: 'Shoulders',
-    equipment: 'Dumbbells',
-    gif_url: null,
-    description: 'A compound exercise that targets the shoulders and triceps.',
-    instructions: 'Sit or stand holding dumbbells at shoulder height, press weights overhead until arms are extended, then lower back to starting position.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Deltoids',
-  },
-  {
-    id: '13',
-    name: 'Face Pull',
-    primary_muscles: 'Rear Deltoids',
-    equipment: 'Cable',
-    gif_url: null,
-    description: 'An exercise that targets the rear deltoids and upper back.',
-    instructions: 'Stand facing a cable machine with rope attachment at face height, pull rope toward face with elbows high, then return to starting position.',
-    muscle_group: 'Pull',
-    body_part: 'Upper Body',
-    target: 'Rear Deltoids',
-  },
-  {
-    id: '14',
-    name: 'Lunges',
-    primary_muscles: 'Quadriceps',
-    equipment: 'Body Weight',
-    gif_url: null,
-    description: 'A unilateral exercise that targets the quadriceps, hamstrings, and glutes.',
-    instructions: 'Stand with feet together, step forward with one leg into a lunge position, then push back to starting position.',
-    muscle_group: 'Legs',
-    body_part: 'Lower Body',
-    target: 'Quadriceps',
-  },
-  {
-    id: '15',
-    name: 'Ab Crunch',
-    primary_muscles: 'Abdominals',
-    equipment: 'Body Weight',
-    gif_url: null,
-    description: 'An isolation exercise for the abdominal muscles.',
-    instructions: 'Lie on back with knees bent, hands behind head, lift shoulders off floor by contracting abs, then lower back down.',
-    muscle_group: 'Core',
-    body_part: 'Core',
-    target: 'Rectus Abdominis',
-  },
-  {
-    id: '16',
-    name: 'Leg Extension',
-    primary_muscles: 'Quadriceps',
-    equipment: 'Machine',
-    gif_url: null,
-    description: 'An isolation exercise for the quadriceps.',
-    instructions: 'Sit in leg extension machine, place ankles under pad, extend legs until straight, then return to starting position.',
-    muscle_group: 'Legs',
-    body_part: 'Lower Body',
-    target: 'Quadriceps',
-  },
-  {
-    id: '17',
-    name: 'Incline Bench Press',
-    primary_muscles: 'Upper Chest',
-    equipment: 'Barbell',
-    gif_url: null,
-    description: 'A variation of the bench press that targets the upper chest.',
-    instructions: 'Lie on an incline bench, grip barbell with hands slightly wider than shoulder-width, lower to chest, then push back up.',
-    muscle_group: 'Push',
-    body_part: 'Upper Body',
-    target: 'Upper Pectorals',
-  },
-  {
-    id: '18',
-    name: 'Lat Pulldown',
-    primary_muscles: 'Back',
-    equipment: 'Cable',
-    gif_url: null,
-    description: 'A compound exercise that targets the latissimus dorsi and biceps.',
-    instructions: 'Sit at lat pulldown machine, grasp bar with wide grip, pull down to upper chest, then slowly return to starting position.',
-    muscle_group: 'Pull',
-    body_part: 'Upper Body',
-    target: 'Latissimus Dorsi',
-  },
-  {
-    id: '19',
-    name: 'Plank',
-    primary_muscles: 'Core',
-    equipment: 'Body Weight',
-    gif_url: null,
-    description: 'An isometric exercise that targets the core, shoulders, and back.',
-    instructions: 'Start in push-up position with forearms on floor, maintain straight line from head to heels, hold position.',
-    muscle_group: 'Core',
-    body_part: 'Core',
-    target: 'Transverse Abdominis',
-  },
-  {
-    id: '20',
-    name: 'Kettlebell Swing',
-    primary_muscles: 'Hamstrings',
-    equipment: 'Kettlebell',
-    gif_url: null,
-    description: 'A dynamic exercise that targets the posterior chain.',
-    instructions: 'Stand with feet shoulder-width apart, hold kettlebell with both hands, swing between legs and up to chest height using hip hinge.',
-    muscle_group: 'Pull',
-    body_part: 'Full Body',
-    target: 'Hamstrings',
-  },
-];
-*/
-
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
   const [activeFilter, setActiveFilter] = useState('A-Z');
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -308,6 +63,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [showAlphabetSelector, setShowAlphabetSelector] = useState(true);
   const [showSetSheet, setShowSetSheet] = useState(false);
   const [selectedSets, setSelectedSets] = useState(3); // Default to 3 sets
+  const [hasWorkoutExercises, setHasWorkoutExercises] = useState(false);
 
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -336,54 +92,41 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }
   }, [searchQuery, activeFilter]);
 
-  // Mock data start
-  /*
-  const loadMockExercises = () => {
+  useEffect(() => {
+    checkCurrentWorkoutExercises();
+  }, []);
+  
+  // Use useFocusEffect to check whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      checkCurrentWorkoutExercises();
+      return () => {};
+    }, [])
+  );
+
+  const checkCurrentWorkoutExercises = async () => {
     try {
-      setLoading(true);
+      // Read directly from AsyncStorage for the most reliable check
+      const currentWorkoutJson = await AsyncStorage.getItem('current_workout');
       
-      // Set our mock exercises with UI properties
-      const processedData = mockExercises.map((exercise) => ({
-        ...exercise,
-        selected: false,
-        added: false
-      }));
-      
-      setExercises(processedData);
-      setFilteredExercises(processedData);
-      
-      // Organize exercises by first letter
-      organizeExercisesByLetter(processedData);
-      
-      // Track which letters have exercises
-      const letters: Record<string, boolean> = {};
-      alphabet.forEach(letter => {
-        if (letter === '#') {
-          // Check if there are exercises starting with numbers
-          const hasNumbers = processedData.some(ex => ex.name && /^[0-9]/.test(ex.name));
-          letters[letter] = hasNumbers;
-        } else {
-          const hasLetter = processedData.some(ex => 
-            ex.name && ex.name.toUpperCase().startsWith(letter)
-          );
-          letters[letter] = hasLetter;
-        }
-      });
-      setAvailableLetters(letters);
-      
-      // Simulate a short loading time for better UX
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
-      
-    } catch (err) {
-      console.error('Error loading mock exercises:', err);
-      setError('Failed to load exercises. Please try again.');
-      setLoading(false);
+      if (currentWorkoutJson) {
+        const workoutData = JSON.parse(currentWorkoutJson);
+        const hasExercises = workoutData && 
+                             workoutData.exercises && 
+                             Array.isArray(workoutData.exercises) && 
+                             workoutData.exercises.length > 0;
+        
+        console.log('Current workout check:', hasExercises ? 'Has exercises' : 'No exercises');
+        setHasWorkoutExercises(hasExercises);
+      } else {
+        console.log('No current workout found');
+        setHasWorkoutExercises(false);
+      }
+    } catch (error) {
+      console.error('Error checking current workout:', error);
+      setHasWorkoutExercises(false);
     }
   };
-  */
-  // Mock data end
 
   const fetchExercises = async () => {
     try {
@@ -631,6 +374,8 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       
       // Save to AsyncStorage
       await AsyncStorage.setItem('current_workout', JSON.stringify(workoutData));
+      setHasWorkoutExercises(true);
+
     } catch (error) {
       console.error('Error saving workout data:', error);
       // Consider showing an alert to the user
@@ -695,33 +440,37 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerContainer}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
-            style={styles.backButton}
-          >
-            <ArrowLeft size={24} color="#000" />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-  style={styles.viewWorkoutButton}
-  onPress={() => navigation.navigate('WorkoutOverviewScreen')}
->
-  <Text style={styles.viewWorkoutText}>View workout</Text>
-  <ChevronDown size={18} color="#000" />
-</TouchableOpacity>
-        </View>
-        
-        <View style={styles.headerRight}>
-        <TouchableOpacity 
-  style={styles.doneButton}
-  onPress={() => navigation.navigate('WorkoutOverviewScreen')}
->
-  <Text style={styles.doneButtonText}>Done</Text>
-  <Check size={18} color="#fff" />
-</TouchableOpacity>
-        </View>
-      </View>
+  <View style={styles.headerLeft}>
+    <TouchableOpacity 
+      onPress={() => navigation.goBack()} 
+      style={styles.backButton}
+    >
+      <ArrowLeft size={24} color="#000" />
+    </TouchableOpacity>
+    
+    {hasWorkoutExercises && (
+      <TouchableOpacity 
+        style={styles.viewWorkoutButton}
+        onPress={() => navigation.navigate('WorkoutOverviewScreen')}
+      >
+        <Text style={styles.viewWorkoutText}>View workout</Text>
+        <ChevronDown size={18} color="#000" />
+      </TouchableOpacity>
+    )}
+  </View>
+  
+  <View style={styles.headerRight}>
+    {hasWorkoutExercises && (
+      <TouchableOpacity 
+        style={styles.doneButton}
+        onPress={() => navigation.navigate('WorkoutOverviewScreen')}
+      >
+        <Text style={styles.doneButtonText}>Done</Text>
+        <Check size={18} color="#fff" />
+      </TouchableOpacity>
+    )}
+  </View>
+</View>
       
       {/* Title and Description */}
       <View style={styles.titleContainer}>

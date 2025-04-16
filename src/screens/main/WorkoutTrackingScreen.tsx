@@ -1198,6 +1198,9 @@ const handleBackToOverview = async () => {
       // Use workout service to complete the workout
       await workoutService.completeWorkout(completedWorkout);
       
+      // Explicitly clear the current workout
+      await workoutService.clearCurrentWorkout();
+      
       // Navigate to a workout summary/success screen
       // For now, just go back to the main tabs
       navigation.reset({
