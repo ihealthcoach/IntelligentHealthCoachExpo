@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabase';
 import NetInfo from '@react-native-community/netinfo';
@@ -304,42 +305,64 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
       // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
-
+  
+      // Use the standard uuidv4 function which should now work
+      const workoutId = uuidv4();
+      
+      // Convert status to the format expected by Supabase
+      let dbStatus: string;
+      switch(workout.status) {
+        case 'not_started':
+          dbStatus = 'Started';
+          break;
+        case 'in_progress':
+          dbStatus = 'Started';
+          break;
+        case 'completed':
+          dbStatus = 'Finished';
+          break;
+        case 'cancelled':
+          dbStatus = 'Started';
+          break;
+        default:
+          dbStatus = 'Finished';
+      }
+  
       // First insert the workout record
       const { data: workoutData, error: workoutError } = await supabase
         .from('workouts')
         .insert({
-          id: workout.id || uuidv4(),
+          id: workoutId,
           user_id: user.id,
           name: workout.name,
           notes: workout.notes,
           duration: workout.duration,
-          status: workout.status,
+          status: dbStatus,
           completed_at: workout.completedAt
         })
         .select()
         .single();
-
+  
       if (workoutError) throw workoutError;
-
+  
       // Then insert each exercise
       for (const exercise of workout.exercises) {
+        // Remove the notes field from the insert operation
         const { data: exerciseDetailData, error: exerciseDetailError } = await supabase
           .from('workout_exercise_details')
           .insert({
             workout_id: workoutData.id,
             exercise_id: exercise.exerciseId,
             order: exercise.order !== undefined ? exercise.order : workout.exercises.indexOf(exercise),
-            notes: exercise.notes,
             superset_id: exercise.supersetId,
             superset_type: exercise.supersetType,
             rest_between_sets: exercise.restBetweenSets
           })
           .select()
           .single();
-
+  
         if (exerciseDetailError) throw exerciseDetailError;
-
+  
         // Then insert each set
         for (const set of exercise.sets) {
           const { error: setError } = await supabase
@@ -353,9 +376,8 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
               completed: set.isComplete,
               rpe: set.rpe,
               is_pr: set.isPR,
-              notes: null // Optional notes for the set
             });
-
+  
           if (setError) throw setError;
         }
       }
