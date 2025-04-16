@@ -52,6 +52,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 
@@ -1753,6 +1756,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   loadingText: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#4B5563',
   },
@@ -1776,13 +1780,14 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   headerText: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#9CA3AF',
   },
   headerCount: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#111827',
-    fontWeight: '500',
   },
   scrollView: {
     flex: 1,
@@ -1800,8 +1805,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headline: {
+    fontFamily: fonts.bold,
     fontSize: 36,
-    fontWeight: 'bold',
     color: '#111827',
     marginBottom: 0,
   },
@@ -1812,6 +1817,7 @@ const styles = StyleSheet.create({
     height: 26,
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#9CA3AF',
   },
@@ -1825,8 +1831,8 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#FCFDFD',
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     textTransform: 'capitalize',
   },
   noteContainer: {
@@ -1853,6 +1859,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
   },
@@ -1860,6 +1867,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   noteText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#9CA3AF',
     flex: 1,
@@ -1876,8 +1884,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   setTableHeaderText: {
+    fontFamily: fonts.semiBold,
     fontSize: 12,
-    fontWeight: '600',
     color: '#4B5563',
     textAlign: 'center',
   },
@@ -1905,8 +1913,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   setNumber: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
   },
   previousContainer: {
@@ -1914,6 +1922,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   previousText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -1923,8 +1932,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   weightValue: {
+    fontFamily: fonts.medium,
     fontSize: 18,
-    fontWeight: '500',
     color: '#111827',
     textAlign: 'center',
   },
@@ -1934,8 +1943,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   repsValue: {
+    fontFamily: fonts.medium,
     fontSize: 18,
-    fontWeight: '500',
     color: '#111827',
     textAlign: 'center',
   },
@@ -1945,8 +1954,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rpeValue: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
     textAlign: 'center',
   },
@@ -1957,8 +1966,8 @@ const styles = StyleSheet.create({
     right: -30,
   },
   valueInput: {
+    fontFamily: fonts.medium,
     fontSize: 18,
-    fontWeight: '500',
     color: '#111827',
     textAlign: 'center',
     width: 45,
@@ -2018,8 +2027,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   addSetText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#374151',
   },
   historySection: {
@@ -2040,8 +2049,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
   },
   historySectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
   },
   historyContent: {
@@ -2056,29 +2065,34 @@ const styles = StyleSheet.create({
   },
   historyDate: {
     flex: 1,
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#4B5563',
   },
   historyWeight: {
     width: 60,
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
     textAlign: 'center',
   },
   historyReps: {
     width: 60,
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
     textAlign: 'center',
   },
   historyVolume: {
     width: 60,
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
     textAlign: 'center',
   },
   noHistoryText: {
     textAlign: 'center',
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#6B7280',
     padding: 16,
@@ -2095,12 +2109,13 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   infoTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 8,
   },
   infoDescription: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#4B5563',
     marginBottom: 12,
@@ -2117,6 +2132,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   muscleTagText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#4B5563',
   },
@@ -2130,14 +2146,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   oneRepMaxTitle: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#E0E7FF',
     marginBottom: 4,
   },
   oneRepMaxValue: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: '700',
     color: '#FFFFFF',
   },
   bottomNavContainer: {
@@ -2162,6 +2178,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   navText: {
+    fontFamily: fonts.regular,
     fontSize: 9,
     color: '#FCFDFD',
     textAlign: 'center',
@@ -2173,13 +2190,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   completionTitle: {
+    fontFamily: fonts.bold,
     fontSize: 22,
-    fontWeight: 'bold',
     color: '#111827',
     marginBottom: 12,
     textAlign: 'center',
   },
   completionSubtitle: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#6B7280',
     marginBottom: 24,
@@ -2218,15 +2236,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   restTimerTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: '#4B5563',
     marginBottom: 4,
     textAlign: 'center',
   },
   restTimerTime: {
+    fontFamily: fonts.bold,
     fontSize: 32,
-    fontWeight: '700',
     color: '#111827',
     textAlign: 'center',
     marginBottom: 8,
@@ -2252,8 +2270,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   restTimerButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#111827',
   },
   prConfettiContainer: {
@@ -2282,27 +2300,27 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   prBannerText: {
+    fontFamily: fonts.bold,
     fontSize: 20,
-    fontWeight: '700',
     color: '#111827',
   },
   savedButNotCompletedText: {
     color: '#4F46E5', // Use a different color to show it's saved but not completed
     fontStyle: 'normal',
-    fontWeight: '500',
   },
   completionSheetContainer: {
     flex: 1,
     padding: 16,
   },
   completionSheetTitle: {
+    fontFamily: fonts.bold,
     fontSize: 20,
-    fontWeight: '700',
     color: '#111827',
     textAlign: 'center',
     marginBottom: 8,
   },
   completionSheetSubtitle: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
@@ -2324,8 +2342,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   completionButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
 });

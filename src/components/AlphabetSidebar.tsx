@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
+// Fonts
+import { fonts } from '../styles/fonts';
+
 interface AlphabetSidebarProps {
   alphabet: string[];
   availableLetters: Record<string, boolean>;
@@ -46,8 +49,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   alphabetLetter: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#111827',
     paddingVertical: 1,
   },

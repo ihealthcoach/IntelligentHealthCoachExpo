@@ -7,6 +7,9 @@ import BellOutline from '../assets/icons/bell-outline.svg';
 import ChatBubbleOutline from '../assets/icons/chat-bubble-oval-left-ellipsis-outline.svg';
 import ArrowLeft from '../assets/icons/arrow-left-solid.svg';
 
+// Fonts
+import { fonts } from '../styles/fonts';
+
 interface HeaderProps {
   profile?: {
     first_name: string | null;
@@ -123,8 +126,8 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   title: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   headerRight: {

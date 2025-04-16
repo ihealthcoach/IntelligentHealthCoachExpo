@@ -3,6 +3,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 
+// Fonts
+import { fonts } from '../styles/fonts';
+
 interface ExerciseItemProps {
   exercise: any;
   onPress: () => void;
@@ -103,8 +106,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   exerciseName: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 0,
   },
@@ -113,17 +116,19 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   exerciseDetail: {
+    fontFamily: fonts.regular,
     fontSize: 11,
     color: '#9CA3AF',
     marginRight: 2,
+    textTransform: 'capitalize',
   },
   addedContainer: {
     width: 36,
     alignItems: 'flex-end',
   },
   addedText: {
+    fontFamily: fonts.semiBold,
     fontSize: 11,
-    fontWeight: '600',
     color: '#4F46E5',
   },
 });

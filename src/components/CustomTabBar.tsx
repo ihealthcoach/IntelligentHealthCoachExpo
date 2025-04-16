@@ -3,6 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {BlurView} from '@react-native-community/blur';
 
+// Fonts
+import { fonts } from '../styles/fonts';
+
 // Icons
 import HomeOutline from '../assets/icons/home-outline.svg';
 import ChartBarOutline from '../assets/icons/chart-bar-outline.svg';
@@ -77,8 +80,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navText: {
+    fontFamily: fonts.medium,
     fontSize: 11,
-    fontWeight: '500',
     color: '#111827',
     marginTop: 2,
   },

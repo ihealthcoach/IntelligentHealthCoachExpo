@@ -2,6 +2,9 @@ import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ExerciseItem from './ExerciseItem';
 
+// Fonts
+import { fonts } from '../styles/fonts';
+
 interface LetterSectionProps {
   letter: string;
   exercises: any[];
@@ -43,8 +46,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   letterHeader: {
+    fontFamily: fonts.semiBold,
     fontSize: 36,
-    fontWeight: '600',
     color: '#111827',
     textAlign: 'right',
     marginBottom: 6,

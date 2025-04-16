@@ -30,6 +30,9 @@ import { Workout, WorkoutExercise, MuscleGroupVolume } from '../../types/workout
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { MainTabScreenProps } from '../../types/navigation';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 // Duration formatting helper
 const formatDuration = (seconds: number | undefined): string => {
   if (!seconds) return '0m';
@@ -721,6 +724,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   loadingText: {
+    fontFamily: fonts.regular,
     marginTop: 16,
     fontSize: 16,
     color: '#6B7280',
@@ -736,8 +740,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   headerTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   filterButton: {
@@ -769,8 +773,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   timeRangeText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#6B7280',
   },
   timeRangeTextActive: {
@@ -804,12 +808,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statValue: {
+    fontFamily: fonts.bold,
     fontSize: 16,
-    fontWeight: '700',
     color: '#111827',
     marginBottom: 4,
   },
   statLabel: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -833,8 +838,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   chartTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
   },
   chartContainer: {
@@ -849,6 +854,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chartPlaceholderText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#6B7280',
   },
@@ -868,6 +874,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   legendText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -883,12 +890,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   muscleDistributionName: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#374151',
   },
   muscleDistributionPercentage: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#111827',
   },
   muscleDistributionBarContainer: {
@@ -914,6 +922,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   frequencyDay: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
     marginBottom: 4,
@@ -930,13 +939,13 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   frequencyCount: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#111827',
   },
   sectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
     marginHorizontal: 16,
     marginTop: 8,
@@ -961,11 +970,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   workoutName: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
   },
   workoutDate: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -980,6 +990,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   workoutStatText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -989,11 +1000,13 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   workoutExercise: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#4B5563',
     marginBottom: 4,
   },
   workoutMoreExercises: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
     marginTop: 4,
@@ -1007,6 +1020,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyStateText: {
+    fontFamily: fonts.regular,
     textAlign: 'center',
     color: '#6B7280',
     fontSize: 14,
@@ -1027,14 +1041,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   filterModalTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 16,
   },
   filterSectionTitle: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#4B5563',
     marginBottom: 12,
   },
@@ -1072,6 +1086,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   activeFilterLabel: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4B5563',
     marginRight: 8,

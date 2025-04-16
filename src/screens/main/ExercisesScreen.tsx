@@ -37,6 +37,9 @@ import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 const { width, height } = Dimensions.get('window');
 
 // Define the exercise type based on the Supabase table structure
@@ -654,8 +657,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   viewWorkoutText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     marginRight: 4,
   },
   iconButton: {
@@ -671,7 +674,7 @@ const styles = StyleSheet.create({
   },
   doneButtonText: {
     color: '#FFFFFF',
-    fontWeight: '500',
+    fontFamily: fonts.medium,
     marginRight: 4,
   },
   titleContainer: {
@@ -679,12 +682,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 36,
-    fontWeight: '700',
     color: '#111827',
     marginBottom: 0,
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#9CA3AF',
     marginTop: 0,
@@ -711,8 +715,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFC',
   },
   filterLabel: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     marginLeft: 4,
   },
   activeFilterLabel: {
@@ -752,7 +756,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: '#FFFFFF',
-    fontWeight: '500',
+    fontFamily: fonts.medium,
   },
   emptyState: {
     flex: 1,
@@ -761,6 +765,7 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   emptyStateText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#9CA3AF',
   },
@@ -780,8 +785,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addExercisesButtonText: {
+    fontFamily: fonts.medium,
     color: '#FFFFFF',
-    fontWeight: '600',
     fontSize: 16,
   },
   buildSuperSetButton: {
@@ -794,8 +799,8 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   buildSuperSetButtonText: {
+    fontFamily: fonts.medium,
     color: '#111827',
-    fontWeight: '600',
     fontSize: 16,
   },
   filterCountButton: {
@@ -814,8 +819,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4F46E5',
   },
   filterCountText: {
+    fontFamily: fonts.medium,
     color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 18,
   },
   bottomPadding: {
@@ -840,14 +845,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   setSheetTitle: {
+    fontFamily: fonts.bold,
     fontSize: 22,
-    fontWeight: '600',
     color: '#111827',
   },
   setSheetCancel: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   pickerContainer: {
     marginBottom: 20,
@@ -868,8 +873,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   confirmButtonText: {
+    fontFamily: fonts.medium,
     color: '#FFFFFF',
-    fontWeight: '600',
     fontSize: 16,
   }
 });

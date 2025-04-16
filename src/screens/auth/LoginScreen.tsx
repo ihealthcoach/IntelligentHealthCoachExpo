@@ -17,6 +17,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { AuthScreenProps } from '../../types/navigation';
 import { HelperText } from 'react-native-paper';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const { signIn } = useAuth();
   
@@ -262,13 +265,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
+    fontFamily: fonts.bold,
     fontSize: 30,
-    fontWeight: '800',
     color: '#111827',
     textAlign: 'center',
     marginBottom: 4,
   },
   headerSubtitle: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#9ca3af',
     textAlign: 'center',
@@ -302,8 +306,8 @@ const styles = StyleSheet.create({
     height: 24,
   },
   buttonText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
   signInButton: {
@@ -313,6 +317,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signInText: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#111827',
     textAlign: 'center',
@@ -337,8 +342,8 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   modalTitle: {
+    fontFamily: fonts.bold,
     fontSize: 20,
-    fontWeight: '700',
     color: '#111827',
   },
   placeholderView: {
@@ -351,8 +356,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
     marginBottom: 8,
   },
@@ -363,6 +368,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     borderRadius: 5,
     paddingHorizontal: 16,
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#111827',
   },
@@ -379,9 +385,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   loginButton: {
     width: '100%',
@@ -396,8 +402,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#818CF8',
   },
   loginButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#ffffff',
   },
 });

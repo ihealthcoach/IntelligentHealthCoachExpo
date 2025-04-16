@@ -4,6 +4,9 @@ import { TextInput, Button, HelperText } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthScreenProps } from '../../types/navigation';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 export default function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
   const { signUp } = useAuth();
   const [email, setEmail] = useState('');
@@ -152,12 +155,13 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 28,
-    fontWeight: '700',
     marginBottom: 8,
     color: '#000',
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#666',
     opacity: 0.7,
@@ -179,6 +183,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   footerText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#333',
   }

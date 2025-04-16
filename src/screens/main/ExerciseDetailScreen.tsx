@@ -34,6 +34,9 @@ import { Workout, ExerciseProgressData } from '../../types/workout';
 import { useAuth } from '../../contexts/AuthContext';
 import { Video } from 'expo-av';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 // Get screen dimensions
 const { width } = Dimensions.get('window');
 
@@ -643,6 +646,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   loadingText: {
+    fontFamily: fonts.regular,
     marginTop: 16,
     fontSize: 16,
     color: '#6B7280',
@@ -658,8 +662,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   headerTitle: {
+    fontFamily: fonts.bold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   scrollView: {
@@ -673,8 +677,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   exerciseTitle: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: '700',
     color: '#111827',
     marginBottom: 12,
   },
@@ -737,8 +741,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   prTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#92400E',
   },
   prDate: {
@@ -753,8 +757,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   prStatValue: {
+    fontFamily: fonts.bold,
     fontSize: 18,
-    fontWeight: '700',
     color: '#92400E',
     marginBottom: 4,
   },
@@ -780,14 +784,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   sectionAction: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   timeRangeSelector: {
     flexDirection: 'row',
@@ -808,8 +812,8 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   timeRangeTextActive: {
+    fontFamily: fonts.medium,
     color: '#111827',
-    fontWeight: '500',
   },
   progressStats: {
     flexDirection: 'row',
@@ -834,8 +838,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   progressStatValue: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 2,
   },
@@ -887,8 +891,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   instructionNumberText: {
+    fontFamily: fonts.semiBold,
     fontSize: 12,
-    fontWeight: '600',
     color: '#4F46E5',
   },
   instructionText: {
@@ -966,8 +970,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   historyDetailValue: {
+    fontFamily: fonts.semiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: '#111827',
   },
   emptyHistory: {
@@ -992,8 +996,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   goalButtonText: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
   },
   videoModal: {
@@ -1012,14 +1016,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   videoModalTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   videoModalClose: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   videoContainer: {
     position: 'relative',
@@ -1050,8 +1054,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   videoInstructionsTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 16,
   },
@@ -1070,8 +1074,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   videoInstructionNumberText: {
+    fontFamily: fonts.semiBold,
     fontSize: 12,
-    fontWeight: '600',
     color: '#4F46E5',
   },
   videoInstructionText: {

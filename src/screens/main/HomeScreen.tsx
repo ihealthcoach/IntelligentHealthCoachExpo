@@ -31,9 +31,12 @@ import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 import ChevronDownMini from '../../assets/icons/chevron-down-mini.svg';
 import PlusMini from '../../assets/icons/plus-mini.svg';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
-  const [greeting, setGreeting] = useState<string>('Good Morning');
+  const [greeting, setGreeting] = useState<string>('Good morning');
   const [emoji, setEmoji] = useState<string>('🍳');
   const { showSnackbar, hideSnackbar, visible, message, action } = useSnackbar();
 
@@ -76,13 +79,13 @@ export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
     const hour = new Date().getHours();
     
     if (hour >= 0 && hour < 12) {
-      setGreeting('Good Morning');
+      setGreeting('Good morning');
       setEmoji('🍳');
     } else if (hour >= 12 && hour < 17) {
-      setGreeting('Good Afternoon');
+      setGreeting('Good afternoon');
       setEmoji('😊');
     } else {
-      setGreeting('Good Evening');
+      setGreeting('Good evening');
       setEmoji('💪🏻');
     }
   }, []);
@@ -555,12 +558,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   greetingText: {
+    fontFamily: fonts.light,
     fontSize: 30,
     color: '#111827',
   },
   nameText: {
+    fontFamily: fonts.bold,
     fontSize: 30,
-    fontWeight: 'bold',
     color: '#111827',
   },
   badgesContainer: {
@@ -576,11 +580,12 @@ const styles = StyleSheet.create({
     borderColor: '#111827',
   },
   badgeText: {
+    fontFamily: fonts.medium,
     fontSize: 11,
-    fontWeight: '500',
     color: '#111827',
   },
   subText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
     lineHeight: 18,
@@ -599,8 +604,8 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   sectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   editLink: {
@@ -609,8 +614,8 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   editLinkText: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#111827',
   },
   goalsCard: {
@@ -650,8 +655,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   goalTitle: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
   goalValueContainer: {
@@ -660,13 +665,13 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   goalValue: {
+    fontFamily: fonts.bold,
     fontSize: 30,
-    fontWeight: 'bold',
     color: '#111827',
   },
   goalUnit: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#111827',
     marginBottom: 8,
     marginLeft: 4,
@@ -689,8 +694,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   goalTarget: {
+    fontFamily: fonts.medium,
     fontSize: 12,
-    fontWeight: '500',
     color: '#6B7280',
     textAlign: 'right',
   },
@@ -709,11 +714,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   statsTitle: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
   statsValue: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#111827',
   },
@@ -728,8 +734,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   trackButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#FCFEFE',
   },
   activitiesSection: {
@@ -756,8 +762,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   activityTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
   },
   activityStats: {
@@ -769,8 +775,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   activityStatValue: {
+    fontFamily: fonts.semiBold,
     fontSize: 12,
-    fontWeight: '600',
     color: '#111827',
     marginTop: 6,
   },
@@ -788,8 +794,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   addWidgetText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#9CA3AF',
   },
   homeIndicator: {
@@ -823,9 +829,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   devToolButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4B5563',
-    fontWeight: '500',
   },
   snackbarWrapper: {
     position: 'absolute',
@@ -842,7 +848,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   snackbarText: {
-    color: '#FFFFFF',
+    fontFamily: fonts.medium,
+    color: '#FCFEFE',
     fontSize: 14,
   },
   snackbarCloseIcon: {

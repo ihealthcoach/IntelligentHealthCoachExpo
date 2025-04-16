@@ -4,6 +4,9 @@ import { TextInput, Button, HelperText } from 'react-native-paper';
 import { supabase } from '../../services/supabase';
 import { AuthScreenProps } from '../../types/navigation';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'ForgotPassword'>) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -112,12 +115,13 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   title: {
+    fontFamily: fonts.bold,
     fontSize: 28,
-    fontWeight: '700',
     marginBottom: 8,
     color: '#000',
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#666',
     textAlign: 'center',

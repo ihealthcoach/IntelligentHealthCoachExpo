@@ -56,6 +56,9 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import SaveTemplateModal from '../../components/SaveTemplateModal';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 const { width } = Dimensions.get('window');
 
 export default function WorkoutOverviewScreen({ navigation }: MainStackScreenProps<'WorkoutOverviewScreen'>) {
@@ -1015,9 +1018,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerSaveText: {
+    fontFamily: fonts.medium,
     color: '#FCFDFD',
     fontSize: 14,
-    fontWeight: '500',
   },
   scrollView: {
     flex: 1,
@@ -1036,11 +1039,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   workoutTitle: {
+    fontFamily: fonts.bold,
     fontSize: 32,
-    fontWeight: 'bold',
     color: '#111827',
   },
   workoutDate: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#6B7280',
     marginTop: 4,
@@ -1058,6 +1062,7 @@ const styles = StyleSheet.create({
   },
   workoutNameInput: {
     flex: 1,
+    fontFamily: fonts.regular,
     fontSize: 18,
     color: '#111827',
     padding: 0,
@@ -1086,8 +1091,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statValue: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   statValueWithIcon: {
@@ -1096,6 +1101,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statLabel: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
     marginTop: 2,
@@ -1128,17 +1134,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   sectionAction: {
     padding: 4,
   },
   sectionActionText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   emptyState: {
     padding: 24,
@@ -1152,6 +1158,7 @@ const styles = StyleSheet.create({
   emptyStateText: {
     textAlign: 'center',
     color: '#6B7280',
+    fontFamily: fonts.regular,
     fontSize: 14,
   },
   exerciseList: {
@@ -1194,8 +1201,8 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   supersetBadgeText: {
+    fontFamily: fonts.medium,
     fontSize: 10,
-    fontWeight: '500',
     color: '#92400E',
   },
   dragHandle: {
@@ -1240,8 +1247,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   exerciseImageText: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#9CA3AF',
   },
   exerciseDetails: {
@@ -1250,8 +1257,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   exerciseName: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 2,
   },
@@ -1269,10 +1276,12 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   progressText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
   setsText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },
@@ -1309,6 +1318,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   exerciseMenuItemText: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#111827',
   },
@@ -1345,8 +1355,8 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: '#FFFFFF',
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
   },
   addButton: {
     backgroundColor: '#FFFFFF',
@@ -1360,9 +1370,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addButtonText: {
+    fontFamily: fonts.medium,
     color: '#374151',
     fontSize: 16,
-    fontWeight: '500',
   },
   fullWidthButton: {
     width: '100%',
@@ -1381,8 +1391,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   templateModalTitle: {
+    fontFamily: fonts.bold,
     fontSize: 20,
-    fontWeight: '700',
     color: '#111827',
     marginBottom: 16,
   },
@@ -1393,6 +1403,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    fontFamily: fonts.medium,
     fontSize: 16,
     marginBottom: 16,
   },
@@ -1437,14 +1448,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   templatesListTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   templatesListClose: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#4F46E5',
-    fontWeight: '500',
   },
   templatesEmptyState: {
     padding: 24,
@@ -1455,6 +1466,7 @@ const styles = StyleSheet.create({
   templatesEmptyText: {
     textAlign: 'center',
     color: '#6B7280',
+    fontFamily: fonts.regular,
     fontSize: 14,
     marginBottom: 16,
   },
@@ -1472,17 +1484,19 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   templateItemName: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 4,
   },
   templateItemInfo: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
     marginBottom: 4,
   },
   templateItemDescription: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#4B5563',
     marginTop: 4,
@@ -1498,6 +1512,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   templateCategoryText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#4F46E5',
   },
@@ -1508,6 +1523,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   templateDifficultyText: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#0284C7',
   },
@@ -1531,11 +1547,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   templateDetailsTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   templateDetailsClose: {
+    fontFamily: fonts.regular,
     fontSize: 16,
     color: '#4F46E5',
   },
@@ -1547,12 +1564,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   templateDetailsSectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 12,
   },
   templateDetailsDescription: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#4B5563',
     marginBottom: 16,
@@ -1566,19 +1584,20 @@ const styles = StyleSheet.create({
   },
   templateExerciseNumber: {
     width: 24,
+    fontFamily: fonts.semiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: '#6B7280',
   },
   templateExerciseDetails: {
     flex: 1,
   },
   templateExerciseName: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#111827',
   },
   templateExerciseInfo: {
+    fontFamily: fonts.regular,
     fontSize: 12,
     color: '#6B7280',
   },

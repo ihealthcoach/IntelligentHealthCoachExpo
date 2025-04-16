@@ -14,6 +14,9 @@ import {
 import { ArrowLeft, CheckCircle, XCircle, List } from 'lucide-react-native';
 import { supabase } from '../../services/supabase';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 type Exercise = {
     id: string;
     name: string;
@@ -495,8 +498,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   headerTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#111827',
   },
   statsContainer: {
@@ -527,8 +530,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   statValue: {
+    fontFamily: fonts.bold,
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#111827',
   },
   statLabel: {
@@ -573,8 +576,8 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: '#FFFFFF',
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,
@@ -598,8 +601,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   listHeaderText: {
+    fontFamily: fonts.semiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: '#4B5563',
   },
   exerciseItem: {
@@ -613,8 +616,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   exerciseName: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
   exerciseUrl: {
@@ -675,8 +678,8 @@ const styles = StyleSheet.create({
     borderColor: '#4F46E5',
   },
   toggleText: {
+    fontFamily: fonts.medium,
     fontSize: 13,
-    fontWeight: '500',
     color: '#4B5563',
   },
   toggleTextActive: {
@@ -739,8 +742,8 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   exerciseName1: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
     marginBottom: 2,
   },

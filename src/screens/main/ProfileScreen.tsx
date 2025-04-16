@@ -9,6 +9,9 @@ import Header from '../../components/Header';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 
+// Fonts
+import { fonts } from '../../styles/fonts';
+
 export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();
   const [profile, setProfile] = useState({
@@ -474,8 +477,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headline: {
+    fontFamily: fonts.bold,
     fontSize: 36,
-    fontWeight: 'bold',
     color: '#111827',
     marginBottom: 0,
   },
@@ -485,6 +488,7 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   subtitle: {
+    fontFamily: fonts.regular,
     fontSize: 14,
     color: '#9CA3AF',
   },
@@ -506,8 +510,8 @@ const styles = StyleSheet.create({
     borderColor: '#111827',
   },
   tabText: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#4B5563',
   },
   activeTabText: {
@@ -517,8 +521,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
+    fontFamily: fonts.semiBold,
     fontSize: 24,
-    fontWeight: '600',
     color: '#111827',
     marginBottom: 12,
   },
@@ -555,11 +559,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#111827',
   },
   settingSubtitle: {
+    fontFamily: fonts.medium,
     fontSize: 16,
     color: '#9CA3AF',
   },
@@ -614,8 +619,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   editLabel: {
+    fontFamily: fonts.medium,
     fontSize: 14,
-    fontWeight: '500',
     color: '#4B5563',
     marginBottom: 6,
   },
@@ -627,6 +632,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
+    fontFamily: fonts.medium,
   },
   saveButton: {
     backgroundColor: '#4F46E5',
@@ -636,13 +642,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   saveButtonText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '600',
     color: '#FFFFFF',
   },
   signOutText: {
+    fontFamily: fonts.medium,
     fontSize: 16,
-    fontWeight: '500',
     color: '#DC2626',
     marginLeft: 8,
   },
@@ -656,6 +662,7 @@ dropdownButton: {
   justifyContent: 'center',
 },
 dropdownButtonText: {
+  fontFamily: fonts.medium,
   fontSize: 16,
   color: '#111827',
 },
@@ -682,13 +689,13 @@ pickerHeader: {
   borderBottomColor: '#e5e7eb',
 },
 pickerTitle: {
+  fontFamily: fonts.semiBold,
   fontSize: 18,
-  fontWeight: '600',
   color: '#111827',
 },
 pickerDoneButton: {
+  fontFamily: fonts.medium,
   fontSize: 16,
   color: '#4F46E5',
-  fontWeight: '500',
 },
 });
