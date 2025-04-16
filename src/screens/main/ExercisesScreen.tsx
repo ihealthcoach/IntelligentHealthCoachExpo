@@ -297,8 +297,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setSelectedExercises(selected);
   };
 
-  const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
-
   // Add or modify the scrollToLetter function
   const scrollToLetter = (letter: string) => {
     if (letterPositions[letter] !== undefined && scrollViewRef.current) {
@@ -400,29 +398,6 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     // Handle building super set - for now just log
     console.log(`Building super set with ${selectedExercises.length} exercises`);
     // In a real app, navigate to superset creation screen
-  };
-
-  const renderLetterSidebar = () => {
-    return (
-      <View style={styles.alphabetContainer}>
-        {alphabet.map((letter) => (
-          <TouchableOpacity
-            key={letter}
-            onPress={() => scrollToLetter(letter)}
-            disabled={!availableLetters[letter]}
-          >
-            <Text
-              style={[
-                styles.alphabetLetter,
-                !availableLetters[letter] && styles.alphabetLetterInactive
-              ]}
-            >
-              {letter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
   };
 
   if (loading) {
@@ -550,21 +525,19 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
               />
             ))
           )}
-
-{activeFilter === 'A-Z' && showAlphabetSelector && (
-  <AlphabetSidebar 
-    alphabet={alphabet}
-    availableLetters={availableLetters}
-    onLetterPress={scrollToLetter}
-  />
-)}
           
           {/* Extra padding at the bottom for floating button */}
           <View style={styles.bottomPadding} />
         </ScrollView>
         
         {/* Alphabet selector (right side) */}
-        {activeFilter === 'A-Z' && showAlphabetSelector && renderLetterSidebar()}
+        {activeFilter === 'A-Z' && showAlphabetSelector && (
+  <AlphabetSidebar 
+    alphabet={alphabet}
+    availableLetters={availableLetters}
+    onLetterPress={scrollToLetter}
+  />
+)}
       </View>
       
       {/* Floating action buttons */}
