@@ -1173,51 +1173,93 @@ async cacheExerciseLibrary(): Promise<void> {
  * Get exercise library - tries Supabase first, falls back to cache
  * @returns Array of exercises
  */
-async getExerciseLibrary(): Promise<any[]> {
+async getExerciseLibrary(): Promise<{ exercises: any[], totalCount: number }> {
   try {
     // Try to get from Supabase if online
     const isConnected = await this.checkConnectivity();
     
     if (isConnected) {
       try {
-        const { data, error } = await supabase
+        // First, get the total count of exercises
+        const { count, error: countError } = await supabase
           .from('exercises')
-          .select('*');
+          .select('*', { count: 'exact', head: true });
           
-        if (error) {
-          console.error('Error fetching exercise library:', error);
-        } else if (data && data.length > 0) {
+        if (countError) {
+          console.error('Error counting exercises:', countError);
+        }
+        
+        const totalCount = count || 0;
+        
+        // Use pagination to fetch all exercises
+        const PAGE_SIZE = 1000; // Supabase's limit
+        let allExercises = [];
+        let page = 0;
+        let hasMore = true;
+        
+        while (hasMore) {
+          const from = page * PAGE_SIZE;
+          const to = from + PAGE_SIZE - 1;
+          
+          console.log(`Fetching exercises ${from} to ${to}`);
+          
+          const { data, error } = await supabase
+            .from('exercises')
+            .select('*')
+            .range(from, to);
+            
+          if (error) {
+            console.error(`Error fetching exercises page ${page}:`, error);
+            break;
+          }
+          
+          if (data && data.length > 0) {
+            allExercises = [...allExercises, ...data];
+            page++;
+            
+            // Check if we need to fetch more
+            if (data.length < PAGE_SIZE) {
+              hasMore = false;
+            }
+          } else {
+            hasMore = false;
+          }
+        }
+        
+        if (allExercises.length > 0) {
           // Update cache with fresh data
           await AsyncStorage.setItem('exercise_library_cache', JSON.stringify({
             timestamp: Date.now(),
-            exercises: data
+            exercises: allExercises,
+            totalCount
           }));
           
-          return data;
+          return { exercises: allExercises, totalCount };
         }
       } catch (onlineError) {
         console.error('Error accessing Supabase for exercise library:', onlineError);
       }
     }
     
-    // If we're here, either offline or Supabase failed
-    // Try to get from cache
+    // If offline or Supabase failed, try to get from cache
     try {
       const cacheJson = await AsyncStorage.getItem('exercise_library_cache');
       if (cacheJson) {
         const cache = JSON.parse(cacheJson);
-        console.log(`Using cached exercise library from ${new Date(cache.timestamp).toLocaleString()}`);
-        return cache.exercises || [];
+        return { 
+          exercises: cache.exercises || [], 
+          totalCount: cache.totalCount || cache.exercises?.length || 0 
+        };
       }
     } catch (cacheError) {
       console.error('Error reading exercise library cache:', cacheError);
     }
     
     // If all else fails, return empty array
-    return [];
+    return { exercises: [], totalCount: 0 };
   } catch (error) {
     console.error('Error in getExerciseLibrary:', error);
-    return [];
+    return { exercises: [], totalCount: 0 };
   }
 }
 }

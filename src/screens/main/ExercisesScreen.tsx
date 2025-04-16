@@ -64,6 +64,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [showSetSheet, setShowSetSheet] = useState(false);
   const [selectedSets, setSelectedSets] = useState(3); // Default to 3 sets
   const [hasWorkoutExercises, setHasWorkoutExercises] = useState(false);
+  const [totalExerciseCount, setTotalExerciseCount] = useState(0);
 
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -135,9 +136,10 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       // Use the workout service to get exercises with caching support
       const exerciseData = await workoutService.getExerciseLibrary();
       
-      if (exerciseData && exerciseData.length > 0) {
+      if (exerciseData && exerciseData.exercises.length > 0) {
+        setTotalExerciseCount(exerciseData.totalCount);
         // Process the data as before
-        const processedData = exerciseData.map((exercise) => ({
+        const processedData = exerciseData.exercises.map((exercise) => ({
           ...exercise,
           selected: false,
           added: false
@@ -474,9 +476,9 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       
       {/* Title and Description */}
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Library</Text>
-        <Text style={styles.subtitle}>Add exercises to your workout</Text>
-      </View>
+  <Text style={styles.title}>Library</Text>
+  <Text style={styles.subtitle}>Add from {totalExerciseCount} exercises to your workout</Text>
+</View>
       
       {/* Filters */}
       <View>
