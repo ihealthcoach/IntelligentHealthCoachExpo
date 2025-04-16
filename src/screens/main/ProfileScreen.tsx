@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, TextInput, Modal } from 'react-native';
 import { ArrowLeft, User, ClipboardList, Globe, Bell, CreditCard, Moon, Star, ChevronRight, Plus } from 'lucide-react-native';
-import { useAuth } from '../../contexts/AuthContext';
-import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 import { Picker } from '@react-native-picker/picker';
+
+// Components
+import Header from '../../components/Header';
+import { useAuth } from '../../contexts/AuthContext';
+import { MainTabScreenProps } from '../../types/navigation';
 
 export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();
@@ -163,31 +166,13 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <ArrowLeft size={30} color="#111827" />
-        </TouchableOpacity>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerIcon}>
-            <Bell size={30} color="#24262F" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIcon}>
-            <View style={styles.notificationDot} />
-            <View style={styles.messageIcon}>
-              <View style={styles.messageIconInner} />
-            </View>
-          </TouchableOpacity>
-          <Image
-  source={
-    profile.avatar_url 
-      ? { uri: profile.avatar_url } 
-      : { uri: `https://ui-avatars.com/api/?name=${profile.first_name}+${profile.last_name}` }
-  }
-  style={styles.avatar}
+      <Header 
+  profile={profile}
+  getFirstName={() => profile.first_name || 'User'}
+  showMenu={false}
+  goBack={true}
+  title="Profile"
 />
-        </View>
-      </View>
 
       <ScrollView style={styles.scrollView}>
         {/* Headline and Subtitle */}

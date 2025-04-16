@@ -32,6 +32,11 @@ import { supabase } from '../../services/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Components
+import AlphabetSidebar from '../../components/AlphabetSidebar';
+import LetterSection from '../../components/LetterSection';
+import ExerciseItem from '../../components/ExerciseItem';
+
 const { width, height } = Dimensions.get('window');
 
 // Define the exercise type based on the Supabase table structure
@@ -65,6 +70,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [selectedSets, setSelectedSets] = useState(3); // Default to 3 sets
   const [hasWorkoutExercises, setHasWorkoutExercises] = useState(false);
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
+  const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
 
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -291,23 +297,24 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setSelectedExercises(selected);
   };
 
+  const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
+
+  // Add or modify the scrollToLetter function
   const scrollToLetter = (letter: string) => {
-    // Find the section with this letter
-    if (exercisesByLetter[letter] && exercisesByLetter[letter].length > 0) {
-      // Get all letter keys and find the index of the current letter
-      const letters = Object.keys(exercisesByLetter).sort();
-      const letterIndex = letters.indexOf(letter);
-      
-      if (letterIndex !== -1 && scrollViewRef.current) {
-        // Use the reference to scroll to an approximated position
-        // This is a simplified approach - for more precise scrolling, 
-        // you would need to measure section heights
-        scrollViewRef.current.scrollTo({ 
-          y: letterIndex * 200, // Approximate height per letter section
-          animated: true 
-        });
-      }
+    if (letterPositions[letter] !== undefined && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ 
+        y: letterPositions[letter] - 20, // 20px offset for better visibility
+        animated: true 
+      });
     }
+  };
+
+  // Function to handle layout measurements
+  const handleLetterLayout = (letter: string, y: number) => {
+    setLetterPositions(prev => ({
+      ...prev,
+      [letter]: y
+    }));
   };
 
   const handleAddExercises = () => {
@@ -520,106 +527,37 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
           style={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          {activeFilter === 'A-Z' ? (
-            // A-Z view - organize by first letter
-            Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
-              <View key={letter} style={styles.letterSection}>
-                <Text style={styles.letterHeader}>{letter}</Text>
-                {letterExercises.map(exercise => (
-                  <TouchableOpacity 
-                    key={exercise.id} 
-                    style={styles.exerciseItem}
-                    onPress={() => handleExerciseSelection(exercise)}
-                  >
-                    <View style={styles.exerciseImageContainer}>
-                      {exercise.selected && (
-                        <View style={styles.checkBadge}>
-                          <Check size={12} color="#FCFDFD" />
-                        </View>
-                      )}
-                      <View style={styles.imageWrapper}>
-                        <Image 
-                          source={exercise.gif_url 
-                            ? { uri: getGifUrl(exercise.gif_url) } 
-                            : { uri: 'https://via.placeholder.com/68x68/333' }}
-                          style={styles.exerciseImage} 
-                          resizeMode="cover"
-                        />
-                        <View 
-                          style={[
-                            styles.blendOverlay, 
-                            // @ts-ignore - Adding mixBlendMode which isn't in RN's TypeScript definitions
-                            { mixBlendMode: 'multiply' }
-                          ]} 
-                        />
-                      </View>
-                    </View>
-                    
-                    <View style={styles.exerciseInfo}>
-                      <Text style={styles.exerciseName}>{exercise.name}</Text>
-                      <View style={styles.exerciseDetails}>
-                        <Text style={styles.exerciseDetail}>{exercise.primary_muscles || 'Unknown'}, </Text>
-                        <Text style={styles.exerciseDetail}>{exercise.equipment || 'Bodyweight'}</Text>
-                      </View>
-                    </View>
-                    
-                    {exercise.added && (
-                      <View style={styles.addedContainer}>
-                        <Text style={styles.addedText}>Added</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            ))
-          ) : (
+{activeFilter === 'A-Z' ? (
+  // A-Z view - organize by first letter
+  Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
+    <LetterSection
+      key={letter}
+      letter={letter}
+      exercises={letterExercises}
+      onLayout={handleLetterLayout}
+      onExerciseSelection={handleExerciseSelection}
+      getGifUrl={getGifUrl}
+    />
+  ))
+) : (
             // Other filter views - simple list
             filteredExercises.map(exercise => (
-              <TouchableOpacity 
-                key={exercise.id} 
-                style={styles.exerciseItem}
+              <ExerciseItem
+                key={exercise.id}
+                exercise={exercise}
                 onPress={() => handleExerciseSelection(exercise)}
-              >
-              <View style={styles.exerciseImageContainer}>
-                {exercise.selected && (
-                  <View style={styles.checkBadge}>
-                    <Check size={12} color="#FCFDFD" />
-                  </View>
-                )}
-                <View style={styles.imageWrapper}>
-                  <Image 
-                    source={exercise.gif_url 
-                      ? { uri: getGifUrl(exercise.gif_url) } 
-                      : { uri: 'https://via.placeholder.com/68x68/333' }}
-                    style={styles.exerciseImage} 
-                    resizeMode="cover"
-                  />
-                  <View style={styles.blendOverlay} />
-                </View>
-              </View>
-                
-                <View style={styles.exerciseInfo}>
-                  <Text style={styles.exerciseName}>{exercise.name}</Text>
-                  <View style={styles.exerciseDetails}>
-                    <Text style={styles.exerciseDetail}>{exercise.primary_muscles || 'Unknown'}, </Text>
-                    <Text style={styles.exerciseDetail}>{exercise.equipment || 'Bodyweight'}</Text>
-                  </View>
-                </View>
-                
-                {exercise.added && (
-                  <View style={styles.addedContainer}>
-                    <Text style={styles.addedText}>Added</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
+                getGifUrl={getGifUrl}
+              />
             ))
           )}
 
-          {(activeFilter !== 'A-Z' && filteredExercises.length === 0) && (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No exercises found</Text>
-            </View>
-          )}
+{activeFilter === 'A-Z' && showAlphabetSelector && (
+  <AlphabetSidebar 
+    alphabet={alphabet}
+    availableLetters={availableLetters}
+    onLetterPress={scrollToLetter}
+  />
+)}
           
           {/* Extra padding at the bottom for floating button */}
           <View style={styles.bottomPadding} />
@@ -818,107 +756,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
-  },
-  letterSection: {
-    marginBottom: 6,
-  },
-  letterHeader: {
-    fontSize: 36,
-    fontWeight: '600',
-    color: '#111827',
-    textAlign: 'right',
-    marginBottom: 6,
-  },
-  exerciseItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-    height: 68,
-  },
-  exerciseImageContainer: {
-    width: 68,
-    height: 68,
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-  },
-  exerciseImage: {
-    width: '100%',
-    height: '100%',
-  }, 
-  imageWrapper: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-  },
-  // Type assertion to bypass TypeScript checking
-  blendOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(240,240,240,0.4)',
-  } as any,
-  checkBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    zIndex: 1,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#4F46E5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  exerciseInfo: {
-    flex: 1,
-    marginLeft: 8,
-    justifyContent: 'center',
-  },
-  exerciseName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 0,
-  },
-  exerciseDetails: {
-    flexDirection: 'row',
-    marginTop: 0,
-  },
-  exerciseDetail: {
-    fontSize: 11,
-    color: '#9CA3AF',
-    marginRight: 2,
-  },
-  addedContainer: {
-    width: 36,
-    alignItems: 'flex-end',
-  },
-  addedText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#4F46E5',
-  },
-  alphabetContainer: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingRight: 2,
-    zIndex: 10,
-  },
-  alphabetLetter: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#111827',
-    paddingVertical: 1,
-  },
-  alphabetLetterInactive: {
-    color: '#D1D5DB',
   },
   loadingContainer: {
     flex: 1,

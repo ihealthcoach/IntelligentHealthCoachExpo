@@ -9,13 +9,16 @@ import {
   SafeAreaView, 
   StatusBar
 } from 'react-native';
-import { useAuth } from '../../contexts/AuthContext';
-import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
-import { useSnackbar } from '../../contexts/SnackbarContext';
 import { Snackbar, IconButton } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Components
+import Header from '../../components/Header';
+import { useSnackbar } from '../../contexts/SnackbarContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { MainTabScreenProps } from '../../types/navigation';
 
 // Icons
 import FireMini from '../../assets/icons/fire-mini.svg';
@@ -27,8 +30,6 @@ import ArrowRightMini from '../../assets/icons/arrow-right-mini.svg';
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 import ChevronDownMini from '../../assets/icons/chevron-down-mini.svg';
 import PlusMini from '../../assets/icons/plus-mini.svg';
-import BellOutline from '../../assets/icons/bell-outline.svg';
-import ChatBubbleOutline from '../../assets/icons/chat-bubble-oval-left-ellipsis-outline.svg';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -136,42 +137,12 @@ const getFirstName = () => {
       {/* Background Gradient */}
       <View style={styles.backgroundGradient} />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.menuButton}>
-          <View style={styles.menuIcon}>
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-          </View>
-        </TouchableOpacity>
-        
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconButton}>
-            <View style={styles.notificationContainer}>
-              <View style={styles.notificationDot} />
-                <BellOutline width={30} height={30} stroke="#111827" />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <View style={styles.messageIcon} />
-             <ChatBubbleOutline width={30} height={30} stroke="#111827" />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.avatarContainer}
-            onPress={() => navigation.navigate('Profile')}
-          >
-<Image 
-  source={
-    profile?.avatar_url 
-      ? { uri: profile.avatar_url } 
-      : { uri: 'https://ui-avatars.com/api/?name=' + getFirstName() }
-  } 
-  style={styles.avatar} 
+      <Header 
+  profile={profile}
+  getFirstName={getFirstName}
+  showMenu={true}
+  goBack={false}
 />
-          </TouchableOpacity>
-        </View>
-      </View>
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.mainContent}>
