@@ -17,6 +17,35 @@ import {
   WorkoutTemplate as SupabaseWorkoutTemplate,
   TemplateExercise as SupabaseTemplateExercise
 } from '../types/supabase';
+import { format, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+
+// Get the user's local timezone
+function getUserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch (error) {
+    console.error('Error getting user timezone:', error);
+    return 'UTC'; // Fallback to UTC
+  }
+}
+
+// Format date for display in user's local timezone
+function formatLocalDate(isoString: string | null | undefined, formatStr: string = 'yyyy-MM-dd HH:mm'): string {
+  if (!isoString) return '';
+  
+  try {
+    const userTimezone = getUserTimezone();
+    return formatInTimeZone(
+      parseISO(isoString),
+      userTimezone,
+      formatStr
+    );
+  } catch (error) {
+    console.error('Error formatting date in local time:', error);
+    return '';
+  }
+}
 
 // Keys for AsyncStorage
 const KEYS = {

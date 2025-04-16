@@ -1201,6 +1201,9 @@ const handleBackToOverview = async () => {
       // Explicitly clear the current workout
       await workoutService.clearCurrentWorkout();
       
+      // Set a flag that a workout was recently completed
+      await AsyncStorage.setItem('recently_completed_workout', 'true');
+      
       // Navigate to a workout summary/success screen
       // For now, just go back to the main tabs
       navigation.reset({

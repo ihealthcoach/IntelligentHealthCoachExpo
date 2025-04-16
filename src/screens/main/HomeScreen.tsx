@@ -12,6 +12,10 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
+import { useSnackbar } from '../../contexts/SnackbarContext';
+import { Snackbar, IconButton } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Icons
 import FireMini from '../../assets/icons/fire-mini.svg';
@@ -30,6 +34,41 @@ export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
   const [greeting, setGreeting] = useState<string>('Good Morning');
   const [emoji, setEmoji] = useState<string>('🍳');
+  const { showSnackbar, hideSnackbar, visible, message, action } = useSnackbar();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkCompletedWorkout = async () => {
+        try {
+          const completedWorkout = await AsyncStorage.getItem('recently_completed_workout');
+          
+          if (completedWorkout) {
+            // Show snackbar
+            showSnackbar('Workout saved', {
+              label: 'View workout',
+              onPress: () => {
+                // Navigate to workout history
+                navigation.navigate('History');
+                hideSnackbar();
+              }
+            });
+            
+            // Remove the flag so it doesn't show again
+            await AsyncStorage.removeItem('recently_completed_workout');
+            
+            // Auto-hide after 4 seconds
+            setTimeout(() => {
+              hideSnackbar();
+            }, 4000);
+          }
+        } catch (error) {
+          console.error('Error checking for completed workout:', error);
+        }
+      };
+      
+      checkCompletedWorkout();
+    }, [])
+  );
 
   // Set greeting based on time of day
   useEffect(() => {
@@ -421,6 +460,28 @@ const getFirstName = () => {
 </View>
 
       </ScrollView>
+      <Snackbar
+      visible={visible}
+      onDismiss={hideSnackbar}
+      duration={4000}
+      action={{
+        label: action?.label || 'Dismiss',
+        onPress: action?.onPress || hideSnackbar,
+      }}
+      style={styles.snackbar}
+      wrapperStyle={styles.snackbarWrapper}
+    >
+      <View style={styles.snackbarContent}>
+        <Text style={styles.snackbarText}>{message}</Text>
+        <IconButton
+          icon="close"
+          size={20}
+          onPress={hideSnackbar}
+          style={styles.snackbarCloseIcon}
+          iconColor="#FFFFFF"
+        />
+      </View>
+    </Snackbar>
     </SafeAreaView>
   );
 }
@@ -794,5 +855,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#4B5563',
     fontWeight: '500',
+  },
+  snackbarWrapper: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  snackbar: {
+    backgroundColor: '#111827',
+  },
+  snackbarContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  snackbarText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  snackbarCloseIcon: {
+    margin: 0,
   },
 });

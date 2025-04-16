@@ -2,6 +2,7 @@ import 'react-native-reanimated';
 import React, { useEffect } from 'react';
 import { PaperProvider } from 'react-native-paper';
 import { AuthProvider } from './src/contexts/AuthContext';
+import { SnackbarProvider } from './src/contexts/SnackbarContext';
 import { Navigation } from './src/navigation';
 import { networkSyncService } from './src/services/NetworkSyncService';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -26,7 +27,9 @@ export default function App() {
     <GestureHandlerRootView style={styles.container}>
       <PaperProvider>
         <AuthProvider>
-          <Navigation />
+          <SnackbarProvider>
+              <Navigation />
+            </SnackbarProvider>
         </AuthProvider>
       </PaperProvider>
     </GestureHandlerRootView>

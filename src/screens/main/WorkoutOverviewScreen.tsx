@@ -54,6 +54,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import SaveTemplateModal from '../../components/SaveTemplateModal';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -98,6 +99,16 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
       // Clean up or save data when unmounting
     };
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // This will run whenever the screen comes into focus (like when navigating back)
+      loadWorkoutData();
+      return () => {
+        // Optional cleanup
+      };
+    }, [])
+  );
 
     // Handle template selection
     const handleTemplatePress = (template: WorkoutTemplate) => {
