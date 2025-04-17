@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
-  ScrollView, 
+  ScrollView,
+  SafeAreaView, 
   Image, 
   StyleSheet, 
   TouchableOpacity, 
@@ -36,9 +37,17 @@ import { useFocusEffect } from '@react-navigation/native';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
+import SetPickerSheet from '../../components/SetPickerSheet';
+import ScrollPickerSheet from '../../components/ScrollPickerSheet';
 
 // Fonts
 import { fonts } from '../../styles/fonts';
+
+// Colors
+import { colors } from '../../styles/colors';
+
+// Icons
+import Icon from '../../components/Icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -323,7 +332,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setShowSetSheet(true);
   };
   
-  const confirmAddExercises = async () => {
+  const confirmAddExercises = async (setCount: number) => {
     // Close the sheet
     setShowSetSheet(false);
     
@@ -580,50 +589,15 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         )}
       </TouchableOpacity>
       
-      {/* Sets Selection Sheet Modal */}
-      <Modal
-        visible={showSetSheet}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.setSheetContainer}>
-          <View style={styles.setSheetContent}>
-            <View style={styles.setSheetHeader}>
-              <Text style={styles.setSheetTitle}>
-                How many sets?
-              </Text>
-              <TouchableOpacity onPress={() => setShowSetSheet(false)}>
-                <Text style={styles.setSheetCancel}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedSets}
-                onValueChange={(itemValue) => setSelectedSets(itemValue)}
-                style={styles.picker}
-              >
-                {Array.from({ length: 50 }, (_, i) => i + 1).map(value => (
-                  <Picker.Item 
-                    key={value} 
-                    label={`${value} set${value > 1 ? 's' : ''}`} 
-                    value={value} 
-                  />
-                ))}
-              </Picker>
-            </View>
-            
-            <TouchableOpacity 
-              style={styles.confirmButton} 
-              onPress={confirmAddExercises}
-            >
-              <Text style={styles.confirmButtonText}>
-                Confirm {selectedSets} set{selectedSets > 1 ? 's' : ''}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+{/* Sets Selection Sheet Modal */}
+<ScrollPickerSheet
+  visible={showSetSheet}
+  onClose={() => setShowSetSheet(false)}
+  initialValue={selectedSets}
+  onSave={confirmAddExercises}
+  exerciseCount={selectedExercises.length}
+  maxSets={50}
+/>
     </View>
   );
 }
@@ -667,7 +641,7 @@ const styles = StyleSheet.create({
   doneButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
@@ -684,7 +658,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   subtitle: {
@@ -709,7 +683,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   activeFilterBadge: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
   },
   inactiveFilterBadge: {
     backgroundColor: '#F9FAFC',
@@ -751,7 +725,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     borderRadius: 4,
   },
   retryButtonText: {
@@ -777,7 +751,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   addExercisesButton: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
@@ -800,7 +774,7 @@ const styles = StyleSheet.create({
   },
   buildSuperSetButtonText: {
     fontFamily: fonts.medium,
-    color: '#111827',
+    color: colors.gray[900],
     fontSize: 16,
   },
   filterCountButton: {
@@ -810,7 +784,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 20,
@@ -847,7 +821,7 @@ const styles = StyleSheet.create({
   setSheetTitle: {
     fontFamily: fonts.bold,
     fontSize: 22,
-    color: '#111827',
+    color: colors.gray[900],
   },
   setSheetCancel: {
     fontFamily: fonts.medium,
@@ -866,7 +840,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   confirmButton: {
-    backgroundColor: '#111827',
+    backgroundColor: colors.gray[900],
     paddingVertical: 16,
     borderRadius: 25,
     alignItems: 'center',
@@ -876,5 +850,84 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     color: '#FFFFFF',
     fontSize: 16,
-  }
+  },
+  containerModal: {
+    flex: 1,
+    backgroundColor: '#fcfefe',
+    paddingHorizontal: 16,
+    paddingBottom: 36,
+    marginTop: 'auto', // This makes it stick to the bottom
+  },
+  bottomIndicator: {
+    width: '100%',
+    height: 21,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  indicator: {
+    width: 48,
+    height: 5,
+    borderRadius: 100,
+    backgroundColor: '#d1d5db',
+  },
+  contentModal: {
+    flex: 1,
+    marginTop: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  titleModal: {
+    fontSize: 24,
+    fontFamily: fonts.bold,
+    color: '#111827',
+  },
+  closeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setList: {
+    flex: 1,
+    maxHeight: 350, // Limit height
+  },
+  setOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+  },
+  selectedSetOption: {
+    borderBottomColor: '#e5e7eb',
+  },
+  setOptionText: {
+    fontSize: 24,
+    fontFamily: fonts.bold,
+    color: '#d1d5db',
+  },
+  selectedSetOptionText: {
+    color: '#111827',
+  },
+  saveButton: {
+    backgroundColor: '#4f46e5',
+    borderRadius: 5,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  saveButtonText: {
+    color: '#fcfefe',
+    fontSize: 16,
+    fontFamily: fonts.medium,
+  },
 });
