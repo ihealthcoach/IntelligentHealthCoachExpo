@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import { Check, X } from 'lucide-react-native';
 
 // Fonts
@@ -32,20 +32,28 @@ const ScrollPickerSheet: React.FC<ScrollPickerSheetProps> = ({
   // Scroll to the initial position when visible changes to true
   useEffect(() => {
     if (visible && flatListRef.current) {
-      // Add a small delay to ensure the FlatList is fully rendered
+      // Set the initial selected value
+      setSelectedSet(initialValue);
+      
+      // The +2 here accounts for the header space (2 item heights)
+      const scrollPosition = (initialValue - 1) * ITEM_HEIGHT;
+      
       setTimeout(() => {
-        flatListRef.current?.scrollToIndex({
-          index: initialValue - 1,
-          animated: false,
-          viewPosition: 0.5
-        });
-      }, 100);
+        try {
+          flatListRef.current?.scrollToOffset({
+            offset: scrollPosition,
+            animated: false,
+          });
+        } catch (error) {
+          console.error("Failed to scroll to initial position:", error);
+        }
+      }, 300);
     }
   }, [visible, initialValue]);
 
   const handleScroll = (event: any) => {
     const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / ITEM_HEIGHT);
+    const index = Math.round(y / ITEM_HEIGHT) + 2; // +2 adjustment because of the header space
     if (index >= 0 && index < maxSets) {
       setSelectedSet(index + 1);
     }
@@ -56,22 +64,49 @@ const ScrollPickerSheet: React.FC<ScrollPickerSheetProps> = ({
     onClose();
   };
 
-  const renderItem = ({ item, index }: { item: number; index: number }) => {
+  const renderItem = React.useCallback(({ item }: { item: number }) => {
     const isSelected = item === selectedSet;
-    
-    return (
-      <View style={[styles.setOption, { height: ITEM_HEIGHT }]}>
-        <Text
-          style={[
-            styles.setOptionText,
-            isSelected ? styles.selectedSetOptionText : styles.unselectedSetOptionText
-          ]}
+
+    const MemoizedItem = React.memo(({ item, isSelected, onPress }: {
+        item: number;
+        isSelected: boolean;
+        onPress: () => void;
+      }) => (
+        <TouchableOpacity 
+          style={[styles.setOption, { height: ITEM_HEIGHT }]}
+          onPress={onPress}
         >
-          {item} {item === 1 ? 'set' : 'sets'}
-        </Text>
-      </View>
-    );
-  };
+          <Text
+            style={[
+              styles.setOptionText,
+              isSelected ? styles.selectedSetOptionText : styles.unselectedSetOptionText
+            ]}
+          >
+            {item} {item === 1 ? 'set' : 'sets'}
+          </Text>
+        </TouchableOpacity>
+      ));
+    
+      return (
+        <MemoizedItem 
+          item={item}
+          isSelected={isSelected}
+          onPress={() => {
+            setSelectedSet(item);
+            flatListRef.current?.scrollToOffset({
+              offset: (item - 1) * ITEM_HEIGHT,
+              animated: true,
+            });
+          }}
+        />
+      );
+    }, [selectedSet]);
+
+  const getItemLayout = (_, index: number) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  });
 
   return (
     <Modal
@@ -79,49 +114,48 @@ const ScrollPickerSheet: React.FC<ScrollPickerSheetProps> = ({
       animationType="slide"
       transparent={true}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <View style={styles.container}>
-              <View style={styles.bottomIndicator}>
-                <View style={styles.indicator} />
-              </View>
-              
-              <View style={styles.content}>
-                <View style={styles.header}>
-                  <Text style={styles.title}>Add set amount</Text>
-                  <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                    <X width={20} height={20} color="#111827" />
-                  </TouchableOpacity>
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <View style={styles.bottomIndicator}>
+            <View style={styles.indicator} />
+          </View>
+          
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Add set amount</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <X width={20} height={20} color="#111827" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.pickerContainer}>
+              <View style={styles.selectionWindow}>
+                <View style={styles.selectionBorder} />
+                <View style={styles.checkContainer}>
+                  <Check width={24} height={24} color="#111827" />
                 </View>
-                
-                <View style={styles.pickerContainer}>
-                  <View style={styles.selectionWindow}>
-                    <View style={styles.selectionBorder} />
-                    <View style={styles.checkContainer}>
-                      <Check width={24} height={24} color="#111827" />
-                    </View>
-                  </View>
+              </View>
                   
                   <FlatList
-                    ref={flatListRef}
-                    data={data}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.toString()}
-                    showsVerticalScrollIndicator={false}
-                    snapToInterval={ITEM_HEIGHT}
-                    decelerationRate="fast"
-                    snapToAlignment="center"
-                    contentContainerStyle={styles.listContent}
-                    onMomentumScrollEnd={handleScroll}
-                    getItemLayout={(data, index) => ({
-                      length: ITEM_HEIGHT,
-                      offset: ITEM_HEIGHT * index,
-                      index,
-                    })}
-                    ListHeaderComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
-                    ListFooterComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
-                  />
+  ref={flatListRef}
+  data={data}
+  renderItem={renderItem}
+  keyExtractor={(item) => item.toString()}
+  showsVerticalScrollIndicator={false}
+  snapToInterval={ITEM_HEIGHT}
+  decelerationRate="fast"
+  snapToAlignment="center"
+  onScroll={handleScroll}
+  onMomentumScrollEnd={handleScroll}
+  getItemLayout={getItemLayout}
+  initialNumToRender={7} // Render fewer items initially
+  maxToRenderPerBatch={5} // Render fewer items per batch
+  windowSize={7} // Reduce window size
+  removeClippedSubviews={true} // Remove items that are off screen
+  contentContainerStyle={styles.listContent}
+  ListHeaderComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
+  ListFooterComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
+/>
                 </View>
 
                 <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -131,10 +165,11 @@ const ScrollPickerSheet: React.FC<ScrollPickerSheetProps> = ({
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableWithoutFeedback>
-        </View>
+            <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalBackground} />
       </TouchableWithoutFeedback>
-    </Modal>
+    </View>
+  </Modal>
   );
 };
 
@@ -212,7 +247,7 @@ const styles = StyleSheet.create({
     top: '50%',
     left: 0,
     right: 0,
-    height: 60, // Use exact value here instead of itemHeight
+    height: 60, // Use exact value here
     transform: [{ translateY: -30 }],
     zIndex: 10,
     justifyContent: 'center',
@@ -246,6 +281,9 @@ const styles = StyleSheet.create({
     color: '#fcfefe',
     fontSize: 16,
     fontFamily: fonts.medium,
+  },
+  modalBackground: {
+    zIndex: -1,
   },
 });
 
