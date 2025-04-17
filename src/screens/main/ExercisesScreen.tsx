@@ -634,7 +634,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F7',
+    backgroundColor: colors.gray[100],
   },
   headerContainer: {
     flexDirection: 'row',
@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: '#111827',
+    color: colors.gray[900],
     marginBottom: 0,
   },
   subtitle: {
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[900],
   },
   inactiveFilterBadge: {
-    backgroundColor: '#F9FAFC',
+    backgroundColor: colors.gray[50],
   },
   filterLabel: {
     fontFamily: fonts.medium,
@@ -741,13 +741,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F7',
+    backgroundColor: colors.gray[100],
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F7',
+    backgroundColor: colors.gray[100],
     padding: 20,
   },
   retryButton: {
@@ -793,7 +793,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buildSuperSetButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     paddingVertical: 14,
     borderRadius: 25,
     alignItems: 'center',
@@ -803,7 +803,7 @@ const styles = StyleSheet.create({
   },
   buildSuperSetButtonText: {
     fontFamily: fonts.medium,
-    color: '#111827',
+    color: colors.gray[900],
     fontSize: 16,
   },
   filterCountButton: {
@@ -819,7 +819,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   filterCountButtonWithCount: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   filterCountText: {
     fontFamily: fonts.medium,
@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   setSheetContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -850,7 +850,7 @@ const styles = StyleSheet.create({
   setSheetTitle: {
     fontFamily: fonts.bold,
     fontSize: 22,
-    color: '#111827',
+    color: colors.gray[900],
   },
   setSheetCancel: {
     fontFamily: fonts.medium,

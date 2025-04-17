@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
     color: '#d1d5db',
   },
   selectedSetOptionText: {
-    color: '#111827',
+    color: colors.gray[900],
   },
   saveButton: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 5,
     height: 52,
     alignItems: 'center',

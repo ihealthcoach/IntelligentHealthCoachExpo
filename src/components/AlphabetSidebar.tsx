@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   alphabetLetterInactive: {
-    color: '#D1D5DB',
+    color: colors.gray[300],
   },
 });
 

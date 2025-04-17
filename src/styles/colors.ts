@@ -48,7 +48,67 @@ export const colors = {
       900: '#111827',
       950: '#030712'
     },
-    
+
+    // Indigo
+    indigo: {
+      50: '#F9FAFB',
+      100: '#F3F4F6',
+      200: '#E5E7EB',
+      300: '#D1D5DB',
+      400: '#9CA3AF',
+      500: '#6B7280',
+      600: '#4F46E5', // only one that's been updated
+      700: '#374151',
+      800: '#1F2937',
+      900: '#111827',
+      950: '#030712'
+    },
+
+      // Red
+      red: {
+        50: '#F9FAFB',
+        100: '#F3F4F6',
+        200: '#E5E7EB',
+        300: '#D1D5DB',
+        400: '#9CA3AF',
+        500: '#F05252', // only one that's been updated
+        600: '#4F46E5',
+        700: '#374151',
+        800: '#1F2937',
+        900: '#111827',
+        950: '#030712'
+      },
+
+      // Green
+      green: {
+        50: '#ECFDF5', // only one that's been updated
+        100: '#F3F4F6',
+        200: '#E5E7EB',
+        300: '#D1D5DB',
+        400: '#9CA3AF',
+        500: '#10B981', // only one that's been updated
+        600: '#4F46E5',
+        700: '#374151',
+        800: '#1F2937',
+        900: '#111827',
+        950: '#030712'
+      },
+
+      // Yellow
+      yellow: {
+        50: '#FDFDEA', // only one that's been updated
+        100: '#FDF6B2', // only one that's been updated
+        200: '#E5E7EB',
+        300: '#D1D5DB',
+        400: '#9CA3AF',
+        500: '#10B981',
+        600: '#4F46E5',
+        700: '#374151',
+        800: '#1F2937',
+        900: '#111827',
+        950: '#030712'
+      },
+
     // Common named colors
     common: {
       white: '#FCFEFE',

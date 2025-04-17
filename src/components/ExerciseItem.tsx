@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     height: 68,
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.gray[50],
   },
   exerciseImage: {
     width: '100%',
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     justifyContent: 'center',
     alignItems: 'center',
   },

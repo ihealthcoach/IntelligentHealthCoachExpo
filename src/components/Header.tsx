@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#F05252',
+    backgroundColor: colors.red[500],
     zIndex: 1,
   },
   messageIcon: {
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#F05252',
+    backgroundColor: colors.red[500],
     zIndex: 1,
   },
   avatarContainer: {

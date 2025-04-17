@@ -640,13 +640,13 @@ export default function ExerciseDetailScreen({ route, navigation }: ExerciseDeta
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   loadingText: {
     fontFamily: fonts.regular,
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
   },
   exerciseHeader: {
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
   },
   exerciseTitle: {
     fontFamily: fonts.bold,
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   exerciseTag: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
   },
   exerciseTagText: {
     color: '#4F46E5',
@@ -700,7 +700,7 @@ const styles = StyleSheet.create({
   exerciseMedia: {
     position: 'relative',
     height: 200,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
   },
   exerciseImage: {
     width: '100%',
@@ -722,7 +722,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   prCard: {
-    backgroundColor: '#FFFBEB',
+    backgroundColor: colors.yellow[50],
     borderRadius: 12,
     margin: 16,
     padding: 16,
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
     color: '#92400E',
   },
   progressSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     padding: 16,
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
   },
   timeRangeSelector: {
     flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     borderRadius: 8,
     padding: 2,
   },
@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   timeRangeButtonActive: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
   },
   timeRangeText: {
     fontSize: 12,
@@ -835,10 +835,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   progressPositive: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: colors.green[50],
   },
   progressNegative: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: colors.gray[100],
   },
   progressStatValue: {
     fontFamily: fonts.semiBold,
@@ -855,7 +855,7 @@ const styles = StyleSheet.create({
   },
   chartPlaceholder: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -866,7 +866,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   instructionsSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     marginTop: 0,
@@ -889,7 +889,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -905,7 +905,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   tipsSection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     marginTop: 0,
@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   historySection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     marginTop: 0,
@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   historyItem: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     padding: 12,
   },
@@ -990,7 +990,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   goalButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 12,
     paddingVertical: 16,
     flexDirection: 'row',
@@ -1004,7 +1004,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   videoModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 16,
     borderRadius: 12,
     height: '80%',
@@ -1031,7 +1031,7 @@ const styles = StyleSheet.create({
   videoContainer: {
     position: 'relative',
     height: 200,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
   },
   videoPlayer: {
     width: '100%',
@@ -1072,7 +1072,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
     justifyContent: 'center',
     alignItems: 'center',
   },

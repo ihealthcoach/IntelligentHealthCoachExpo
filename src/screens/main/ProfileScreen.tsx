@@ -418,7 +418,7 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   header: {
     flexDirection: 'row',
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 24,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   backButton: {
     width: 30,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#F05252',
+    backgroundColor: colors.red[500],
     top: 3,
     right: -3,
     zIndex: 1,
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#333',
+    backgroundColor: colors.gray[900],
   },
   scrollView: {
     flex: 1,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 999,
     marginRight: 8,
-    backgroundColor: '#FAFBFC',
+    backgroundColor: colors.gray[50],
     borderWidth: 1,
     borderColor: '#FAFBFC',
   },
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionContent: {
-    backgroundColor: '#FAFBFC',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -579,18 +579,18 @@ const styles = StyleSheet.create({
     width: 56,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     justifyContent: 'center',
     paddingHorizontal: 2,
   },
   toggleBackgroundActive: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   toggleButton: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   },
   editFormContainer: {
     padding: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   editInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 8,
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
   },
   saveButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
 dropdownButton: {
   height: 52,
-  backgroundColor: '#ffffff',
+  backgroundColor: colors.common.white,
   borderWidth: 1,
   borderColor: '#e5e7eb',
   borderRadius: 5,
@@ -678,7 +678,7 @@ modalContainer: {
   backgroundColor: 'rgba(0,0,0,0.5)',
 },
 pickerContainer: {
-  backgroundColor: '#ffffff',
+  backgroundColor: colors.common.white,
   borderTopLeftRadius: 15,
   borderTopRightRadius: 15,
   paddingBottom: 20,

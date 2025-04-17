@@ -1750,13 +1750,13 @@ const handleBackToOverview = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   loadingText: {
     fontFamily: fonts.regular,
@@ -1764,7 +1764,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
   },
   header: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     paddingHorizontal: 16,
     paddingBottom: 20,
     paddingTop: 10,
@@ -1852,7 +1852,7 @@ const styles = StyleSheet.create({
   noteEditContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -1884,7 +1884,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   setTableHeaderText: {
     fontFamily: fonts.semiBold,
@@ -1899,7 +1899,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   activeSetRow: {
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
   },
   inactiveSetRow: {
     backgroundColor: 'transparent',
@@ -1992,7 +1992,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completedCheckbox: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderColor: '#4F46E5',
   },
   disabledCheckbox: {
@@ -2005,10 +2005,10 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
   inactiveText: {
-    color: '#D1D5DB',
+    color: colors.gray[300],
   },
   disabledText: {
-    color: '#D1D5DB',
+    color: colors.gray[300],
   },
   prContainer: {
     marginRight: 4,
@@ -2021,7 +2021,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 8,
@@ -2037,7 +2037,7 @@ const styles = StyleSheet.create({
   historySection: {
     marginHorizontal: 16,
     marginBottom: 24,
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -2105,7 +2105,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   infoCard: {
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     padding: 16,
     borderWidth: 1,
@@ -2129,7 +2129,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   muscleTag: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -2144,7 +2144,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   oneRepMaxCard: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 8,
     padding: 16,
   },
@@ -2187,7 +2187,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   completionModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     padding: 20,
     marginHorizontal: 30,
     borderRadius: 12,
@@ -2210,7 +2210,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   completeButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     paddingVertical: 8,
   },
   continueButton: {
@@ -2225,7 +2225,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     zIndex: 20,
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -2265,7 +2265,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 8,
@@ -2289,7 +2289,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   prBanner: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 12,
@@ -2336,7 +2336,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 8,

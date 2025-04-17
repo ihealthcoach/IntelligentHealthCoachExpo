@@ -106,7 +106,7 @@ export default function ForgotPasswordScreen({ navigation }: AuthScreenProps<'Fo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.common.white,
   },
   scrollContent: {
     flexGrow: 1,

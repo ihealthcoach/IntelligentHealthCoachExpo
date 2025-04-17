@@ -462,7 +462,7 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
     width={screenWidth - 64}
     height={200}
     chartConfig={{
-      backgroundColor: '#FFFFFF',
+      backgroundColor: colors.common.white,
       backgroundGradientFrom: '#FFFFFF',
       backgroundGradientTo: '#FFFFFF',
       decimalPlaces: 0,
@@ -718,13 +718,13 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   loadingText: {
     fontFamily: fonts.regular,
@@ -740,7 +740,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
   },
   headerTitle: {
     fontFamily: fonts.semiBold,
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   },
   timeRangeContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     padding: 4,
     borderRadius: 8,
     margin: 16,
@@ -773,7 +773,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   timeRangeButtonActive: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   timeRangeText: {
     fontFamily: fonts.medium,
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -805,7 +805,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   chartCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     marginTop: 0,
@@ -851,7 +851,7 @@ const styles = StyleSheet.create({
   },
   chartPlaceholder: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -904,13 +904,13 @@ const styles = StyleSheet.create({
   },
   muscleDistributionBarContainer: {
     height: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     borderRadius: 4,
     overflow: 'hidden',
   },
   muscleDistributionBar: {
     height: '100%',
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 4,
   },
   frequencyContainer: {
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
   },
   frequencyBar: {
     width: '100%',
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 2,
   },
   frequencyCount: {
@@ -955,7 +955,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   workoutItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -1030,10 +1030,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyStateButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   filterModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 20,
     borderRadius: 12,
     padding: 20,
@@ -1062,10 +1062,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   muscleGroupChip: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   muscleGroupChipSelected: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
     borderColor: '#4F46E5',
   },
   filterDivider: {
@@ -1080,7 +1080,7 @@ const styles = StyleSheet.create({
     borderColor: '#6B7280',
   },
   filterApplyButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   activeFilterContainer: {
     flexDirection: 'row',
@@ -1095,6 +1095,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   activeFilterChip: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
   },
 });

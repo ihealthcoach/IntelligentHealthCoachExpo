@@ -982,16 +982,16 @@ const saveAsTemplate = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   header: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
@@ -1055,7 +1055,7 @@ const styles = StyleSheet.create({
   workoutNameEditContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -1072,7 +1072,7 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     margin: 16,
     marginTop: 0,
@@ -1110,12 +1110,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   statBadge: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green[500],
   },
   statDivider: {
     height: '60%',
     width: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     alignSelf: 'center',
   },
   exercisesContainer: {
@@ -1152,7 +1152,7 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -1169,7 +1169,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   exerciseItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 12,
     marginBottom: 8,
     shadowColor: '#000',
@@ -1195,7 +1195,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.yellow[100],
     borderRadius: 16,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -1230,7 +1230,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   completedOverlay: {
     position: 'absolute',
@@ -1246,7 +1246,7 @@ const styles = StyleSheet.create({
   exerciseImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1269,14 +1269,14 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     borderRadius: 2,
     marginRight: 8,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 2,
   },
   progressText: {
@@ -1300,7 +1300,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 12,
     top: 48,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -1339,13 +1339,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 24,
     paddingTop: 12,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
     gap: 8,
   },
   startButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -1359,7 +1359,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 12,
@@ -1380,7 +1380,7 @@ const styles = StyleSheet.create({
   
   // Template modal related styles
   templateModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 20,
     borderRadius: 12,
     padding: 20,
@@ -1397,7 +1397,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   templateInput: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -1421,12 +1421,12 @@ const styles = StyleSheet.create({
     borderColor: '#6B7280',
   },
   templateSaveButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   
   // Templates list modal styles
   templatesListModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 20,
     borderRadius: 12,
     paddingTop: 20,
@@ -1505,7 +1505,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   templateCategoryTag: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -1532,7 +1532,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   templateDetailsModal: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 20,
     borderRadius: 12,
     height: '80%',
@@ -1606,7 +1606,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   templateLoadButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   templateDeleteButton: {
     borderColor: '#EF4444',

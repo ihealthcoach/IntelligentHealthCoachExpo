@@ -488,7 +488,7 @@ const renderFilterToggle = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
   },
   header: {
     flexDirection: 'row',
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
   },
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -527,10 +527,10 @@ const styles = StyleSheet.create({
     borderColor: '#4F46E5',
   },
   validStatCard: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: colors.green[50],
   },
   invalidStatCard: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: colors.gray[100],
   },
   statValue: {
     fontFamily: fonts.bold,
@@ -548,14 +548,14 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 4,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 4,
   },
   progressText: {
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   actionButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   listHeaderText: {
     fontFamily: fonts.semiBold,
@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
   },
   exerciseItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -670,14 +670,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     gap: 4,
   },
   toggleButtonActive: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderColor: '#4F46E5',
   },
   toggleText: {
@@ -691,7 +691,7 @@ const styles = StyleSheet.create({
   exerciseItem1: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.common.white,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
     height: 120,
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
   },
   exerciseImage: {
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   validBadge: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green[500],
   },
   invalidBadge: {
     backgroundColor: '#EF4444',

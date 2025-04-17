@@ -236,7 +236,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f7',
+    backgroundColor: colors.gray[100],
   },
   scrollContainer: {
     flexGrow: 1,
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   // Modal Styles
   modalContainer: {
     flex: 1,
-    backgroundColor: '#f3f4f7',
+    backgroundColor: colors.gray[100],
   },
   modalScrollContainer: {
     flexGrow: 1,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     height: 52,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.common.white,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 5,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   loginButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',

@@ -474,7 +474,7 @@ const ChevronRight = ({ width, height, color }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   backgroundGradient: {
     position: 'absolute',
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#F05252',
+    backgroundColor: colors.red[500],
   },
   messageIcon: {
     position: 'absolute',
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#F05252',
+    backgroundColor: colors.red[500],
   },
   avatarContainer: {
     width: 48,
@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
     color: colors.gray[900],
   },
   goalsCard: {
-    backgroundColor: '#FCFDFD',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#F3F4F6',
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   stepsIcon: {
     width: 24,
     height: 24,
-    backgroundColor: '#6B7280',
+    backgroundColor: colors.gray[500],
     borderRadius: 12,
   },
   goalTitle: {
@@ -688,7 +688,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: colors.gray[200],
     borderRadius: 2,
   },
   progressBar: {
@@ -745,7 +745,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   activitiesCard: {
-    backgroundColor: '#F9FAFC',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -804,14 +804,14 @@ const styles = StyleSheet.create({
   homeIndicator: {
     width: 134,
     height: 5,
-    backgroundColor: '#000',
+    backgroundColor: colors.gray[900],
     borderRadius: 100,
     alignSelf: 'center',
     marginTop: 12,
   },
   signOutButton: {
     marginTop: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   devToolButton: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,

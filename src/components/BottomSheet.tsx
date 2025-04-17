@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 5,
     borderRadius: 100,
-    backgroundColor: '#d1d5db',
+    backgroundColor: colors.gray[300],
   },
   content: {
     paddingBottom: 8,
@@ -95,13 +95,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: fonts.bold,
-    color: '#111827',
+    color: colors.gray[900],
   },
   closeButton: {
     width: 30,
     height: 30,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.gray[100],
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 5,
     borderRadius: 100,
-    backgroundColor: '#d1d5db',
+    backgroundColor: colors.gray[300],
   },
   content: {
     paddingBottom: 8,
@@ -307,13 +307,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: fonts.bold,
-    color: '#111827',
+    color: colors.gray[900],
   },
   closeButton: {
     width: 30,
     height: 30,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.gray[100],
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -12 }],
   },
   saveButton: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: colors.indigo[600],
     borderRadius: 5,
     height: 52,
     alignItems: 'center',
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     //transition: '0.2s',
   },
   selectedSetOptionText: {
-    color: '#111827',
+    color: colors.gray[900],
     textShadowColor: 'rgba(0, 0, 0, 0.1)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,

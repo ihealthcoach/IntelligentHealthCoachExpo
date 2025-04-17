@@ -271,7 +271,7 @@ const SaveTemplateModal: React.FC<SaveTemplateModalProps> = ({
 
 const styles = StyleSheet.create({
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     margin: 20,
     borderRadius: 12,
     padding: 20,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -317,10 +317,10 @@ const styles = StyleSheet.create({
   chip: {
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.gray[100],
   },
   selectedChip: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   selectedChipText: {
     color: '#FFFFFF',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   tagInput: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.gray[50],
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   tagButton: {
     justifyContent: 'center',
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.indigo[600],
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   tagChip: {
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.gray[300],
   },
   divider: {
     marginVertical: 16,
