@@ -1120,6 +1120,7 @@ const styles = StyleSheet.create({
   },
   exercisesContainer: {
     marginHorizontal: 16,
+    marginBottom: 0,
   },
   exerciseInfo: {
     marginLeft: 8,
@@ -1288,8 +1289,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
   },
-  
-  // Exercise menu related styles
   exerciseActions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1332,11 +1331,9 @@ const styles = StyleSheet.create({
   exerciseMenuItemTextDanger: {
     color: '#EF4444',
   },
-  
-  // Bottom buttons
   bottomButtons: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 24,
     left: 0,
     right: 0,
     paddingHorizontal: 16,
@@ -1617,6 +1614,7 @@ const styles = StyleSheet.create({
   exerciseListContainer: {
     flex: 1,
     paddingHorizontal: 16,
+    marginTop: -300,
   },
   listFooterSpace: {
     height: 120,
