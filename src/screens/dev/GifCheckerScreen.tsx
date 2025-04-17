@@ -338,7 +338,7 @@ const renderFilterToggle = () => (
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="colors.gray[100]" />
+          <ArrowLeft size={24} color={colors.gray[900]} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>GIF Reference Checker</Text>
         <View style={{ width: 24 }} />

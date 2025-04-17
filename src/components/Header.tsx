@@ -47,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({
         </TouchableOpacity>
       ) : goBack ? (
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <ArrowLeft width={24} height={24} fill="#111827" />
+          <ArrowLeft width={24} height={24} fill={colors.gray[900]} />
         </TouchableOpacity>
       ) : (
         <View style={styles.menuButton} />
@@ -63,13 +63,13 @@ const Header: React.FC<HeaderProps> = ({
         <TouchableOpacity style={styles.iconButton}>
           <View style={styles.notificationContainer}>
             <View style={styles.notificationDot} />
-            <BellOutline width={30} height={30} stroke="#111827" />
+            <BellOutline width={30} height={30} stroke={colors.gray[900]} />
           </View>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.iconButton}>
           <View style={styles.messageIcon} />
-          <ChatBubbleOutline width={30} height={30} stroke="#111827" />
+          <ChatBubbleOutline width={30} height={30} stroke={colors.gray[900]} />
         </TouchableOpacity>
         
         <TouchableOpacity 

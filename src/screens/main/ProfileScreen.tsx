@@ -222,7 +222,7 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
               >
                 <View style={styles.settingItemLeft}>
                   <View style={styles.iconContainer}>
-                    <User size={24} color="colors.gray[100]" />
+                    <User size={24} color={colors.gray[900]} />
                   </View>
                   <View style={styles.settingTextContainer}>
                     <Text style={styles.settingTitle}>Profile</Text>
@@ -341,12 +341,12 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
                 </View>
               )}
               
-              {renderSettingItem(<ClipboardList size={24} color="colors.gray[100]" />, "Questionary")}
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Password")}
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Language", "English")}
-              {renderSettingItem(<Bell size={24} color="colors.gray[100]" />, "Notifications")}
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Subscription", "Free")}
-              {renderSettingItem(<CreditCard size={24} color="colors.gray[100]" />, "Payment method", "Credit card")}
+              {renderSettingItem(<ClipboardList size={24} color={colors.gray[900]} />, "Questionary")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Password")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Language", "English")}
+              {renderSettingItem(<Bell size={24} color={colors.gray[900]} />, "Notifications")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Subscription", "Free")}
+              {renderSettingItem(<CreditCard size={24} color={colors.gray[900]} />, "Payment method", "Credit card")}
               
               <View style={styles.settingItem}>
                 <View style={styles.settingItemLeft}>
@@ -397,16 +397,16 @@ export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profil
               <View style={styles.settingItem}>
                 <View style={styles.settingItemLeft}>
                   <View style={styles.iconContainer}>
-                    <Moon size={24} color="colors.gray[100]" />
+                    <Moon size={24} color={colors.gray[900]} />
                   </View>
                   <Text style={styles.settingTitle}>Dark mode</Text>
                 </View>
                 {renderToggle(darkModeEnabled, () => setDarkModeEnabled(!darkModeEnabled))}
               </View>
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Integrations")}
-              {renderSettingItem(<Star size={24} color="colors.gray[100]" />, "Rate & review")}
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Restore purchase")}
-              {renderSettingItem(<Globe size={24} color="colors.gray[100]" />, "Help & support")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Integrations")}
+              {renderSettingItem(<Star size={24} color={colors.gray[900]} />, "Rate & review")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Restore purchase")}
+              {renderSettingItem(<Globe size={24} color={colors.gray[900]} />, "Help & support")}
             </View>
           </View>
         )}

@@ -56,56 +56,6 @@ const AuthNavigator = () => (
   </AuthStack.Navigator>
 );
 
-// Custom Tab Bar Component
-/*
-const CustomTabBar = ({ state, descriptors, navigation }) => {
-  return (
-    <View style={styles.bottomNav}>
-      <View style={styles.navContent}>
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Home')}
-        >
-          <HomeIcon size={24} color="colors.gray[100]" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('History')}
-        >
-          <BarChart3 size={24} color="colors.gray[100]" />
-          <Text style={styles.navText}>Activity</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => navigation.navigate('Workouts')}
-        >
-          <Plus size={24} color="#FCFDFD" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Exercises')}
-        >
-          <ChefHat size={24} color="colors.gray[100]" />
-          <Text style={styles.navText}>Food</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Workouts')}
-        >
-          <Dumbbell size={24} color="colors.gray[100]" />
-          <Text style={styles.navText}>Workouts</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-*/
-
 // Tab Navigator with Custom Tab Bar
 const TabNavigator = () => (
   <Tab.Navigator

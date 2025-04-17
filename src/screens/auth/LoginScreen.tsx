@@ -91,7 +91,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
           <ScrollView contentContainerStyle={styles.modalScrollContainer}>
             <View style={styles.modalHeaderContainer}>
               <TouchableOpacity onPress={handleCloseEmailLogin} style={styles.backButton}>
-                <ArrowLeft width={24} height={24} color="colors.gray[100]" />
+                <ArrowLeft width={24} height={24} color={colors.gray[900]} />
               </TouchableOpacity>
               <Text style={styles.modalTitle}>Sign in with Email</Text>
               <View style={styles.placeholderView} />
@@ -212,7 +212,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               onPress={handleEmailLoginPress}
             >
               <View style={styles.iconContainer}>
-                <Mail width={24} height={24} color="colors.gray[100]" strokeWidth={1.5} />
+                <Mail width={24} height={24} color={colors.gray[900]} strokeWidth={1.5} />
               </View>
               <Text style={styles.buttonText}>Continue with Email</Text>
             </TouchableOpacity>

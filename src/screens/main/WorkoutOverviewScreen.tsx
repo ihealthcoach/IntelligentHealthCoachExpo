@@ -663,7 +663,7 @@ const saveAsTemplate = async () => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="colors.gray[100]" />
+            <ArrowLeft size={24} color={colors.gray[900]} />
           </TouchableOpacity>
           
           <View style={styles.headerActions}>
@@ -671,7 +671,7 @@ const saveAsTemplate = async () => {
               style={styles.headerIconButton}
               onPress={() => setShowTemplateModal(true)}
             >
-              <Calendar size={22} color="colors.gray[100]" />
+              <Calendar size={22} color={colors.gray[900]} />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -786,7 +786,7 @@ const saveAsTemplate = async () => {
           // Edit exercise logic
         }}
       >
-        <Edit size={16} color="colors.gray[100]" />
+        <Edit size={16} color={colors.gray[900]} />
         <Text style={styles.exerciseMenuItemText}>Edit</Text>
       </TouchableOpacity>
       
@@ -806,7 +806,7 @@ const saveAsTemplate = async () => {
               // Superset logic
             }}
           >
-            <Star size={16} color="colors.gray[100]" />
+            <Star size={16} color={colors.gray[900]} />
             <Text style={styles.exerciseMenuItemText}>Make Superset</Text>
           </TouchableOpacity>
         ) : null;

@@ -266,13 +266,13 @@ export default function ExerciseDetailScreen({ route, navigation }: ExerciseDeta
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color="colors.gray[100]" />
+          <ArrowLeft size={24} color={colors.gray[900]} />
         </TouchableOpacity>
         
         <Text style={styles.headerTitle}>Exercise Details</Text>
         
         <TouchableOpacity>
-          <Info size={24} color="colors.gray[100]" />
+          <Info size={24} color={colors.gray[900]} />
         </TouchableOpacity>
       </View>
       

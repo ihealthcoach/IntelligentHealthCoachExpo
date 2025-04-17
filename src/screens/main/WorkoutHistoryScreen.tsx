@@ -340,7 +340,7 @@ export default function WorkoutHistoryScreen({ navigation }: MainTabScreenProps<
         <Text style={styles.headerTitle}>Workout History</Text>
         
         <TouchableOpacity style={styles.filterButton} onPress={() => setShowFilterModal(true)}>
-          <Filter size={20} color="colors.gray[100]" />
+          <Filter size={20} color={colors.gray[900]} />
         </TouchableOpacity>
       </View>
       

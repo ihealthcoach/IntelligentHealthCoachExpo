@@ -186,12 +186,12 @@ const getFirstName = () => {
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleContainer}>
                 <Text style={styles.sectionTitle}>Today's goals</Text>
-                <ChevronDownMini width={20} height={20} fill="#111827" />
+                <ChevronDownMini width={20} height={20} fill={colors.gray[900]} />
               </View>
               
               <TouchableOpacity style={styles.editLink}>
                 <Text style={styles.editLinkText}>Edit goals</Text>
-                <ArrowRightMini width={14} height={14} fill="#111827" />
+                <ArrowRightMini width={14} height={14} fill={colors.gray[900]} />
               </TouchableOpacity>
             </View>
             
@@ -202,7 +202,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <FireMini width={24} height={24} fill="#6B7280" />
+                      <FireMini width={24} height={24} fill={colors.gray[500]} />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
@@ -224,7 +224,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <ClockOutline width={24} height={24} stroke="#6B7280" />
+                      <ClockOutline width={24} height={24} stroke={colors.gray[900]} />
                     </View>
                     <Text style={styles.goalTitle}>Active time</Text>
                   </View>
@@ -249,7 +249,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <StepsIcon width={24} height={24} stroke="#6B7280" />
+                      <StepsIcon width={24} height={24} stroke={colors.gray[900]} />
                     </View>
                     <Text style={styles.goalTitle}>Steps</Text>
                   </View>
@@ -271,7 +271,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <MapPinOutline width={24} height={24} stroke="#6B7280" />
+                      <MapPinOutline width={24} height={24} stroke={colors.gray[900]} />
                     </View>
                     <Text style={styles.goalTitle}>Distance</Text>
                   </View>
@@ -299,7 +299,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Workouts (week 36)</Text>
                   <Text style={styles.statsValue}>3/5</Text>
                 </View>
-                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke={colors.gray[400]} />
               </TouchableOpacity>
               
               {/* Weight Row */}
@@ -311,7 +311,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Weight</Text>
                   <Text style={styles.statsValue}>86/92 kg</Text>
                 </View>
-                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke={colors.gray[400]} />
               </TouchableOpacity>
               
               {/* Calories Row */}
@@ -320,7 +320,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Calories</Text>
                   <Text style={styles.statsValue}>1.350/2.500</Text>
                 </View>
-                <ChevronRightMini width={20} height={20} stroke="#9CA3AF" />
+                <ChevronRightMini width={20} height={20} stroke={colors.gray[400]} />
               </TouchableOpacity>
             </View>
             
@@ -330,7 +330,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Workouts')}
             >
               <Text style={styles.trackButtonText}>Track a workout</Text>
-              <ArrowRightMini width={24} height={24} fill="#FCFEFE"/>
+              <ArrowRightMini width={24} height={24} fill={colors.common.white}/>
             </TouchableOpacity>
           </View>
           
@@ -344,7 +344,7 @@ const getFirstName = () => {
                 onPress={() => navigation.navigate('History')}
               >
                 <Text style={styles.editLinkText}>Show history</Text>
-                <ArrowRightMini width={14} height={14} fill="#111827" />
+                <ArrowRightMini width={14} height={14} fill={colors.gray[900]} />
               </TouchableOpacity>
             </View>
             
@@ -353,22 +353,22 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Running</Text>
-                  <ArrowRightMini width={20} height={20} fill="#111827" />
+                  <ArrowRightMini width={20} height={20} fill={colors.gray[900]} />
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                    <ClockOutline width={24} height={24} stroke="#6B7280" />
+                    <ClockOutline width={24} height={24} stroke={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>00:40:17</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <FireMini width={24} height={24} fill="#6B7280" />
+                    <FireMini width={24} height={24} fill={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>140 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <MapPinOutline width={24} height={24} stroke="#6B7280" />
+                    <MapPinOutline width={24} height={24} stroke={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>4,2 km</Text>
                   </View>
                 </View>
@@ -378,27 +378,27 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Gym</Text>
-                  <ArrowRightMini width={20} height={20} fill="#111827" />
+                  <ArrowRightMini width={20} height={20} fill={colors.gray[900]} />
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                    <ClockOutline width={24} height={24} stroke="#6B7280" />
+                    <ClockOutline width={24} height={24} stroke={colors.gray[900]} />
                     <Text style={styles.activityStatValue}>01:15:00</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <FireMini width={24} height={24} fill="#6B7280" />
+                    <FireMini width={24} height={24} fill={colors.gray[900]} />
                     <Text style={styles.activityStatValue}>812 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <DumbbellIcon width={24} height={24} fill="#6B7280" />
+                    <DumbbellIcon width={24} height={24} fill={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>8 exercises</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <DumbbellIcon width={24} height={24} fill="#6B7280" />
+                    <DumbbellIcon width={24} height={24} fill={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>00:15</Text>
                   </View>
                 </View>
@@ -411,7 +411,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Exercises')}
             >
               <View style={styles.addWidgetContent}>
-                <PlusMini width={20} height={20} stroke="#9CA3AF" />
+                <PlusMini width={20} height={20} stroke={colors.gray[400]} />
                 <Text style={styles.addWidgetText}>add widget</Text>
               </View>
             </TouchableOpacity>

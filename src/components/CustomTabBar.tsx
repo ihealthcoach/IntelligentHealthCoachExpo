@@ -24,7 +24,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Home')}
         >
-          <Icon name="home-outline" width={24} height={24} color="colors.gray[100]" />
+          <Icon name="home-outline" width={24} height={24} color={colors.gray[900]} />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
         
@@ -32,7 +32,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('History')}
         >
-          <Icon name="chart-bar-outline" width={24} height={24} color="colors.gray[100]" fill="none" />
+          <Icon name="chart-bar-outline" width={24} height={24} color={colors.gray[900]} fill="none" />
           <Text style={styles.navText}>Activity</Text>
         </TouchableOpacity>
         
@@ -40,14 +40,14 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.addButton}
           onPress={() => navigation.navigate('Workouts')}
         >
-          <Icon name="plus-mini" width={24} height={24} fill="#FCFEFE" />
+          <Icon name="plus-mini" width={24} height={24} fill={colors.common.white} />
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Exercises')}
         >
-          <Icon name="chefs-hat" width={24} height={24} fill="#111827" stroke="none" />
+          <Icon name="chefs-hat" width={24} height={24} fill={colors.gray[900]} stroke="none" />
           <Text style={styles.navText}>Food</Text>
         </TouchableOpacity>
         
@@ -55,7 +55,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Workouts')}
         >
-          <DumbbellIcon width={24} height={24} fill="#111827" />
+          <DumbbellIcon width={24} height={24} fill={colors.gray[900]} />
           <Text style={styles.navText}>Workouts</Text>
         </TouchableOpacity>
       </View>

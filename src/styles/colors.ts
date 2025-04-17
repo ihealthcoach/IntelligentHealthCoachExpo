@@ -45,12 +45,13 @@ export const colors = {
       600: '#4B5563',
       700: '#374151',
       800: '#1F2937',
-      900: '#111827'
+      900: '#111827',
+      950: '#030712'
     },
     
     // Common named colors
     common: {
-      white: '#FFFFFF',
+      white: '#FCFEFE',
       black: '#000000',
       background: '#F3F4F6',
       card: '#FFFFFF',

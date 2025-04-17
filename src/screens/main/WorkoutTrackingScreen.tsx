@@ -1253,7 +1253,7 @@ const handleBackToOverview = async () => {
 <View style={styles.header}>
   <View style={styles.headerContent}>
     <TouchableOpacity onPress={handleBackToOverview}>
-      <ArrowLeft size={24} color="colors.gray[100]" />
+      <ArrowLeft size={24} color={colors.gray[900]} />
     </TouchableOpacity>
     
     <View style={styles.headerTitle}>
@@ -1264,7 +1264,7 @@ const handleBackToOverview = async () => {
     </View>
     
     <TouchableOpacity>
-      <MoreHorizontal size={24} color="colors.gray[100]" />
+      <MoreHorizontal size={24} color={colors.gray[900]} />
     </TouchableOpacity>
   </View>
 </View>
@@ -1289,11 +1289,11 @@ const handleBackToOverview = async () => {
               
               {restTimer.isActive ? (
                 <TouchableOpacity style={styles.restTimerButton} onPress={pauseRestTimer}>
-                  <Pause size={20} color="colors.gray[100]" />
+                  <Pause size={20} color={colors.gray[900]} />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.restTimerButton} onPress={resumeRestTimer}>
-                  <Play size={20} color="colors.gray[100]" />
+                  <Play size={20} color={colors.gray[900]} />
                 </TouchableOpacity>
               )}
               
@@ -1301,7 +1301,7 @@ const handleBackToOverview = async () => {
                 style={styles.restTimerButton} 
                 onPress={() => startRestTimer(restTimer.exerciseId!, restTimer.setId!)}
               >
-                <RefreshCw size={20} color="colors.gray[100]" />
+                <RefreshCw size={20} color={colors.gray[900]} />
               </TouchableOpacity>
             </View>
           </View>
@@ -1573,9 +1573,9 @@ const handleBackToOverview = async () => {
             >
               <Text style={styles.historySectionTitle}>Exercise History</Text>
               {showExerciseHistory ? (
-                <ChevronUp size={20} color="colors.gray[100]" />
+                <ChevronUp size={20} color={colors.gray[900]} />
               ) : (
-                <ChevronDown size={20} color="colors.gray[100]" />
+                <ChevronDown size={20} color={colors.gray[900]} />
               )}
             </TouchableOpacity>
             
@@ -1720,23 +1720,23 @@ const handleBackToOverview = async () => {
       
       <View style={styles.completionButtonsContainer}>
         <TouchableOpacity style={styles.completionButton} onPress={handleAddMoreSets}>
-          <Plus size={18} color="colors.gray[100]" />
+          <Plus size={18} color={colors.gray[900]} />
           <Text style={styles.completionButtonText}>Add more sets</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.completionButton} onPress={handleGoToNextExercise}>
           {/* Fix for ChevronRightMini */}
-          <ChevronRightMini width={18} height={18} stroke="#111827" />
+          <ChevronRightMini width={18} height={18} stroke={colors.gray[900]} />
           <Text style={styles.completionButtonText}>Next exercise</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.completionButton} onPress={handleContinueEditing}>
-          <Edit size={18} color="colors.gray[100]" />
+          <Edit size={18} color={colors.gray[900]} />
           <Text style={styles.completionButtonText}>Continue editing</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.completionButton} onPress={handleAddExercise}>
-          <Plus size={18} color="colors.gray[100]" />
+          <Plus size={18} color={colors.gray[900]} />
           <Text style={styles.completionButtonText}>Add exercise</Text>
         </TouchableOpacity>
       </View>
