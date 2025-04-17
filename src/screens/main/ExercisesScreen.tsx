@@ -36,7 +36,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
-import ScrollPickerSheet from '../../components/ScrollPickerSheet';
 
 // Fonts
 import { fonts } from '../../styles/fonts';
@@ -117,12 +116,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       return () => {};
     }, [])
   );
-
-  // Function to handle confirmation
-const handleSetSelection = (setCount) => {
-  setSelectedSets(setCount);
-  // Additional logic here
-};
 
   const checkCurrentWorkoutExercises = async () => {
     try {
@@ -591,21 +584,49 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       </TouchableOpacity>
       
       {/* Sets Selection Sheet Modal */}
-      <ScrollPickerSheet
-  visible={showSetSheet}
-  onClose={() => setShowSetSheet(false)}
-  initialValue={selectedSets}
-  onSave={handleSetSelection}
-  exerciseCount={selectedExercises.length}
-/>
-      
-      <ScrollPickerSheet
-  visible={showSetSheet}
-  onClose={() => setShowSetSheet(false)}
-  initialValue={selectedSets}
-  onSave={handleSetSelection}
-  exerciseCount={selectedExercises.length}
-/>
+      <Modal
+        visible={showSetSheet}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.setSheetContainer}>
+          <View style={styles.setSheetContent}>
+            <View style={styles.setSheetHeader}>
+              <Text style={styles.setSheetTitle}>
+                How many sets?
+              </Text>
+              <TouchableOpacity onPress={() => setShowSetSheet(false)}>
+                <Text style={styles.setSheetCancel}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedSets}
+                onValueChange={(itemValue) => setSelectedSets(itemValue)}
+                style={styles.picker}
+              >
+                {Array.from({ length: 50 }, (_, i) => i + 1).map(value => (
+                  <Picker.Item 
+                    key={value} 
+                    label={`${value} set${value > 1 ? 's' : ''}`} 
+                    value={value} 
+                  />
+                ))}
+              </Picker>
+            </View>
+            
+            <TouchableOpacity 
+              style={styles.confirmButton} 
+              onPress={confirmAddExercises}
+            >
+              <Text style={styles.confirmButtonText}>
+                Confirm {selectedSets} set{selectedSets > 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
