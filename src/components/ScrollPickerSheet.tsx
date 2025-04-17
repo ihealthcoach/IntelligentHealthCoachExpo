@@ -1,16 +1,12 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   StyleSheet, 
-  FlatList, 
-  Modal, 
-  TouchableWithoutFeedback, 
-  Animated,
-  AccessibilityInfo
+  Modal,
 } from 'react-native';
-import { Check, X } from 'lucide-react-native';
+import { Picker } from '@react-native-picker/picker';
 
 // Fonts
 import { fonts } from '../styles/fonts';
@@ -32,362 +28,114 @@ const ScrollPickerSheet: React.FC<ScrollPickerSheetProps> = ({
   onClose,
   initialValue = 3,
   onSave,
-  maxSets = 20,
+  maxSets = 50,
   exerciseCount = 1
 }) => {
   const [selectedSet, setSelectedSet] = useState(initialValue);
-  const flatListRef = useRef<FlatList>(null);
-  const opacityAnimation = useRef(new Animated.Value(0)).current;
-  const ITEM_HEIGHT = 60;
-  
-  // Memoize data array to prevent recreating it on every render
-  const data = useMemo(() => 
-    Array.from({ length: maxSets }, (_, i) => i + 1), 
-    [maxSets]
-  );
-  
-  // Animate the modal content when visible changes
-  useEffect(() => {
-    if (visible) {
-      Animated.timing(opacityAnimation, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true
-      }).start();
-    } else {
-      Animated.timing(opacityAnimation, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true
-      }).start();
-    }
-  }, [visible]);
-  
-  // Setup initial scroll position and selection
-  useEffect(() => {
-    if (visible && flatListRef.current) {
-      // Set initial value
-      setSelectedSet(initialValue);
-      
-      // Calculate scroll position with adjustment for centered viewing
-      const scrollPosition = Math.max(0, (initialValue - 3) * ITEM_HEIGHT);
-      
-      // Wait for modal animation to complete
-      const timer = setTimeout(() => {
-        try {
-          flatListRef.current?.scrollToOffset({
-            offset: scrollPosition,
-            animated: false,
-          });
-        } catch (error) {
-          console.error("Failed to scroll to initial position:", error);
-        }
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [visible, initialValue]);
 
-  // Handle scroll events to update selection
-  const handleScroll = (event: any) => {
-    try {
-      const y = event.nativeEvent.contentOffset.y;
-      const centerY = y + (ITEM_HEIGHT * 2.5); // Center of the visible area
-      const index = Math.floor(centerY / ITEM_HEIGHT);
-      
-      if (index >= 0 && index < maxSets) {
-        setSelectedSet(index + 1);
-      }
-    } catch (error) {
-      console.error("Error in scroll handler:", error);
-    }
-  };
-
-  // Save the selected value and close
-  const handleSave = () => {
-    try {
-      // Provide haptic feedback if available
-      if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(10);
-      }
-      
-      onSave(selectedSet);
-      onClose();
-    } catch (error) {
-      console.error("Error saving value:", error);
-      // Fallback - still close the modal
-      onClose();
-    }
-  };
-
-  // Memoized render item function for performance
-  const renderItem = React.useCallback(({ item }: { item: number }) => {
-    const isSelected = item === selectedSet;
-    
-    return (
-      <MemoizedItem 
-        item={item}
-        isSelected={isSelected}
-        onPress={() => {
-          setSelectedSet(item);
-          
-          // Scroll to position the selected item in the center
-          flatListRef.current?.scrollToOffset({
-            offset: Math.max(0, (item - 3) * ITEM_HEIGHT),
-            animated: true,
-          });
-        }}
-      />
-    );
-  }, [selectedSet]);
-
-  // Memoized item component to improve list performance
-  const MemoizedItem = React.memo(({ 
-    item, 
-    isSelected, 
-    onPress 
-  }: {
-    item: number;
-    isSelected: boolean;
-    onPress: () => void;
-  }) => (
-    <TouchableOpacity 
-      style={styles.setOption}
-      onPress={onPress}
-      accessible={true}
-      accessibilityLabel={`${item} ${item === 1 ? 'set' : 'sets'}`}
-      accessibilityState={{ selected: isSelected }}
-      accessibilityHint={`Select ${item} ${item === 1 ? 'set' : 'sets'}`}
-    >
-      <Animated.Text
-        style={[
-          styles.setOptionText,
-          isSelected ? styles.selectedSetOptionText : styles.unselectedSetOptionText,
-          // Add a subtle scale animation when selected
-          isSelected && {
-            transform: [{ scale: 1.05 }]
-          }
-        ]}
-      >
-        {item} {item === 1 ? 'set' : 'sets'}
-      </Animated.Text>
-    </TouchableOpacity>
-  ));
-
-  // Optimize FlatList performance with getItemLayout
-  const getItemLayout = (_, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: ITEM_HEIGHT * index,
-    index,
-  });
-
+  // Create a simple version matching ExercisesScreen.tsx exactly
   return (
     <Modal
       visible={visible}
       animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <Animated.View 
-          style={[
-            styles.container,
-            { opacity: opacityAnimation }
-          ]}
-        >
-          <View style={styles.bottomIndicator}>
-            <View style={styles.indicator} />
-          </View>
-          
-          <View style={styles.content}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Add set amount</Text>
-              <TouchableOpacity 
-                style={styles.closeButton} 
-                onPress={onClose}
-                accessible={true}
-                accessibilityLabel="Close"
-                accessibilityHint="Closes the set picker without saving"
-              >
-                <X width={20} height={20} color="#111827" />
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.pickerContainer}>
-              <View style={styles.selectionWindow}>
-                <View style={styles.selectionBorder} />
-                <View style={styles.checkContainer}>
-                  <Check width={24} height={24} color="#111827" />
-                </View>
-              </View>
-              
-              <FlatList
-                ref={flatListRef}
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.toString()}
-                showsVerticalScrollIndicator={false}
-                snapToInterval={ITEM_HEIGHT}
-                decelerationRate="fast"
-                snapToAlignment="center"
-                onScroll={handleScroll}
-                onMomentumScrollEnd={handleScroll}
-                getItemLayout={getItemLayout}
-                initialNumToRender={10}
-                maxToRenderPerBatch={5}
-                windowSize={7}
-                removeClippedSubviews={true}
-                contentContainerStyle={styles.listContent}
-                ListHeaderComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
-                ListFooterComponent={<View style={{ height: ITEM_HEIGHT * 2 }} />}
-                accessible={true}
-                accessibilityLabel="Set quantity picker"
-                accessibilityHint="Scroll to select the number of sets"
-              />
-            </View>
-
-            <TouchableOpacity 
-              style={styles.saveButton} 
-              onPress={handleSave}
-              accessible={true}
-              accessibilityLabel={`Add ${exerciseCount > 1 ? exerciseCount + ' exercises' : 'exercise'} with ${selectedSet} sets`}
-              accessibilityHint="Confirms your selection and adds the exercise(s)"
-            >
-              <Text style={styles.saveButtonText}>
-                Add {exerciseCount > 1 ? `${exerciseCount} exercises` : 'exercise'}
-              </Text>
+      <View style={styles.setSheetContainer}>
+        <View style={styles.setSheetContent}>
+          <View style={styles.setSheetHeader}>
+            <Text style={styles.setSheetTitle}>
+              How many sets?
+            </Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.setSheetCancel}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        </Animated.View>
-        
-        {/* Background tap area to close the modal */}
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={styles.modalBackground} />
-        </TouchableWithoutFeedback>
+          
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedSet}
+              onValueChange={(itemValue) => setSelectedSet(itemValue)}
+              style={styles.picker}
+            >
+              {Array.from({ length: maxSets }, (_, i) => i + 1).map(value => (
+                <Picker.Item 
+                  key={value} 
+                  label={`${value} set${value > 1 ? 's' : ''}`} 
+                  value={value} 
+                />
+              ))}
+            </Picker>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.confirmButton} 
+            onPress={() => {
+              onSave(selectedSet);
+              onClose();
+            }}
+          >
+            <Text style={styles.confirmButtonText}>
+              Confirm {selectedSet} set{selectedSet > 1 ? 's' : ''}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
+  setSheetContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  container: {
+  setSheetContent: {
     backgroundColor: colors.common.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 36,
+    margin: 20,
+    borderRadius: 12,
+    padding: 20,
+    paddingBottom: 40,
   },
-  bottomIndicator: {
-    width: '100%',
-    height: 21,
-    paddingVertical: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  indicator: {
-    width: 48,
-    height: 5,
-    borderRadius: 100,
-    backgroundColor: colors.gray[300],
-  },
-  content: {
-    paddingBottom: 8,
-  },
-  header: {
+  setSheetHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  title: {
-    fontSize: 24,
+  setSheetTitle: {
     fontFamily: fonts.bold,
+    fontSize: 22,
     color: colors.gray[900],
   },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    backgroundColor: colors.gray[100],
-    alignItems: 'center',
-    justifyContent: 'center',
+  setSheetCancel: {
+    fontFamily: fonts.medium,
+    fontSize: 16,
+    color: '#4F46E5',
   },
   pickerContainer: {
-    height: 240,
-    position: 'relative',
+    marginBottom: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
   },
-  listContent: {
-    paddingVertical: 0,
+  picker: {
+    height: 150,
+    width: '100%',
   },
-  selectionWindow: {
-    position: 'absolute',
-    top: '50%',
-    left: 0,
-    right: 0,
-    height: 60, // Use exact value here
-    transform: [{ translateY: -30 }],
-    zIndex: 10,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  selectionBorder: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: '100%',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  checkContainer: {
-    position: 'absolute',
-    right: 10,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-  },
-  saveButton: {
-    backgroundColor: colors.indigo[600],
-    borderRadius: 5,
-    height: 52,
+  confirmButton: {
+    backgroundColor: colors.gray[900],
+    paddingVertical: 16,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
   },
-  saveButtonText: {
-    color: '#fcfefe',
-    fontSize: 16,
+  confirmButtonText: {
     fontFamily: fonts.medium,
-  },
-  setOption: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 60,
-    paddingHorizontal: 20,
-  },
-  setOptionText: {
-    fontSize: 24,
-    fontFamily: fonts.bold,
-    //transition: '0.2s',
-  },
-  selectedSetOptionText: {
-    color: colors.gray[900],
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  unselectedSetOptionText: {
-    color: '#d1d5db',
-  },
-  modalBackground: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: -1,
-  },
+    color: '#FFFFFF',
+    fontSize: 16,
+  }
 });
 
 export default ScrollPickerSheet;
