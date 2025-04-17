@@ -5,6 +5,9 @@ import { X } from 'lucide-react-native';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: '#fcfefe',
+    backgroundColor: colors.common.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 16,

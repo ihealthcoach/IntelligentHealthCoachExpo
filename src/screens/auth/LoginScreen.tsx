@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   socialButton: {
     width: '100%',
     height: 52,
-    backgroundColor: '#fcfefe',
+    backgroundColor: colors.common.white,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 5,

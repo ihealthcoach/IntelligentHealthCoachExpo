@@ -249,7 +249,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <StepsIcon width={24} height={24} stroke={colors.gray[900]} />
+                      <StepsIcon width={24} height={24} color={colors.gray[900]} />
                     </View>
                     <Text style={styles.goalTitle}>Steps</Text>
                   </View>

@@ -6,6 +6,9 @@ import BottomSheet from './BottomSheet';
 // Fonts
 import { fonts } from '../styles/fonts';
 
+// Colors
+import { colors } from '../styles/colors';
+
 interface SetPickerSheetProps {
   visible: boolean;
   onClose: () => void;
