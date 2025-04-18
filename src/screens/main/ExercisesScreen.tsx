@@ -114,7 +114,17 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
 
   const handleFilterChange = (filterId) => {
     console.log(`Filter changed from ${activeFilter} to ${filterId}`);
+    
+    if (filterId === activeFilter) return; // Avoid redundant updates
+    
+    // Only update the filter - don't try to reorganize data yet
     setActiveFilter(filterId);
+    
+    // Handle search special case
+    if (filterId === FILTER_SEARCH && searchQuery === '') {
+      // Don't attempt to filter until user enters search query
+      setFilteredExercises(exercises);
+    }
   };
 
   useEffect(() => {
@@ -123,14 +133,24 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   }, []);
 
   useEffect(() => {
-    // Apply filters when search query or selected filter changes
+    // Apply filters only when activeFilter or searchQuery changes
     if (exercises.length > 0) {
       console.log(`Filter effect triggered: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
-      applyFilters();
+      
+      try {
+        // Defer filter application to avoid render loop
+        const timeoutId = setTimeout(() => {
+          applyFilters();
+        }, 0);
+        
+        return () => clearTimeout(timeoutId);
+      } catch (error) {
+        console.error("Error in filter effect:", error);
+      }
     } else {
       console.log('Filter effect skipped: no exercises');
     }
-  }, [searchQuery, activeFilter]);
+  }, [activeFilter, searchQuery, exercises.length]);
 
   useEffect(() => {
     checkCurrentWorkoutExercises();
@@ -145,10 +165,16 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   );
 
   useEffect(() => {
-    if (activeFilter === FILTER_AZ) {
-      organizeExercisesByLetter(filteredExercises);
+    // Only organize exercises by letter when filter is A-Z or we're toggling back to A-Z
+    if (activeFilter === FILTER_AZ && filteredExercises.length > 0) {
+      // This ensures we don't call this function during other filter renders
+      const timeoutId = setTimeout(() => {
+        organizeExercisesByLetter(filteredExercises);
+      }, 0); 
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [filteredExercises, activeFilter]);
+  }, [activeFilter, filteredExercises.length]);
 
   const checkCurrentWorkoutExercises = async () => {
     try {
@@ -591,28 +617,34 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     style={styles.content}
     showsVerticalScrollIndicator={false}
   >
-    {activeFilter === FILTER_AZ ? (
+    {activeFilter === FILTER_AZ && Object.keys(exercisesByLetter).length > 0 ? (
       // A-Z view - organize by first letter
-      Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
-        <LetterSection
-          key={letter}
-          letter={letter}
-          exercises={letterExercises}
-          onLayout={handleLetterLayout}
-          onExerciseSelection={handleExerciseSelection}
-          getGifUrl={getGifUrl}
-        />
-      ))
+      Object.entries(exercisesByLetter)
+        .sort()
+        .map(([letter, letterExercises]) => (
+          <LetterSection
+            key={letter}
+            letter={letter}
+            exercises={letterExercises || []}
+            onLayout={handleLetterLayout}
+            onExerciseSelection={handleExerciseSelection}
+            getGifUrl={getGifUrl}
+          />
+        ))
     ) : (
   // Simple list view for other filters
-  filteredExercises.map(exercise => (
-    <ExerciseItem
-      key={exercise.id}
-      exercise={exercise}
-      onPress={() => handleExerciseSelection(exercise)}
-      getGifUrl={getGifUrl}
-    />
-  ))
+  <>
+  {filteredExercises.map(exercise => (
+    exercise && exercise.id ? (
+      <ExerciseItem
+        key={exercise.id}
+        exercise={exercise}
+        onPress={() => handleExerciseSelection(exercise)}
+        getGifUrl={getGifUrl}
+      />
+    ) : null
+  ))}
+</>
 )}
           
           {/* Extra padding at the bottom for floating button */}
