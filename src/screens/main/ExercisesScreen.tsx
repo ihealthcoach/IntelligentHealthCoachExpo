@@ -144,6 +144,12 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }, [])
   );
 
+  useEffect(() => {
+    if (filteredExercises.length > 0 && activeFilter === FILTER_AZ) {
+      organizeExercisesByLetter(filteredExercises);
+    }
+  }, [filteredExercises, activeFilter]);
+
   const checkCurrentWorkoutExercises = async () => {
     try {
       // Read directly from AsyncStorage for the most reliable check
@@ -592,20 +598,27 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
   ))
 ) : (
   // Simple fallback rendering
-  <View>
-    {filteredExercises.map(exercise => (
+<View>
+  {filteredExercises.map(exercise => {
+    // Make sure exercise is a valid object with at least an id
+    if (!exercise || !exercise.id) return null;
+    
+    return (
       <TouchableOpacity 
         key={exercise.id}
         style={styles.simpleExerciseItem}
         onPress={() => handleExerciseSelection(exercise)}
       >
-        <Text style={styles.simpleExerciseName}>{exercise.name}</Text>
+        <Text style={styles.simpleExerciseName}>
+          {exercise.name || 'Unnamed Exercise'}
+        </Text>
         <Text style={styles.simpleExerciseDetails}>
           {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
         </Text>
       </TouchableOpacity>
-    ))}
-  </View>
+    );
+  })}
+</View>
 )}
           
           {/* Extra padding at the bottom for floating button */}
