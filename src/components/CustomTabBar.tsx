@@ -1,13 +1,17 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {BlurView} from '@react-native-community/blur';
+import * as Haptics from 'expo-haptics';
 
 // Fonts
 import { fonts } from '../styles/fonts';
 
 // Colors
 import { colors } from '../styles/colors';
+
+// Components
+import ShortcutSheet from './ShortcutSheet';
 
 // Icons
 import Icon from './Icons';
@@ -17,6 +21,24 @@ import DumbbellIcon from '../assets/icons/dumbbell.svg';
 import PlusMini from '../assets/icons/plus-mini.svg';
 
 const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+  const [showShortcutSheet, setShowShortcutSheet] = useState(false);
+
+  const handleOpenShortcutSheet = () => {
+    // Provide haptic feedback when opening sheet
+    if (Platform.OS === 'ios') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    setShowShortcutSheet(true);
+  };
+
+  const handleCloseShortcutSheet = () => {
+    setShowShortcutSheet(false);
+  };
+
+  const handleStartWorkout = () => {
+    navigation.navigate('WorkoutOverviewScreen');
+  };
+
   return (
     <View style={styles.bottomNav}>
       <View style={styles.navContent}>
@@ -38,7 +60,8 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
         
         <TouchableOpacity 
           style={styles.addButton}
-          onPress={() => navigation.navigate('Workouts')}
+          onPress={handleOpenShortcutSheet}
+          activeOpacity={0.8}
         >
           <Icon name="plus-mini" width={24} height={24} fill={colors.common.white} />
         </TouchableOpacity>
@@ -59,6 +82,13 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           <Text style={styles.navText}>Workouts</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* ShortcutSheet */}
+      <ShortcutSheet 
+        visible={showShortcutSheet}
+        onClose={handleCloseShortcutSheet}
+        onStartWorkout={handleStartWorkout}
+      />
     </View>
   );
 };
