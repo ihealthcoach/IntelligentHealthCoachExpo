@@ -494,35 +494,28 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       >
 {filters.map((filter) => (
   <TouchableOpacity
-    key={filter.id}
+  key={filter.id}
+  style={[
+    styles.filterBadge,
+    activeFilter === filter.id ? styles.activeFilterBadge : styles.inactiveFilterBadge
+  ]}
+  onPress={() => {
+    setActiveFilter(filter.id);
+  }}
+>
+  {renderFilterIcon(
+    filter.icon, 
+    activeFilter === filter.id ? '#FCFDFD' : '#4B555F'
+  )}
+  <Text 
     style={[
-      styles.filterBadge,
-      activeFilter === filter.label ? styles.activeFilterBadge : styles.inactiveFilterBadge
+      styles.filterLabel,
+      activeFilter === filter.id ? styles.activeFilterLabel : styles.inactiveFilterLabel
     ]}
-    onPress={() => {
-      // Just log the action for now - this will help debug
-      console.log(`Pressed filter: ${filter.label}`);
-      // Use a try-catch to identify where the error occurs
-      try {
-        setActiveFilter(filter.label);
-      } catch (error) {
-        console.error('Error setting active filter:', error);
-      }
-    }}
   >
-    {renderFilterIcon(
-      filter.icon, 
-      activeFilter === filter.label ? '#FCFDFD' : '#4B555F'
-    )}
-    <Text 
-      style={[
-        styles.filterLabel,
-        activeFilter === filter.label ? styles.activeFilterLabel : styles.inactiveFilterLabel
-      ]}
-    >
-      {filter.label}
-    </Text>
-  </TouchableOpacity>
+    {filter.label}
+  </Text>
+</TouchableOpacity>
 ))}
       </ScrollView>
       </View>
