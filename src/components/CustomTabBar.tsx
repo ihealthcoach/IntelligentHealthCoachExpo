@@ -63,7 +63,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           onPress={handleOpenShortcutSheet}
           activeOpacity={0.8}
         >
-          <Icon name="plus-mini" width={24} height={24} fill={colors.common.white} />
+          <Icon name="plus-mini" width={24} height={24}  color="{colors.common.white}" fill="none" />
         </TouchableOpacity>
         
         <TouchableOpacity 
