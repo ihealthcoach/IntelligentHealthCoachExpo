@@ -67,7 +67,12 @@ type Exercise = {
 };
 
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
-  const [activeFilter, setActiveFilter] = useState('A-Z');
+  const FILTER_AZ = 'a-z';
+  const FILTER_SEARCH = 'search';
+  const FILTER_RECENT = 'recent';
+  const FILTER_FAVORITE = 'favorite';
+  const FILTER_FILTERS = 'filters';
+  const [activeFilter, setActiveFilter] = useState(FILTER_AZ);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +100,8 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     { id: 'a-z', icon: 'bars-arrow-down', label: 'A-Z' },
     { id: 'search', icon: 'search', label: 'Search' },
     { id: 'recent', icon: 'clock', label: 'Recent' },
-    { id: 'favorite', icon: 'heart', label: 'Favorites' }
+    { id: 'favorite', icon: 'heart', label: 'Favorites' },
+    { id: 'filters', icon: 'filter', label: 'Filters' } // New filter option
   ];
 
   useEffect(() => {
@@ -201,9 +207,9 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
 
   const applyFilters = () => {
     let filtered = [...exercises];
-
+  
     // Apply search filter if in search mode
-    if (activeFilter === 'Search' && searchQuery) {
+    if (activeFilter === FILTER_SEARCH && searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(ex => 
         ex.name?.toLowerCase().includes(query) ||
@@ -213,18 +219,17 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         ex.body_part?.toLowerCase().includes(query)
       );
     }
-
+  
     // Apply other filters
-    if (activeFilter === 'Favorites') {
+    if (activeFilter === FILTER_FAVORITE) {
       // In a real app, this would filter to show only favorited exercises
-      // For now, just filter random items
       filtered = filtered.filter((_, index) => index % 5 === 0);
-    } else if (activeFilter === 'Recent') {
+    } else if (activeFilter === FILTER_RECENT) {
       // In a real app, this would filter based on recently viewed exercises
-      // For now, just take first 10 as example
       filtered = filtered.slice(0, 10);
     }
-
+    // Note: For FILTER_AZ, we don't need to apply additional filtering
+  
     setFilteredExercises(filtered);
   };
 
@@ -487,29 +492,38 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filtersContainer}
       >
-        {filters.map((filter) => (
-          <TouchableOpacity
-            key={filter.id}
-            style={[
-              styles.filterBadge,
-              activeFilter === filter.label ? styles.activeFilterBadge : styles.inactiveFilterBadge
-            ]}
-            onPress={() => setActiveFilter(filter.label)}
-          >
-            {renderFilterIcon(
-              filter.icon, 
-              activeFilter === filter.label ? '#FCFDFD' : '#4B555F'
-            )}
-            <Text 
-              style={[
-                styles.filterLabel,
-                activeFilter === filter.label ? styles.activeFilterLabel : styles.inactiveFilterLabel
-              ]}
-            >
-              {filter.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+{filters.map((filter) => (
+  <TouchableOpacity
+    key={filter.id}
+    style={[
+      styles.filterBadge,
+      activeFilter === filter.label ? styles.activeFilterBadge : styles.inactiveFilterBadge
+    ]}
+    onPress={() => {
+      // Just log the action for now - this will help debug
+      console.log(`Pressed filter: ${filter.label}`);
+      // Use a try-catch to identify where the error occurs
+      try {
+        setActiveFilter(filter.label);
+      } catch (error) {
+        console.error('Error setting active filter:', error);
+      }
+    }}
+  >
+    {renderFilterIcon(
+      filter.icon, 
+      activeFilter === filter.label ? '#FCFDFD' : '#4B555F'
+    )}
+    <Text 
+      style={[
+        styles.filterLabel,
+        activeFilter === filter.label ? styles.activeFilterLabel : styles.inactiveFilterLabel
+      ]}
+    >
+      {filter.label}
+    </Text>
+  </TouchableOpacity>
+))}
       </ScrollView>
       </View>
 
@@ -520,7 +534,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
           style={styles.content}
           showsVerticalScrollIndicator={false}
         >
-{activeFilter === 'A-Z' ? (
+{activeFilter === FILTER_AZ ? (
   // A-Z view - organize by first letter
   Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
     <LetterSection
@@ -533,23 +547,23 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     />
   ))
 ) : (
-            // Other filter views - simple list
-            filteredExercises.map(exercise => (
-              <ExerciseItem
-                key={exercise.id}
-                exercise={exercise}
-                onPress={() => handleExerciseSelection(exercise)}
-                getGifUrl={getGifUrl}
-              />
-            ))
-          )}
+  // Other filter views - simple list
+  filteredExercises.map(exercise => (
+    <ExerciseItem
+      key={exercise.id}
+      exercise={exercise}
+      onPress={() => handleExerciseSelection(exercise)}
+      getGifUrl={getGifUrl}
+    />
+  ))
+)}
           
           {/* Extra padding at the bottom for floating button */}
           <View style={styles.bottomPadding} />
         </ScrollView>
         
         {/* Alphabet selector (right side) */}
-        {activeFilter === 'A-Z' && showAlphabetSelector && (
+        {activeFilter === FILTER_AZ && showAlphabetSelector && (
   <AlphabetSidebar 
     alphabet={alphabet}
     availableLetters={availableLetters}
