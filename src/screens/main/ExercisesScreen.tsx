@@ -231,7 +231,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     console.log(`Applying filters: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
     let filtered = [...exercises];
   
-    // Apply search filter if in search mode
     try {
       // Apply search filter if in search mode
       if (activeFilter === FILTER_SEARCH && searchQuery) {
@@ -262,6 +261,11 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       
       console.log(`Filtered exercises count: ${filtered.length}`);
       setFilteredExercises(filtered);
+      
+      // Only organize by letter if we're in A-Z mode
+      if (activeFilter === FILTER_AZ) {
+        organizeExercisesByLetter(filtered);
+      }
     } catch (error) {
       console.error('Error in applyFilters:', error);
     }
@@ -582,47 +586,33 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 
       {/* Main Content */}
       <View style={styles.contentContainer}>
-        <ScrollView 
-          ref={scrollViewRef}
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
-{activeFilter === FILTER_AZ ? (
-  // A-Z view - organize by first letter
-  console.log('Rendering LetterSections for letters:', Object.keys(exercisesByLetter)),
-  Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
-    <LetterSection
-      key={letter}
-      letter={letter}
-      exercises={letterExercises}
-      onLayout={handleLetterLayout}
-      onExerciseSelection={handleExerciseSelection}
+  <ScrollView 
+    ref={scrollViewRef}
+    style={styles.content}
+    showsVerticalScrollIndicator={false}
+  >
+    {activeFilter === FILTER_AZ ? (
+      // A-Z view - organize by first letter
+      Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
+        <LetterSection
+          key={letter}
+          letter={letter}
+          exercises={letterExercises}
+          onLayout={handleLetterLayout}
+          onExerciseSelection={handleExerciseSelection}
+          getGifUrl={getGifUrl}
+        />
+      ))
+    ) : (
+  // Simple list view for other filters
+  filteredExercises.map(exercise => (
+    <ExerciseItem
+      key={exercise.id}
+      exercise={exercise}
+      onPress={() => handleExerciseSelection(exercise)}
       getGifUrl={getGifUrl}
     />
   ))
-) : (
-  // Simple fallback rendering
-<View>
-  {filteredExercises.map(exercise => {
-    // Make sure exercise is a valid object with at least an id
-    if (!exercise || !exercise.id) return null;
-    
-    return (
-      <TouchableOpacity 
-        key={exercise.id}
-        style={styles.simpleExerciseItem}
-        onPress={() => handleExerciseSelection(exercise)}
-      >
-        <Text style={styles.simpleExerciseName}>
-          {exercise.name || 'Unnamed Exercise'}
-        </Text>
-        <Text style={styles.simpleExerciseDetails}>
-          {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
-        </Text>
-      </TouchableOpacity>
-    );
-  })}
-</View>
 )}
           
           {/* Extra padding at the bottom for floating button */}
@@ -630,13 +620,13 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         </ScrollView>
         
         {/* Alphabet selector (right side) */}
-        {activeFilter === FILTER_AZ && showAlphabetSelector && (
-  <AlphabetSidebar 
-    alphabet={alphabet}
-    availableLetters={availableLetters}
-    onLetterPress={scrollToLetter}
-  />
-)}
+        {activeFilter === FILTER_AZ && (
+    <AlphabetSidebar 
+      alphabet={alphabet}
+      availableLetters={availableLetters}
+      onLetterPress={scrollToLetter}
+    />
+  )}
       </View>
       
       {/* Floating action buttons */}
