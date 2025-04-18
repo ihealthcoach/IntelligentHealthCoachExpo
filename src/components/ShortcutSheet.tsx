@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -8,7 +8,8 @@ import {
   Modal, 
   Dimensions, 
   TouchableWithoutFeedback,
-  Animated
+  Animated,
+  PanResponder
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from './Icons';
@@ -21,6 +22,7 @@ import { fonts } from '../styles/fonts';
 import { colors } from '../styles/colors';
 
 const { height } = Dimensions.get('window');
+const DISMISS_THRESHOLD = height * 0.2;
 
 interface ShortcutSheetProps {
   visible: boolean;
@@ -35,35 +37,82 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
 }) => {
   const [isDarkModeEnabled, setIsDarkModeEnabled] = useState(false);
   const navigation = useNavigation();
-  const translateY = new Animated.Value(height);
+  const translateY = useRef(new Animated.Value(height)).current;
+  const scrollEnabled = useRef(true);
 
-  useEffect(() => {
-    if (visible) {
-      Animated.spring(translateY, {
-        toValue: 0,
-        useNativeDriver: true,
-        bounciness: 5
-      }).start();
-    } else {
-      Animated.timing(translateY, {
-        toValue: height,
-        duration: 300,
-        useNativeDriver: true
-      }).start();
-    }
-  }, [visible]);
+    // Set up pan responder for drag to dismiss
+    const panResponder = useRef(
+        PanResponder.create({
+          onStartShouldSetPanResponder: () => true,
+          onMoveShouldSetPanResponder: (_, gestureState) => {
+            // Only handle vertical gestures starting from the top of the sheet or handle
+            return gestureState.dy > 0 && gestureState.moveY < 150;
+          },
+          onPanResponderGrant: () => {
+            // Disable scrolling when dragging the sheet
+            scrollEnabled.current = false;
+            // Stop any running animations
+            translateY.stopAnimation();
+          },
+          onPanResponderMove: (_, gestureState) => {
+            // Only allow downward movement (positive dy)
+            if (gestureState.dy > 0) {
+              translateY.setValue(gestureState.dy);
+            }
+          },
+          onPanResponderRelease: (_, gestureState) => {
+            // Re-enable scrolling
+            scrollEnabled.current = true;
+            
+            // If dragged down past threshold, dismiss the sheet
+            if (gestureState.dy > DISMISS_THRESHOLD) {
+              Animated.timing(translateY, {
+                toValue: height,
+                duration: 250,
+                useNativeDriver: true
+              }).start(onClose);
+            } else {
+              // Otherwise, snap back to position
+              Animated.spring(translateY, {
+                toValue: 0,
+                useNativeDriver: true,
+                bounciness: 5
+              }).start();
+            }
+          }
+        })
+      ).current;
 
-  const handleStartWorkout = () => {
-    onClose();
-    // Wait a bit before triggering the action (similar to the Swift delay)
-    setTimeout(() => {
-      if (onStartWorkout) {
-        onStartWorkout();
-      } else {
-        navigation.navigate('WorkoutOverviewScreen' as never);
-      }
-    }, 300);
-  };
+      useEffect(() => {
+        if (visible) {
+          // Reset position then animate up
+          translateY.setValue(height);
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+            bounciness: 5
+          }).start();
+        } else {
+          // Animate down when closing
+          Animated.timing(translateY, {
+            toValue: height,
+            duration: 300,
+            useNativeDriver: true
+          }).start();
+        }
+      }, [visible]);
+
+      const handleStartWorkout = () => {
+        onClose();
+        // Wait a bit before triggering the action (similar to the Swift delay)
+        setTimeout(() => {
+          if (onStartWorkout) {
+            onStartWorkout();
+          } else {
+            navigation.navigate('WorkoutOverviewScreen' as never);
+          }
+        }, 300);
+      };
 
   const handleBodyMetrics = () => {
     onClose();
@@ -122,9 +171,12 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
               ]}
             >
               {/* Handle at the top */}
-              <View style={styles.handleContainer}>
-                <View style={styles.handle} />
-              </View>
+              <View 
+              {...panResponder.panHandlers}
+              style={styles.handleContainer}
+            >
+              <View style={styles.handle} />
+            </View>
               
               {/* Header */}
               <View style={styles.header}>
@@ -134,7 +186,11 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
                 </TouchableOpacity>
               </View>
               
-              <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+              <ScrollView 
+              style={styles.content} 
+              scrollEnabled={scrollEnabled.current}
+              showsVerticalScrollIndicator={false}
+            >
                 <View style={styles.sectionsContainer}>
                   {/* Workout section */}
                   <ShortcutSectionHeader title="Workout" />
