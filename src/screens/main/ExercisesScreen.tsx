@@ -9,11 +9,7 @@ import {
   SafeAreaView, 
   StatusBar,
   Dimensions,
-  FlatList,
-  Animated,
-  Modal,
   ActivityIndicator,
-  ImageBackground
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { 
@@ -23,8 +19,6 @@ import {
   Search, 
   Clock, 
   Heart, 
-  ClipboardList,
-  Plus,
   ChevronDown,
   Filter
 } from 'lucide-react-native';
@@ -39,7 +33,6 @@ import { TextInput } from 'react-native-paper';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
-//import ScrollPickerSheet from '../../components/ScrollPickerSheet';
 import FlexibleSheet from '../../components/FlexibleSheet';
 
 // Fonts

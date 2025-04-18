@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Switch, SafeAreaView, StatusBar, TextInput, Modal } from 'react-native';
-import { ArrowLeft, User, ClipboardList, Globe, Bell, CreditCard, Moon, Star, ChevronRight, Plus } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, StatusBar, TextInput, Modal } from 'react-native';
+import { User, ClipboardList, Globe, Bell, CreditCard, Moon, Star, ChevronRight } from 'lucide-react-native';
 import { supabase } from '../../services/supabase';
 import { Picker } from '@react-native-picker/picker';
 

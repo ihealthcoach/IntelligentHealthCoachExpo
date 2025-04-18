@@ -15,10 +15,7 @@ import ShortcutSheet from './ShortcutSheet';
 
 // Icons
 import Icon from './Icons';
-import ChartBarOutline from '../assets/icons/chart-bar-outline.svg';
-import ChefsHatIcon from '../assets/icons/chefs-hat.svg';
 import DumbbellIcon from '../assets/icons/dumbbell.svg';
-import PlusMini from '../assets/icons/plus-mini.svg';
 
 const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const [showShortcutSheet, setShowShortcutSheet] = useState(false);

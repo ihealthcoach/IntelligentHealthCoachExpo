@@ -16,15 +16,12 @@ import {
 import {
   ArrowLeft,
   BarChart2,
-  ChevronDown,
-  ChevronUp,
   Award,
   TrendingUp,
   Calendar,
   Check,
   Info,
   Play,
-  ChevronRight,
   Flag
 } from 'lucide-react-native';
 import { Button, ProgressBar, Chip, Portal, Modal } from 'react-native-paper';

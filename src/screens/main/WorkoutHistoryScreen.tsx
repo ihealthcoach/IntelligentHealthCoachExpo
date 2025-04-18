@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
-  Image,
   RefreshControl,
   ActivityIndicator,
   Dimensions
@@ -19,7 +18,6 @@ import {
   BarChart as BarChartIcon,
   TrendingUp,
   Dumbbell,
-  ArrowUpRight,
   Calendar as CalendarIcon,
   Filter
 } from 'lucide-react-native';

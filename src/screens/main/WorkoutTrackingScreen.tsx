@@ -12,7 +12,6 @@ import {
   PanResponder,
   Dimensions,
   TextInput,
-  Image,
   Vibration,
   Platform,
 } from 'react-native';
@@ -22,8 +21,7 @@ import {
   ArrowLeft, 
   MoreHorizontal, 
   Info, 
-  Activity, 
-  BarChart3, 
+  Activity,
   FileText,
   Timer,
   Award,
