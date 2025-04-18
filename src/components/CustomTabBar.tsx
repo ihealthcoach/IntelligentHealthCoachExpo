@@ -68,7 +68,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
         
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => navigation.navigate('Exercises')}
+          onPress={() => navigation.navigate('Workouts')}
         >
           <Icon name="chefs-hat" width={24} height={24} fill={colors.gray[900]} stroke="none" />
           <Text style={styles.navText}>Food</Text>
@@ -76,7 +76,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
         
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => navigation.navigate('Workouts')}
+          onPress={() => navigation.navigate('Exercises')}
         >
           <DumbbellIcon width={24} height={24} fill={colors.gray[900]} />
           <Text style={styles.navText}>Workouts</Text>

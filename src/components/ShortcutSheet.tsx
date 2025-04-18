@@ -22,6 +22,7 @@ import { colors } from '../styles/colors';
 
 // Icons
 import Icon from './Icons';
+import { IconName } from './Icons';
 
 const { height } = Dimensions.get('window');
 const DISMISS_THRESHOLD = height * 0.2;
@@ -31,6 +32,70 @@ interface ShortcutSheetProps {
   onClose: () => void;
   onStartWorkout?: () => void;
 }
+
+// Section header component
+interface SectionHeaderProps {
+  title: string;
+}
+
+const ShortcutSectionHeader: React.FC<SectionHeaderProps> = ({ title }) => {
+  return (
+    <Text style={styles.sectionTitle}>{title}</Text>
+  );
+};
+
+// Shortcut item component
+interface ShortcutItemProps {
+    iconName: IconName;
+  title: string;
+  value?: string;
+  showChevron?: boolean;
+  hasToggle?: boolean;
+  isToggled?: boolean;
+  onToggleChange?: (value: boolean) => void;
+  onPress: () => void;
+}
+
+const ShortcutItem: React.FC<ShortcutItemProps> = ({
+  iconName,
+  title,
+  value,
+  showChevron = false,
+  hasToggle = false,
+  isToggled = false,
+  onToggleChange,
+  onPress
+}) => {
+  return (
+    <TouchableOpacity 
+      style={styles.shortcutItem} 
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={styles.shortcutItemContent}>
+        <Icon name={iconName} width={24} height={24} color={colors.gray[900]} />
+        
+        <Text style={styles.shortcutItemTitle}>{title}</Text>
+        
+        <View style={styles.shortcutItemRight}>
+          {value && (
+            <Text style={styles.shortcutItemValue}>{value}</Text>
+          )}
+          
+          {hasToggle ? (
+            <Switch
+              value={isToggled}
+              onValueChange={onToggleChange}
+              color={colors.indigo[600]}
+            />
+          ) : showChevron ? (
+            <Icon name="chevron-right-mini" width={20} height={20} color={colors.gray[400]} />
+          ) : null}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
   visible,
@@ -52,8 +117,8 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
             // 1. It's a downward gesture (dy > 0)
             // 2. We're at the top of the scroll view (scrollOffset <= 0)
             // 3. We haven't scrolled down in the scrollview yet
-            return gestureState.dy > 5 && scrollOffset.current <= 0 && !isDragging.current;
-          },
+            return Math.abs(gestureState.dy) > 5 && scrollOffset.current <= 0 && !isDragging.current;
+    },
           onPanResponderGrant: () => {
             isDragging.current = true;
             translateY.stopAnimation();
@@ -205,13 +270,16 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
               </View>
               
               <ScrollView 
-                ref={scrollViewRef}
-                style={styles.content}
-                scrollEventThrottle={16}
-                onScroll={handleScroll}
-                bounces={false}
-                showsVerticalScrollIndicator={false}
-              >
+  ref={scrollViewRef}
+  style={styles.content}
+  scrollEventThrottle={16}
+  onScroll={(event) => {
+    scrollOffset.current = event.nativeEvent.contentOffset.y;
+  }}
+  bounces={true}
+  showsVerticalScrollIndicator={true}
+  keyboardShouldPersistTaps="handled"
+>
                 <View style={styles.sectionsContainer}>
                   {/* Workout section */}
                   <ShortcutSectionHeader title="Workout" />
@@ -311,69 +379,6 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
         </View>
       </TouchableWithoutFeedback>
     </Modal>
-  );
-
-// Section header component
-interface SectionHeaderProps {
-  title: string;
-}
-
-const ShortcutSectionHeader: React.FC<SectionHeaderProps> = ({ title }) => {
-  return (
-    <Text style={styles.sectionTitle}>{title}</Text>
-  );
-};
-
-// Shortcut item component
-interface ShortcutItemProps {
-  iconName: string;
-  title: string;
-  value?: string;
-  showChevron?: boolean;
-  hasToggle?: boolean;
-  isToggled?: boolean;
-  onToggleChange?: (value: boolean) => void;
-  onPress: () => void;
-}
-
-const ShortcutItem: React.FC<ShortcutItemProps> = ({
-  iconName,
-  title,
-  value,
-  showChevron = false,
-  hasToggle = false,
-  isToggled = false,
-  onToggleChange,
-  onPress
-}) => {
-  return (
-    <TouchableOpacity 
-      style={styles.shortcutItem} 
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.shortcutItemContent}>
-        <Icon name={iconName} width={24} height={24} color={colors.gray[900]} />
-        
-        <Text style={styles.shortcutItemTitle}>{title}</Text>
-        
-        <View style={styles.shortcutItemRight}>
-          {value && (
-            <Text style={styles.shortcutItemValue}>{value}</Text>
-          )}
-          
-          {hasToggle ? (
-            <Switch
-              value={isToggled}
-              onValueChange={onToggleChange}
-              color={colors.indigo[600]}
-            />
-          ) : showChevron ? (
-            <Icon name="chevron-right-mini" width={20} height={20} color={colors.gray[400]} />
-          ) : null}
-        </View>
-      </View>
-    </TouchableOpacity>
   );
 };
 
