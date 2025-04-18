@@ -33,6 +33,7 @@ import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { TextInput } from 'react-native-paper';
 
 // Components
 import AlphabetSidebar from '../../components/AlphabetSidebar';
@@ -88,6 +89,8 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
 
+  console.log(`Rendering ExercisesScreen: activeFilter=${activeFilter}, selectedExercises=${selectedExercises.length}`);
+
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -105,6 +108,16 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   ];
 
   useEffect(() => {
+    console.log("ExercisesScreen rendered");
+    return () => console.log("ExercisesScreen unmounted");
+  }, []);
+
+  const handleFilterChange = (filterId) => {
+    console.log(`Filter changed from ${activeFilter} to ${filterId}`);
+    setActiveFilter(filterId);
+  };
+
+  useEffect(() => {
     fetchExercises();
     workoutService.cacheExerciseLibrary();
   }, []);
@@ -112,7 +125,10 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   useEffect(() => {
     // Apply filters when search query or selected filter changes
     if (exercises.length > 0) {
+      console.log(`Filter effect triggered: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
       applyFilters();
+    } else {
+      console.log('Filter effect skipped: no exercises');
     }
   }, [searchQuery, activeFilter]);
 
@@ -206,31 +222,43 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   const applyFilters = () => {
+    console.log(`Applying filters: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
     let filtered = [...exercises];
   
     // Apply search filter if in search mode
-    if (activeFilter === FILTER_SEARCH && searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(ex => 
-        ex.name?.toLowerCase().includes(query) ||
-        ex.primary_muscles?.toLowerCase().includes(query) ||
-        ex.equipment?.toLowerCase().includes(query) ||
-        ex.target?.toLowerCase().includes(query) ||
-        ex.body_part?.toLowerCase().includes(query)
-      );
+    try {
+      // Apply search filter if in search mode
+      if (activeFilter === FILTER_SEARCH && searchQuery) {
+        console.log('Applying search filter');
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(ex => 
+          ex.name?.toLowerCase().includes(query) ||
+          ex.primary_muscles?.toLowerCase().includes(query) ||
+          ex.equipment?.toLowerCase().includes(query) ||
+          ex.target?.toLowerCase().includes(query) ||
+          ex.body_part?.toLowerCase().includes(query)
+        );
+      }
+    
+      // Apply other filters
+      if (activeFilter === FILTER_FAVORITE) {
+        console.log('Applying favorite filter');
+        // In a real app, this would filter to show only favorited exercises
+        filtered = filtered.filter((_, index) => index % 5 === 0);
+      } else if (activeFilter === FILTER_RECENT) {
+        console.log('Applying recent filter');
+        // In a real app, this would filter based on recently viewed exercises
+        filtered = filtered.slice(0, 10);
+      } else if (activeFilter === FILTER_FILTERS) {
+        console.log('Applying custom filters');
+        // Add custom filter logic
+      }
+      
+      console.log(`Filtered exercises count: ${filtered.length}`);
+      setFilteredExercises(filtered);
+    } catch (error) {
+      console.error('Error in applyFilters:', error);
     }
-  
-    // Apply other filters
-    if (activeFilter === FILTER_FAVORITE) {
-      // In a real app, this would filter to show only favorited exercises
-      filtered = filtered.filter((_, index) => index % 5 === 0);
-    } else if (activeFilter === FILTER_RECENT) {
-      // In a real app, this would filter based on recently viewed exercises
-      filtered = filtered.slice(0, 10);
-    }
-    // Note: For FILTER_AZ, we don't need to apply additional filtering
-  
-    setFilteredExercises(filtered);
   };
 
   // Generate the full Supabase storage URL for an exercise GIF
@@ -240,20 +268,29 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   const renderFilterIcon = (iconName: string, color: string) => {
+    console.log(`Rendering icon: ${iconName} with color ${color}`);
     // Make sure we use a numeric size for icons
     const iconSize = 20;
     
-    switch (iconName) {
-      case 'bars-arrow-down':
-        return <ArrowDownAZ size={iconSize} color={color} />;
-      case 'search':
-        return <Search size={iconSize} color={color} />;
-      case 'clock':
-        return <Clock size={iconSize} color={color} />;
-      case 'heart':
-        return <Heart size={iconSize} color={color} />;
-      default:
-        return null;
+    try {
+      switch (iconName) {
+        case 'bars-arrow-down':
+          return <ArrowDownAZ size={iconSize} color={color} />;
+        case 'search':
+          return <Search size={iconSize} color={color} />;
+        case 'clock':
+          return <Clock size={iconSize} color={color} />;
+        case 'heart':
+          return <Heart size={iconSize} color={color} />;
+        case 'filter':
+          return <Filter size={iconSize} color={color} />;
+        default:
+          console.warn(`Unknown icon name: ${iconName}`);
+          return null;
+      }
+    } catch (error) {
+      console.error(`Error rendering icon ${iconName}:`, error);
+      return null;
     }
   };
 
@@ -500,7 +537,8 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     activeFilter === filter.id ? styles.activeFilterBadge : styles.inactiveFilterBadge
   ]}
   onPress={() => {
-    setActiveFilter(filter.id);
+    console.log(`Filter pressed: ${filter.id}`);
+    handleFilterChange(filter.id);
   }}
 >
   {renderFilterIcon(
@@ -519,6 +557,19 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 ))}
       </ScrollView>
       </View>
+
+      {activeFilter === FILTER_SEARCH && (
+  <View style={styles.searchInputContainer}>
+    <Search size={20} color="#9CA3AF" />
+    <TextInput
+      style={styles.searchInput}
+      value={searchQuery}
+      onChangeText={setSearchQuery}
+      placeholder="Search exercises..."
+      placeholderTextColor="#9CA3AF"
+    />
+  </View>
+)}
 
       {/* Main Content */}
       <View style={styles.contentContainer}>
@@ -540,15 +591,21 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     />
   ))
 ) : (
-  // Other filter views - simple list
-  filteredExercises.map(exercise => (
-    <ExerciseItem
-      key={exercise.id}
-      exercise={exercise}
-      onPress={() => handleExerciseSelection(exercise)}
-      getGifUrl={getGifUrl}
-    />
-  ))
+  // Simple fallback rendering
+  <View>
+    {filteredExercises.map(exercise => (
+      <TouchableOpacity 
+        key={exercise.id}
+        style={styles.simpleExerciseItem}
+        onPress={() => handleExerciseSelection(exercise)}
+      >
+        <Text style={styles.simpleExerciseName}>{exercise.name}</Text>
+        <Text style={styles.simpleExerciseDetails}>
+          {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
 )}
           
           {/* Extra padding at the bottom for floating button */}
@@ -648,6 +705,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   headerLeft: {
@@ -858,5 +916,47 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     color: '#FFFFFF',
     fontSize: 16,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.common.white,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginHorizontal: 16,
+    marginVertical: 12,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    paddingLeft: 8,
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.gray[900],
+  },
+  errorItem: {
+    padding: 16,
+    backgroundColor: '#FFDDDD',
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+  simpleExerciseItem: {
+    padding: 16,
+    backgroundColor: colors.common.white,
+    borderRadius: 8,
+    marginVertical: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  simpleExerciseName: {
+    fontFamily: fonts.semiBold,
+    fontSize: 16,
+    color: colors.gray[900],
+  },
+  simpleExerciseDetails: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: '#6B7280',
+    marginTop: 4,
   },
 });
