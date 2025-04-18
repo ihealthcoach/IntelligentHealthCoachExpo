@@ -145,7 +145,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   );
 
   useEffect(() => {
-    if (filteredExercises.length > 0 && activeFilter === FILTER_AZ) {
+    if (activeFilter === FILTER_AZ) {
       organizeExercisesByLetter(filteredExercises);
     }
   }, [filteredExercises, activeFilter]);
@@ -358,11 +358,14 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
 
   // Add or modify the scrollToLetter function
   const scrollToLetter = (letter: string) => {
-    if (letterPositions[letter] !== undefined && scrollViewRef.current) {
+    const y = letterPositions[letter];
+    if (typeof y === 'number' && scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ 
-        y: letterPositions[letter] - 20, // 20px offset for better visibility
+        y: y - 20,
         animated: true 
       });
+    } else {
+      console.warn(`No position recorded for letter: ${letter}`);
     }
   };
 
@@ -586,6 +589,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         >
 {activeFilter === FILTER_AZ ? (
   // A-Z view - organize by first letter
+  console.log('Rendering LetterSections for letters:', Object.keys(exercisesByLetter)),
   Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
     <LetterSection
       key={letter}
