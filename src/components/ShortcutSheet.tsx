@@ -12,7 +12,6 @@ import {
   PanResponder
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Icon from './Icons';
 import { Switch } from 'react-native-paper';
 
 // Fonts
@@ -20,6 +19,9 @@ import { fonts } from '../styles/fonts';
 
 // Colors
 import { colors } from '../styles/colors';
+
+// Icons
+import Icon from './Icons';
 
 const { height } = Dimensions.get('window');
 const DISMISS_THRESHOLD = height * 0.2;
@@ -35,37 +37,39 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
   onClose,
   onStartWorkout
 }) => {
-  const [isDarkModeEnabled, setIsDarkModeEnabled] = useState(false);
-  const navigation = useNavigation();
-  const translateY = useRef(new Animated.Value(height)).current;
-  const scrollEnabled = useRef(true);
+    const [isDarkModeEnabled, setIsDarkModeEnabled] = useState(false);
+    const navigation = useNavigation();
+    const translateY = useRef(new Animated.Value(height)).current;
+    const scrollViewRef = useRef<ScrollView>(null);
+    const scrollOffset = useRef(0);
+    const isDragging = useRef(false);
 
     // Set up pan responder for drag to dismiss
     const panResponder = useRef(
         PanResponder.create({
-          onStartShouldSetPanResponder: () => true,
           onMoveShouldSetPanResponder: (_, gestureState) => {
-            // Only handle vertical gestures starting from the top of the sheet or handle
-            return gestureState.dy > 0 && gestureState.moveY < 150;
+            // Only capture the gesture if:
+            // 1. It's a downward gesture (dy > 0)
+            // 2. We're at the top of the scroll view (scrollOffset <= 0)
+            // 3. We haven't scrolled down in the scrollview yet
+            return gestureState.dy > 5 && scrollOffset.current <= 0 && !isDragging.current;
           },
           onPanResponderGrant: () => {
-            // Disable scrolling when dragging the sheet
-            scrollEnabled.current = false;
-            // Stop any running animations
+            isDragging.current = true;
             translateY.stopAnimation();
+            translateY.setOffset(0);
           },
           onPanResponderMove: (_, gestureState) => {
             // Only allow downward movement (positive dy)
-            if (gestureState.dy > 0) {
+            if (gestureState.dy >= 0) {
               translateY.setValue(gestureState.dy);
             }
           },
           onPanResponderRelease: (_, gestureState) => {
-            // Re-enable scrolling
-            scrollEnabled.current = true;
+            isDragging.current = false;
             
             // If dragged down past threshold, dismiss the sheet
-            if (gestureState.dy > DISMISS_THRESHOLD) {
+            if (gestureState.dy > DISMISS_THRESHOLD || gestureState.vy > 0.5) {
               Animated.timing(translateY, {
                 toValue: height,
                 duration: 250,
@@ -79,7 +83,14 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
                 bounciness: 5
               }).start();
             }
-          }
+          },
+          onPanResponderTerminate: () => {
+            isDragging.current = false;
+            Animated.spring(translateY, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+          },
         })
       ).current;
 
@@ -113,6 +124,10 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
           }
         }, 300);
       };
+
+  const handleScroll = (event) => {
+    scrollOffset.current = event.nativeEvent.contentOffset.y;
+  };
 
   const handleBodyMetrics = () => {
     onClose();
@@ -172,14 +187,17 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
             >
               {/* Handle at the top */}
               <View 
-              {...panResponder.panHandlers}
-              style={styles.handleContainer}
-            >
-              <View style={styles.handle} />
-            </View>
+                {...panResponder.panHandlers}
+                style={styles.handleContainer}
+              >
+                <View style={styles.handle} />
+              </View>
               
               {/* Header */}
-              <View style={styles.header}>
+              <View 
+                {...panResponder.panHandlers}
+                style={styles.header}
+              >
                 <Text style={styles.headerTitle}>Shortcuts</Text>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                   <Text style={styles.closeButtonText}>Close</Text>
@@ -187,10 +205,13 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
               </View>
               
               <ScrollView 
-              style={styles.content} 
-              scrollEnabled={scrollEnabled.current}
-              showsVerticalScrollIndicator={false}
-            >
+                ref={scrollViewRef}
+                style={styles.content}
+                scrollEventThrottle={16}
+                onScroll={handleScroll}
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+              >
                 <View style={styles.sectionsContainer}>
                   {/* Workout section */}
                   <ShortcutSectionHeader title="Workout" />
@@ -291,7 +312,6 @@ const ShortcutSheet: React.FC<ShortcutSheetProps> = ({
       </TouchableWithoutFeedback>
     </Modal>
   );
-};
 
 // Section header component
 interface SectionHeaderProps {
