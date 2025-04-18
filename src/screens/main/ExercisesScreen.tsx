@@ -36,6 +36,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
+import ScrollPickerSheet from '../../components/ScrollPickerSheet';
 
 // Fonts
 import { fonts } from '../../styles/fonts';
@@ -322,11 +323,12 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   const handleAddExercises = () => {
+    setSelectedSets(3);
     // Open the set selection sheet
     setShowSetSheet(true);
   };
   
-  const confirmAddExercises = async () => {
+  const confirmAddExercises = async (setsCount = selectedSets) => {
     // Close the sheet
     setShowSetSheet(false);
     
@@ -368,7 +370,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
   name: ex.name,
   primaryMuscles: ex.primary_muscles || 'Unknown',
   equipment: ex.equipment || 'Bodyweight',
-  sets: Array.from({ length: selectedSets }, (_, i) => ({
+  sets: Array.from({ length: setsCount }, (_, i) => ({
     id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
     setNumber: i + 1,
     weight: null,
@@ -388,7 +390,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       // Save to AsyncStorage
       await AsyncStorage.setItem('current_workout', JSON.stringify(workoutData));
       setHasWorkoutExercises(true);
-
+  
     } catch (error) {
       console.error('Error saving workout data:', error);
       // Consider showing an alert to the user
@@ -396,8 +398,11 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     
     // Clear selected exercises
     setSelectedExercises([]);
+
+    // Reset selected sets to default value (3)
+    setSelectedSets(3);
     
-    console.log(`Added ${selectedExercises.length} exercises with ${selectedSets} sets each`);
+    console.log(`Added ${selectedExercises.length} exercises with ${setsCount} sets each`);
   };
 
   const handleBuildSuperSet = () => {
@@ -584,49 +589,14 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       </TouchableOpacity>
       
       {/* Sets Selection Sheet Modal */}
-      <Modal
-        visible={showSetSheet}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.setSheetContainer}>
-          <View style={styles.setSheetContent}>
-            <View style={styles.setSheetHeader}>
-              <Text style={styles.setSheetTitle}>
-                How many sets?
-              </Text>
-              <TouchableOpacity onPress={() => setShowSetSheet(false)}>
-                <Text style={styles.setSheetCancel}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedSets}
-                onValueChange={(itemValue) => setSelectedSets(itemValue)}
-                style={styles.picker}
-              >
-                {Array.from({ length: 50 }, (_, i) => i + 1).map(value => (
-                  <Picker.Item 
-                    key={value} 
-                    label={`${value} set${value > 1 ? 's' : ''}`} 
-                    value={value} 
-                  />
-                ))}
-              </Picker>
-            </View>
-            
-            <TouchableOpacity 
-              style={styles.confirmButton} 
-              onPress={confirmAddExercises}
-            >
-              <Text style={styles.confirmButtonText}>
-                Confirm {selectedSets} set{selectedSets > 1 ? 's' : ''}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      <ScrollPickerSheet
+  visible={showSetSheet}
+  onDismiss={() => setShowSetSheet(false)}
+  initialValue={selectedSets}
+  onValueConfirm={(value) => {
+    confirmAddExercises(value);
+  }}
+/>
     </View>
   );
 }
@@ -829,55 +799,4 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 120,
   },
-  setSheetContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  setSheetContent: {
-    backgroundColor: colors.common.white,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 40,
-  },
-  setSheetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  setSheetTitle: {
-    fontFamily: fonts.bold,
-    fontSize: 22,
-    color: colors.gray[900],
-  },
-  setSheetCancel: {
-    fontFamily: fonts.medium,
-    fontSize: 16,
-    color: '#4F46E5',
-  },
-  pickerContainer: {
-    marginBottom: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 150,
-    width: '100%',
-  },
-  confirmButton: {
-    backgroundColor: colors.gray[900],
-    paddingVertical: 16,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmButtonText: {
-    fontFamily: fonts.medium,
-    color: '#FFFFFF',
-    fontSize: 16,
-  }
 });
