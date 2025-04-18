@@ -72,6 +72,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -641,7 +642,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 16,
   },
   headerLeft: {
     flexDirection: 'row',
