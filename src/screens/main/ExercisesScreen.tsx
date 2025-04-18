@@ -966,29 +966,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.gray[900],
   },
-  errorItem: {
-    padding: 16,
-    backgroundColor: '#FFDDDD',
-    borderRadius: 8,
-    marginVertical: 4,
-  },
-  simpleExerciseItem: {
-    padding: 16,
-    backgroundColor: colors.common.white,
-    borderRadius: 8,
-    marginVertical: 4,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  simpleExerciseName: {
-    fontFamily: fonts.semiBold,
-    fontSize: 16,
-    color: colors.gray[900],
-  },
-  simpleExerciseDetails: {
-    fontFamily: fonts.regular,
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
-  },
 });
