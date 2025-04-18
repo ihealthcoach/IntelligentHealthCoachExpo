@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useEffect } from 'react';
+import React, { ReactNode, useRef, useEffect, useState } from 'react';
 import { 
   View, 
   Text,
@@ -56,13 +56,22 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
   const maxHeightPx = getPixelValue(maxHeight);
   const minHeightPx = getPixelValue(minHeight);
 
-  // Animation values
-  const translateY = useRef(new Animated.Value(height)).current;
-  const sheetHeight = useRef(new Animated.Value(initialHeightPx)).current;
+  // State for sheet height - use regular state instead of Animated
+  const [sheetHeightValue, setSheetHeightValue] = useState(initialHeightPx);
   
-  // Track scrolling
+  // Animation values - only use translateY with native driver
+  const translateY = useRef(new Animated.Value(height)).current;
+  
+  // Track scrolling and dragging
   const scrollOffset = useRef(0);
   const isDragging = useRef(false);
+  
+  // Reset height when visible changes
+  useEffect(() => {
+    if (visible) {
+      setSheetHeightValue(initialHeightPx);
+    }
+  }, [visible, initialHeightPx]);
   
   // Animation when visibility changes
   useEffect(() => {
@@ -101,7 +110,7 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
             minHeightPx,
             Math.min(maxHeightPx, initialHeightPx - gestureState.dy)
           );
-          sheetHeight.setValue(newHeight);
+          setSheetHeightValue(newHeight);
         } else if (gestureState.dy > 0 && isDragging.current) {
           // If dragging down elsewhere, allow dismissal
           translateY.setValue(gestureState.dy);
@@ -126,12 +135,8 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
             bounciness: 5
           }).start();
           
-          // Adjust height based on final gesture
-          Animated.spring(sheetHeight, {
-            toValue: initialHeightPx,
-            useNativeDriver: false, // Height animations can't use native driver
-            bounciness: 5
-          }).start();
+          // Reset height separately
+          setSheetHeightValue(initialHeightPx);
         }
       }
     })
@@ -148,38 +153,37 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
       <Animated.View 
         style={[
           styles.sheetContainer,
-          { 
-            transform: [{ translateY }],
-            height: sheetHeight 
-          }
+          { transform: [{ translateY }] }
         ]}
       >
-        {/* Drag handle */}
-        <View 
-          style={styles.handleContainer} 
-          {...panResponder.panHandlers}
-        >
-          <View style={styles.handle} />
+        <View style={{ height: sheetHeightValue }}>
+          {/* Drag handle */}
+          <View 
+            style={styles.handleContainer} 
+            {...panResponder.panHandlers}
+          >
+            <View style={styles.handle} />
+          </View>
+          
+          {/* Header with title and close button */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>{title}</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.closeButtonText}>{cancelText}</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Content area */}
+          <ScrollView 
+            style={styles.contentContainer}
+            onScroll={(event) => {
+              scrollOffset.current = event.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
+          >
+            {children}
+          </ScrollView>
         </View>
-        
-        {/* Header with title and close button */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>{title}</Text>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.closeButtonText}>{cancelText}</Text>
-          </TouchableOpacity>
-        </View>
-        
-        {/* Content area */}
-        <ScrollView 
-          style={styles.contentContainer}
-          onScroll={(event) => {
-            scrollOffset.current = event.nativeEvent.contentOffset.y;
-          }}
-          scrollEventThrottle={16}
-        >
-          {children}
-        </ScrollView>
       </Animated.View>
     </View>
   );

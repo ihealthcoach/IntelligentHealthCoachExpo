@@ -823,4 +823,28 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 120,
   },
+  pickerContainer: {
+    marginBottom: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 150,
+    width: '100%',
+  },
+  confirmButton: {
+    backgroundColor: colors.indigo[600],
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  confirmButtonText: {
+    fontFamily: fonts.medium,
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
 });
