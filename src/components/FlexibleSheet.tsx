@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity 
 } from 'react-native';
+import { Portal } from 'react-native-paper';
 
 // Fonts
 import { fonts } from '../styles/fonts';
@@ -145,6 +146,7 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
   if (!visible) return null;
 
   return (
+    <Portal>
     <View style={styles.container}>
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.backdrop} />
@@ -186,49 +188,53 @@ const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
         </View>
       </Animated.View>
     </View>
+    </Portal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'flex-end',
-  },
+    container: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'flex-end',
+        elevation: 999, // For Android
+        zIndex: 999, // For iOS
+      },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   sheetContainer: {
-    backgroundColor: 'white',
+    backgroundColor: colors.common.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 20,
+    width: '100%',
   },
   handleContainer: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingVertical: 12,
   },
   handle: {
     width: 48,
     height: 5,
-    borderRadius: 3,
+    borderRadius: 999,
     backgroundColor: colors.gray[300],
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[200],
   },
   headerTitle: {
     fontFamily: fonts.bold,
-    fontSize: 22,
+    fontSize: 24,
     color: colors.gray[900],
+  },
+  closeButton: {
+    padding: 4,
   },
   closeButtonText: {
     fontFamily: fonts.medium,
