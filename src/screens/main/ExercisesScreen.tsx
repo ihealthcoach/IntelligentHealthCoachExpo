@@ -36,7 +36,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
-import ScrollPickerSheet from '../../components/ScrollPickerSheet';
+//import ScrollPickerSheet from '../../components/ScrollPickerSheet';
+import FlexibleSheet from '../../components/FlexibleSheet';
 
 // Fonts
 import { fonts } from '../../styles/fonts';
@@ -589,14 +590,37 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       </TouchableOpacity>
       
       {/* Sets Selection Sheet Modal */}
-      <ScrollPickerSheet
+      <FlexibleSheet
   visible={showSetSheet}
-  onDismiss={() => setShowSetSheet(false)}
-  initialValue={selectedSets}
-  onValueConfirm={(value) => {
-    confirmAddExercises(value);
-  }}
-/>
+  onClose={() => setShowSetSheet(false)}
+  title="How many sets?"
+  initialHeight="40%"
+>
+  <View style={styles.pickerContainer}>
+    <Picker
+      selectedValue={selectedSets}
+      onValueChange={(itemValue) => setSelectedSets(itemValue)}
+      style={styles.picker}
+    >
+      {Array.from({ length: 20 }, (_, i) => i + 1).map(value => (
+        <Picker.Item 
+          key={value} 
+          label={`${value} ${value === 1 ? 'set' : 'sets'}`} 
+          value={value} 
+        />
+      ))}
+    </Picker>
+  </View>
+  
+  <TouchableOpacity 
+    style={styles.confirmButton} 
+    onPress={() => confirmAddExercises(selectedSets)}
+  >
+    <Text style={styles.confirmButtonText}>
+      Confirm {selectedSets} {selectedSets === 1 ? 'set' : 'sets'}
+    </Text>
+  </TouchableOpacity>
+</FlexibleSheet>
     </View>
   );
 }

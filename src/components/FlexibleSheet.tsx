@@ -1,16 +1,15 @@
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, { ReactNode, useRef, useEffect } from 'react';
 import { 
   View, 
-  Text, 
-  TouchableOpacity, 
+  Text,
+  Animated, 
+  PanResponder, 
+  Dimensions, 
   StyleSheet, 
-  Modal, 
+  ScrollView, 
   TouchableWithoutFeedback,
-  Animated,
-  PanResponder,
-  Dimensions
+  TouchableOpacity 
 } from 'react-native';
-import { X } from 'lucide-react-native';
 
 // Fonts
 import { fonts } from '../styles/fonts';
@@ -18,233 +17,224 @@ import { fonts } from '../styles/fonts';
 // Colors
 import { colors } from '../styles/colors';
 
+// Get screen dimensions
 const { height } = Dimensions.get('window');
-const DISMISS_THRESHOLD = height * 0.2;
 
 interface FlexibleSheetProps {
   visible: boolean;
   onClose: () => void;
-  title: string;
-  showCloseButton?: boolean;
-  showTopDragIndicator?: boolean;
-  showBottomDragIndicator?: boolean;
   children: ReactNode;
-  height?: number | string;
-  disableDrag?: boolean;
-  contentContainerStyle?: object;
+  title?: string;
+  initialHeight?: number | string;
+  maxHeight?: number | string;
+  minHeight?: number | string;
+  cancelText?: string;
 }
 
 const FlexibleSheet: React.FC<FlexibleSheetProps> = ({
   visible,
   onClose,
-  title,
-  showCloseButton = true,
-  showTopDragIndicator = true,
-  showBottomDragIndicator = false,
   children,
-  height = 'auto',
-  disableDrag = false,
-  contentContainerStyle = {}
+  title = "Select Option",
+  initialHeight = '50%',
+  maxHeight = '80%',
+  minHeight = '20%',
+  cancelText = "Cancel"
 }) => {
-  const translateY = useRef(new Animated.Value(height)).current;
-  const isDragging = useRef(false);
-  const scrollOffset = useRef(0);
+  // Convert percentage strings to actual numbers
+  const getPixelValue = (value: number | string): number => {
+    if (typeof value === 'number') return value;
+    // If it's a percentage string, convert to pixel value
+    if (typeof value === 'string' && value.endsWith('%')) {
+      const percentage = parseFloat(value) / 100;
+      return height * percentage;
+    }
+    return parseFloat(value); // Fallback to parsing as a number
+  };
 
+  const initialHeightPx = getPixelValue(initialHeight);
+  const maxHeightPx = getPixelValue(maxHeight);
+  const minHeightPx = getPixelValue(minHeight);
+
+  // Animation values
+  const translateY = useRef(new Animated.Value(height)).current;
+  const sheetHeight = useRef(new Animated.Value(initialHeightPx)).current;
+  
+  // Track scrolling
+  const scrollOffset = useRef(0);
+  const isDragging = useRef(false);
+  
+  // Animation when visibility changes
   useEffect(() => {
     if (visible) {
-      // Reset position then animate up
-      translateY.setValue(height);
-      Animated.spring(translateY, {
+      // Show sheet animation
+      Animated.timing(translateY, {
         toValue: 0,
-        useNativeDriver: true,
-        bounciness: 5
+        duration: 300,
+        useNativeDriver: true
       }).start();
     } else {
-      // Animate down when closing
+      // Hide sheet animation
       Animated.timing(translateY, {
         toValue: height,
         duration: 300,
         useNativeDriver: true
       }).start();
     }
-  }, [visible]);
+  }, [visible, translateY]);
 
   // Set up pan responder for drag to dismiss
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Only capture the gesture if it's a significant downward drag
-        // and not already dragging
-        return !disableDrag && 
-               Math.abs(gestureState.dy) > 5 && 
-               scrollOffset.current <= 0 && 
-               !isDragging.current;
+        // Only handle vertical movements
+        return Math.abs(gestureState.dy) > 5;
       },
       onPanResponderGrant: () => {
         isDragging.current = true;
-        translateY.stopAnimation();
-        translateY.setOffset(0);
       },
       onPanResponderMove: (_, gestureState) => {
-        // Only allow downward movement (positive dy)
-        if (gestureState.dy >= 0) {
+        // Handle gestures differently based on context
+        if (scrollOffset.current <= 0 && gestureState.dy > 0) {
+          // If at top of scroll view and dragging down, resize sheet
+          const newHeight = Math.max(
+            minHeightPx,
+            Math.min(maxHeightPx, initialHeightPx - gestureState.dy)
+          );
+          sheetHeight.setValue(newHeight);
+        } else if (gestureState.dy > 0 && isDragging.current) {
+          // If dragging down elsewhere, allow dismissal
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
         isDragging.current = false;
         
-        // If dragged down past threshold, dismiss the sheet
-        if (gestureState.dy > DISMISS_THRESHOLD || gestureState.vy > 0.5) {
+        // Handle release - dismiss or snap back
+        if (gestureState.dy > height * 0.2 || gestureState.vy > 0.5) {
+          // Dismiss threshold reached
           Animated.timing(translateY, {
             toValue: height,
             duration: 250,
             useNativeDriver: true
           }).start(onClose);
         } else {
-          // Otherwise, snap back to position
+          // Snap back
           Animated.spring(translateY, {
             toValue: 0,
             useNativeDriver: true,
             bounciness: 5
           }).start();
+          
+          // Adjust height based on final gesture
+          Animated.spring(sheetHeight, {
+            toValue: initialHeightPx,
+            useNativeDriver: false, // Height animations can't use native driver
+            bounciness: 5
+          }).start();
         }
-      },
-      onPanResponderTerminate: () => {
-        isDragging.current = false;
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      },
+      }
     })
   ).current;
 
-  const handleScroll = (event) => {
-    scrollOffset.current = event.nativeEvent.contentOffset.y;
-  };
+  if (!visible) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <View style={styles.container}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.backdrop}>
-          <TouchableWithoutFeedback>
-            <Animated.View 
-              style={[
-                styles.container,
-                { transform: [{ translateY }] },
-                typeof height === 'number' ? { maxHeight: height } : {}
-              ]}
-            >
-              {/* Top drag indicator */}
-              {showTopDragIndicator && (
-                <View 
-                  {...(disableDrag ? {} : panResponder.panHandlers)}
-                  style={styles.handleContainer}
-                >
-                  <View style={styles.handle} />
-                </View>
-              )}
-              
-              {/* Header */}
-              <View 
-                {...(disableDrag ? {} : panResponder.panHandlers)}
-                style={styles.header}
-              >
-                <Text style={styles.title}>{title}</Text>
-                
-                {showCloseButton && (
-                  <TouchableOpacity 
-                    style={styles.closeButton} 
-                    onPress={onClose}
-                  >
-                    <X size={20} color={colors.gray[900]} />
-                  </TouchableOpacity>
-                )}
-              </View>
-              
-              {/* Content */}
-              <View 
-                style={[
-                  styles.content,
-                  contentContainerStyle
-                ]}
-                onScroll={handleScroll}
-              >
-                {children}
-              </View>
-              
-              {/* Bottom drag indicator */}
-              {showBottomDragIndicator && (
-                <View style={styles.bottomHandleContainer}>
-                  <View style={styles.handle} />
-                </View>
-              )}
-            </Animated.View>
-          </TouchableWithoutFeedback>
-        </View>
+        <View style={styles.backdrop} />
       </TouchableWithoutFeedback>
-    </Modal>
+      
+      <Animated.View 
+        style={[
+          styles.sheetContainer,
+          { 
+            transform: [{ translateY }],
+            height: sheetHeight 
+          }
+        ]}
+      >
+        {/* Drag handle */}
+        <View 
+          style={styles.handleContainer} 
+          {...panResponder.panHandlers}
+        >
+          <View style={styles.handle} />
+        </View>
+        
+        {/* Header with title and close button */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{title}</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={styles.closeButtonText}>{cancelText}</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Content area */}
+        <ScrollView 
+          style={styles.contentContainer}
+          onScroll={(event) => {
+            scrollOffset.current = event.nativeEvent.contentOffset.y;
+          }}
+          scrollEventThrottle={16}
+        >
+          {children}
+        </ScrollView>
+      </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  container: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
   },
-  container: {
-    backgroundColor: colors.common.white,
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  sheetContainer: {
+    backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '90%',
-    paddingBottom: 24,
+    paddingBottom: 20,
   },
   handleContainer: {
     width: '100%',
     alignItems: 'center',
-    paddingVertical: 12,
-  },
-  bottomHandleContainer: {
-    width: '100%',
-    alignItems: 'center',
-    paddingVertical: 12,
-    marginTop: 'auto',
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   handle: {
     width: 48,
     height: 5,
-    borderRadius: 100,
+    borderRadius: 3,
     backgroundColor: colors.gray[300],
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
   },
-  title: {
+  headerTitle: {
     fontFamily: fonts.bold,
-    fontSize: 30,
+    fontSize: 22,
     color: colors.gray[900],
   },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.gray[100],
-    alignItems: 'center',
-    justifyContent: 'center',
+  closeButtonText: {
+    fontFamily: fonts.medium,
+    fontSize: 16,
+    color: colors.indigo[600],
   },
-  content: {
-    paddingHorizontal: 16,
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 16,
   }
 });
 
