@@ -994,8 +994,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[50],
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
   },
   headerContent: {
     flexDirection: 'row',

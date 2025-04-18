@@ -5,7 +5,9 @@ import {
   ScrollView, 
   Image, 
   StyleSheet, 
-  TouchableOpacity, 
+  TouchableOpacity,
+  SafeAreaView, 
+  StatusBar,
   Dimensions,
   FlatList,
   Animated,
@@ -433,6 +435,9 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
   }
 
   return (
+    <SafeAreaView style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.headerContainer}>
@@ -622,6 +627,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
   </TouchableOpacity>
 </FlexibleSheet>
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -634,9 +640,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 8,
     paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 10,
   },
   headerLeft: {
     flexDirection: 'row',

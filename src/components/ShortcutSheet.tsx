@@ -76,10 +76,11 @@ const ShortcutItem: React.FC<ShortcutItemProps> = ({
           
           {hasToggle ? (
             <Switch
-              value={isToggled}
-              onValueChange={onToggleChange}
-              color={colors.indigo[600]}
-            />
+  value={isToggled}
+  onValueChange={onToggleChange}
+  trackColor={{ false: 'colors.common.white', true: colors.indigo[600] }}
+  thumbColor={isToggled ? 'colors.common.white' : 'colors.gray[200]'}
+/>
           ) : showChevron ? (
             <Icon name="chevron-right-mini" width={20} height={20} color={colors.gray[400]} />
           ) : null}
