@@ -28,11 +28,13 @@ import { Workout, WorkoutExercise, MuscleGroupVolume } from '../../types/workout
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { MainTabScreenProps } from '../../types/navigation';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 // Duration formatting helper
 const formatDuration = (seconds: number | undefined): string => {

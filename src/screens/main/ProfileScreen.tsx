@@ -9,11 +9,13 @@ import Header from '../../components/Header';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 export default function ProfileScreen({ navigation }: MainTabScreenProps<'Profile'>) {
   const { user, signOut } = useAuth();

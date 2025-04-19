@@ -50,14 +50,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
+import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
-
-// Colors
-import { colors } from '../../styles/colors';
 
 // Get screen dimensions for swipe calculations
 const { width } = Dimensions.get('window');

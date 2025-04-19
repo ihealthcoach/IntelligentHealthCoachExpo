@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 // Sheet Action Button component (similar to SheetActionButton in SwiftUI)
 interface SheetActionButtonProps {
@@ -72,7 +74,7 @@ export const SheetOptionButton: React.FC<SheetOptionButtonProps> = ({
       </View>
       
       {showArrow && (
-        <ChevronRight size={16} color={colors.gray[900]} />
+        <Icon name="chevron-right-mini" width={16} height={16} color={colors.gray[900]} />
       )}
     </TouchableOpacity>
   );

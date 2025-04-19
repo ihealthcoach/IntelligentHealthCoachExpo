@@ -4,11 +4,13 @@ import { Portal, Modal, Button, Divider, Chip } from 'react-native-paper';
 import { Workout } from '../types/workout';
 import { workoutService } from '../services/workoutService';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 interface SaveTemplateModalProps {
   visible: boolean;

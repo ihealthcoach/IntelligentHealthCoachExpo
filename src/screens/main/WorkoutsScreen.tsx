@@ -4,8 +4,13 @@ import { Text, Card, Button, FAB } from 'react-native-paper';
 import { MainTabScreenProps } from '../../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Colors
+// Styles
+import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 // Mock data for now
 const mockWorkouts = [

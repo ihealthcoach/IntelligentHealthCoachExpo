@@ -54,6 +54,7 @@ import MapPinOutline from '../assets/icons/map-pin-outline.svg';
 import SunOutline from '../assets/icons/sun-outline.svg';
 import ArrowLeftSolid from '../assets/icons/arrow-left-solid.svg';
 import PlusMini from '../assets/icons/plus-mini.svg';
+import EnvelopeOutline from '../assets/icons/envelope-outline.svg';
 
 // Define an interface for our Icon component props
 interface IconProps extends SvgProps {
@@ -115,7 +116,8 @@ export type IconName =
   | 'map-pin-outline'
   | 'sun-outline'
   | 'arrow-left-solid'
-  | 'plus-mini';
+  | 'plus-mini'
+  | 'envelope-outline';
 
 // Map icon names to their components
 const iconMap = {
@@ -171,6 +173,7 @@ const iconMap = {
   'sun-outline': SunOutline,
   'arrow-left-solid': ArrowLeftSolid,
   'plus-mini': PlusMini,
+  'envelope-outline': EnvelopeOutline,
 };
 
 // Create the Icon component

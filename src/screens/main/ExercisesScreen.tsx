@@ -35,11 +35,13 @@ import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
 import FlexibleSheet from '../../components/FlexibleSheet';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -521,7 +523,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       onPress={() => navigation.goBack()} 
       style={styles.backButton}
     >
-      <ArrowLeft size={24} color="#000" />
+      <Icon name="arrow-left-solid" size={24} color={colors.gray[900]} />
     </TouchableOpacity>
     
     {hasWorkoutExercises && (
@@ -530,7 +532,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         onPress={() => navigation.navigate('WorkoutOverviewScreen')}
       >
         <Text style={styles.viewWorkoutText}>View workout</Text>
-        <ChevronDown size={18} color="#000" />
+        <Icon name="chevron-down-mini" size={18} color={colors.gray[900]} />
       </TouchableOpacity>
     )}
   </View>
@@ -542,7 +544,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         onPress={() => navigation.navigate('WorkoutOverviewScreen')}
       >
         <Text style={styles.doneButtonText}>Done</Text>
-        <Check size={18} color="#fff" />
+        <Icon name="check-mini" size={18} color={colors.common.white} />
       </TouchableOpacity>
     )}
   </View>
@@ -592,7 +594,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 
       {activeFilter === FILTER_SEARCH && (
   <View style={styles.searchInputContainer}>
-    <Search size={20} color="#9CA3AF" />
+    <Icon name="magnifying-glass-outline" size={20} color={colors.gray[600]} />
     <TextInput
       style={styles.searchInput}
       value={searchQuery}

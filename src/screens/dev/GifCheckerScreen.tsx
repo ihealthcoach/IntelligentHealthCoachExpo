@@ -14,11 +14,13 @@ import {
 import { ArrowLeft, CheckCircle, XCircle, List } from 'lucide-react-native';
 import { supabase } from '../../services/supabase';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 type Exercise = {
     id: string;

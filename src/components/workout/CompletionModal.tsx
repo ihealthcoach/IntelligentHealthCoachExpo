@@ -1,8 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
+
+// Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface CompletionModalProps {
   visible: boolean;

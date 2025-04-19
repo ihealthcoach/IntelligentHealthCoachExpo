@@ -14,8 +14,14 @@ import {
 } from 'lucide-react-native';
 import Slider from '@react-native-community/slider';
 import { ExerciseSet } from '../../types/workout';
+
+// Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface SetRowProps {
   set: ExerciseSet;
@@ -208,7 +214,7 @@ const SetRow: React.FC<SetRowProps> = ({
               ]}
             >
               {set.isComplete && (
-                <Check size={16} color="#FFFFFF" />
+                <Icon name="check-mini" width={16} height={16} color={colors.common.white} />
               )}
             </TouchableOpacity>
           )}
@@ -218,7 +224,7 @@ const SetRow: React.FC<SetRowProps> = ({
             style={styles.setMenuButton}
             onPress={() => removeSet(set.id)}
           >
-            <Trash size={16} color="#9CA3AF" />
+            <Icon name="trash-outline" width={16} height={16} color={colors.gray[400]} />
           </TouchableOpacity>
         </View>
       </View>

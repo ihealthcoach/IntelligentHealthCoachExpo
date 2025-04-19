@@ -17,11 +17,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { AuthScreenProps } from '../../types/navigation';
 import { HelperText } from 'react-native-paper';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
   const { signIn } = useAuth();
@@ -91,7 +93,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
           <ScrollView contentContainerStyle={styles.modalScrollContainer}>
             <View style={styles.modalHeaderContainer}>
               <TouchableOpacity onPress={handleCloseEmailLogin} style={styles.backButton}>
-                <ArrowLeft width={24} height={24} color={colors.gray[900]} />
+              <Icon name="arrow-left-solid" size={24} color={colors.gray[900]} />
               </TouchableOpacity>
               <Text style={styles.modalTitle}>Sign in with Email</Text>
               <View style={styles.placeholderView} />
@@ -179,30 +181,21 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
           <View style={styles.socialButtonsContainer}>
             <TouchableOpacity style={styles.socialButton}>
               <View style={styles.iconContainer}>
-                <Image 
-                  source={{ uri: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg' }} 
-                  style={styles.icon}
-                />
+              <Icon name="google" size={24} stroke="none" />
               </View>
               <Text style={styles.buttonText}>Continue with Google</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.socialButton}>
               <View style={styles.iconContainer}>
-                <Image 
-                  source={{ uri: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg' }} 
-                  style={styles.icon}
-                />
+              <Icon name="facebook" size={24} stroke="none" />
               </View>
               <Text style={styles.buttonText}>Continue with Facebook</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.socialButton}>
               <View style={styles.iconContainer}>
-                <Image 
-                  source={{ uri: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg' }} 
-                  style={styles.icon}
-                />
+              <Icon name="apple" size={24}stroke="none" />
               </View>
               <Text style={styles.buttonText}>Continue with Apple</Text>
             </TouchableOpacity>
@@ -212,7 +205,7 @@ export default function LoginScreen({ navigation }: AuthScreenProps<'Login'>) {
               onPress={handleEmailLoginPress}
             >
               <View style={styles.iconContainer}>
-                <Mail width={24} height={24} color={colors.gray[900]} strokeWidth={1.5} />
+                <Icon name="envelope-outline" size={24}color={colors.gray[900]} />
               </View>
               <Text style={styles.buttonText}>Continue with Email</Text>
             </TouchableOpacity>

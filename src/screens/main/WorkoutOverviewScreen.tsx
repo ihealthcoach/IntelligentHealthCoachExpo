@@ -48,11 +48,13 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import SaveTemplateModal from '../../components/SaveTemplateModal';
 import { useFocusEffect } from '@react-navigation/native';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 const { width } = Dimensions.get('window');
 

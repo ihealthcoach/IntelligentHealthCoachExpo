@@ -2,8 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { Play, Pause, RefreshCw } from 'lucide-react-native';
+
+// Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface RestTimerProps {
   isActive: boolean;

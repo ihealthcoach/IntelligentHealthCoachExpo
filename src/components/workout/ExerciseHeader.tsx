@@ -2,8 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { Edit, Save } from 'lucide-react-native';
 import { WorkoutExercise, SupersetType } from '../../types/workout';
+
+// Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface ExerciseHeaderProps {
   exercise: WorkoutExercise;

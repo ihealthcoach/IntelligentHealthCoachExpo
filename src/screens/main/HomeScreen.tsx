@@ -30,11 +30,13 @@ import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 import ChevronDownMini from '../../assets/icons/chevron-down-mini.svg';
 import PlusMini from '../../assets/icons/plus-mini.svg';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 export default function HomeScreen({ navigation }: MainTabScreenProps<'Home'>) {
   const { user, signOut } = useAuth();
@@ -185,12 +187,12 @@ const getFirstName = () => {
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleContainer}>
                 <Text style={styles.sectionTitle}>Today's goals</Text>
-                <ChevronDownMini width={20} height={20} fill={colors.gray[900]} />
+                <Icon name="chevron-down-mini" size={20} fill={colors.gray[900]} />
               </View>
               
               <TouchableOpacity style={styles.editLink}>
                 <Text style={styles.editLinkText}>Edit goals</Text>
-                <ArrowRightMini width={14} height={14} fill={colors.gray[900]} />
+                <Icon name="arrow-right-mini" size={14} fill={colors.gray[900]} />
               </TouchableOpacity>
             </View>
             

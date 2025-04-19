@@ -4,17 +4,18 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {BlurView} from '@react-native-community/blur';
 import * as Haptics from 'expo-haptics';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 // Components
 import ShortcutSheet from './ShortcutSheet';
 
 // Icons
-import Icon from './Icons';
 import DumbbellIcon from '../assets/icons/dumbbell.svg';
 
 const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
@@ -43,7 +44,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Home')}
         >
-          <Icon name="home-outline" width={24} height={24} color={colors.gray[900]} />
+          <Icon name="home-outline" size={24} color={colors.gray[900]} />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
         
@@ -51,7 +52,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('History')}
         >
-          <Icon name="chart-bar-outline" width={24} height={24} color={colors.gray[900]} fill="none" />
+          <Icon name="chart-bar-outline" size={24} color={colors.gray[900]} fill="none" />
           <Text style={styles.navText}>Activity</Text>
         </TouchableOpacity>
         
@@ -60,14 +61,14 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           onPress={handleOpenShortcutSheet}
           activeOpacity={0.8}
         >
-          <Icon name="plus-mini" width={24} height={24}  color="{colors.common.white}" fill="none" />
+          <Icon name="plus-mini" size={24} color="{colors.common.white}" fill="none" />
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Workouts')}
         >
-          <Icon name="chefs-hat" width={24} height={24} fill={colors.gray[900]} stroke="none" />
+          <Icon name="chefs-hat" size={24} fill={colors.gray[900]} stroke="none" />
           <Text style={styles.navText}>Food</Text>
         </TouchableOpacity>
         
@@ -75,7 +76,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Exercises')}
         >
-          <DumbbellIcon width={24} height={24} fill={colors.gray[900]} />
+          <Icon name="dumbbell" size={24} fill={colors.gray[900]} stroke="none" />
           <Text style={styles.navText}>Workouts</Text>
         </TouchableOpacity>
       </View>

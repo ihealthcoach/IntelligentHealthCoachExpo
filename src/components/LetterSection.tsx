@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ExerciseItem from './ExerciseItem';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 interface LetterSectionProps {
   letter: string;

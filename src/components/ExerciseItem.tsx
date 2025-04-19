@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 interface ExerciseItemProps {
   exercise: any;
@@ -27,7 +29,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
       <View style={styles.exerciseImageContainer}>
         {exercise.selected && (
           <View style={styles.checkBadge}>
-            <Check size={12} color="#FCFDFD" />
+            <Icon name="check-mini" width={12} height={12} color={colors.common.white} />
           </View>
         )}
         <View style={styles.imageWrapper}>

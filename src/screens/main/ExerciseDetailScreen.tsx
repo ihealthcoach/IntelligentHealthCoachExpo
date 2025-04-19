@@ -31,11 +31,13 @@ import { Workout, ExerciseProgressData } from '../../types/workout';
 import { useAuth } from '../../contexts/AuthContext';
 import { Video } from 'expo-av';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 // Get screen dimensions
 const { width } = Dimensions.get('window');

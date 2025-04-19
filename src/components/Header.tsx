@@ -7,11 +7,13 @@ import BellOutline from '../assets/icons/bell-outline.svg';
 import ChatBubbleOutline from '../assets/icons/chat-bubble-oval-left-ellipsis-outline.svg';
 import ArrowLeft from '../assets/icons/arrow-left-solid.svg';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 interface HeaderProps {
   profile?: {
@@ -47,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
         </TouchableOpacity>
       ) : goBack ? (
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <ArrowLeft width={24} height={24} fill={colors.gray[900]} />
+          <Icon name="arrow-left-solid" size={30} color={colors.gray[900]} />
         </TouchableOpacity>
       ) : (
         <View style={styles.menuButton} />
@@ -63,13 +65,13 @@ const Header: React.FC<HeaderProps> = ({
         <TouchableOpacity style={styles.iconButton}>
           <View style={styles.notificationContainer}>
             <View style={styles.notificationDot} />
-            <BellOutline width={30} height={30} stroke={colors.gray[900]} />
+            <Icon name="bell-outline" size={30} color={colors.gray[900]} />
           </View>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.iconButton}>
           <View style={styles.messageIcon} />
-          <ChatBubbleOutline width={30} height={30} stroke={colors.gray[900]} />
+          <Icon name="chat-bubble-oval-left-ellipsis-outline" size={30} color={colors.gray[900]} />
         </TouchableOpacity>
         
         <TouchableOpacity 

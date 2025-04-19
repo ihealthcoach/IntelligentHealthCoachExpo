@@ -1,8 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Info, Activity, Timer, FileText } from 'lucide-react-native';
+
+// Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface BottomNavigationProps {
   onNotesPress: () => void;
@@ -15,17 +21,17 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
     <View style={styles.bottomNavContainer}>
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
-          <Info size={24} color="#FCFDFD" />
+        <Icon name="information-circle-outline" width={24} height={24} color={colors.common.white} />
           <Text style={styles.navText}>Guide</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
-          <Activity size={24} color="#FCFDFD" />
+        <Icon name="activity-outline" width={24} height={24} color={colors.common.white} />
           <Text style={styles.navText}>Stats</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
-          <Timer size={24} color="#FCFDFD" />
+        <Icon name="chart-bar-outline" width={24} height={24} color={colors.common.white} />
           <Text style={styles.navText}>Timer</Text>
         </TouchableOpacity>
         
@@ -33,7 +39,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
           style={styles.navItem}
           onPress={onNotesPress}
         >
-          <FileText size={24} color="#FCFDFD" />
+          <Icon name="note-add-outline" width={24} height={24} color={colors.common.white} />
           <Text style={styles.navText}>Notes</Text>
         </TouchableOpacity>
       </View>

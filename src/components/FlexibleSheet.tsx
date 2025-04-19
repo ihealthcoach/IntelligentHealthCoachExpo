@@ -12,11 +12,13 @@ import {
 } from 'react-native';
 import { Portal } from 'react-native-paper';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 // Get screen dimensions
 const { height } = Dimensions.get('window');

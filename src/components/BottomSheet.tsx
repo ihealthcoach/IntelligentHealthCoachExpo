@@ -2,11 +2,13 @@ import React, { ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
 import { X } from 'lucide-react-native';
 
-// Fonts
+// Styles
 import { fonts } from '../styles/fonts';
-
-// Colors
 import { colors } from '../styles/colors';
+
+// Components
+import Icon from './Icons';
+import { IconName } from './Icons';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -42,7 +44,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
                   <Text style={styles.title}>{title}</Text>
                   {showCloseButton && (
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                      <X width={20} height={20} color="#111827" />
+                      <Icon name="x-mark-mini" width={20} height={20} color={colors.gray[900]} />
                     </TouchableOpacity>
                   )}
                 </View>

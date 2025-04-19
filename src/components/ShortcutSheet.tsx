@@ -10,14 +10,14 @@ import { useNavigation } from '@react-navigation/native';
 
 // Components
 import FlexibleSheet from './FlexibleSheet';
+
+// Styles
+import { fonts } from '../styles/fonts';
+import { colors } from '../styles/colors';
+
+// Components
 import Icon from './Icons';
 import { IconName } from './Icons';
-
-// Fonts
-import { fonts } from '../styles/fonts';
-
-// Colors
-import { colors } from '../styles/colors';
 
 interface ShortcutSheetProps {
   visible: boolean;

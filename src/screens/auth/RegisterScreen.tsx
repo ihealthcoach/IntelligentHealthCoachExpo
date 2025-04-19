@@ -4,11 +4,13 @@ import { TextInput, Button, HelperText } from 'react-native-paper';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthScreenProps } from '../../types/navigation';
 
-// Fonts
+// Styles
 import { fonts } from '../../styles/fonts';
-
-// Colors
 import { colors } from '../../styles/colors';
+
+// Components
+import Icon from '../../components/Icons';
+import { IconName } from '../../components/Icons';
 
 export default function RegisterScreen({ navigation }: AuthScreenProps<'Register'>) {
   const { signUp } = useAuth();
