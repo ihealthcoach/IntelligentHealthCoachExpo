@@ -39,7 +39,6 @@ import { TextInput } from 'react-native-paper';
 import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
-//import ScrollPickerSheet from '../../components/ScrollPickerSheet';
 import FlexibleSheet from '../../components/FlexibleSheet';
 
 // Styles
@@ -70,17 +69,12 @@ type Exercise = {
 };
 
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
-  const FILTER_AZ = 'a-z';
-  const FILTER_SEARCH = 'search';
-  const FILTER_RECENT = 'recent';
-  const FILTER_FAVORITE = 'favorite';
-  const FILTER_FILTERS = 'filters';
-  const [activeFilter, setActiveFilter] = useState(FILTER_AZ);
+  // Basic display state
+  const [activeFilter, setActiveFilter] = useState('a-z');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -91,8 +85,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
 
-  console.log(`Rendering ExercisesScreen: activeFilter=${activeFilter}, selectedExercises=${selectedExercises.length}`);
-
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -101,12 +93,13 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   // Track which letters have exercises
   const [availableLetters, setAvailableLetters] = useState<Record<string, boolean>>({});
 
+  // Filter UI options - for display only
   const filters = [
     { id: 'a-z', icon: 'bars-arrow-down', label: 'A-Z' },
     { id: 'search', icon: 'search', label: 'Search' },
     { id: 'recent', icon: 'clock', label: 'Recent' },
     { id: 'favorite', icon: 'heart', label: 'Favorites' },
-    { id: 'filters', icon: 'filter', label: 'Filters' } // New filter option
+    { id: 'filters', icon: 'filter', label: 'Filters' }
   ];
 
   useEffect(() => {
@@ -114,8 +107,8 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     return () => console.log("ExercisesScreen unmounted");
   }, []);
 
+  // Simple UI-only filter change handler (functionality removed)
   const handleFilterChange = (filterId) => {
-    console.log(`Filter changed from ${activeFilter} to ${filterId}`);
     setActiveFilter(filterId);
   };
 
@@ -123,16 +116,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     fetchExercises();
     workoutService.cacheExerciseLibrary();
   }, []);
-
-  useEffect(() => {
-    // Apply filters when search query or selected filter changes
-    if (exercises.length > 0) {
-      console.log(`Filter effect triggered: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
-      applyFilters();
-    } else {
-      console.log('Filter effect skipped: no exercises');
-    }
-  }, [searchQuery, activeFilter]);
 
   useEffect(() => {
     checkCurrentWorkoutExercises();
@@ -147,10 +130,10 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   );
 
   useEffect(() => {
-    if (filteredExercises.length > 0 && activeFilter === FILTER_AZ) {
+    if (filteredExercises.length > 0) {
       organizeExercisesByLetter(filteredExercises);
     }
-  }, [filteredExercises, activeFilter]);
+  }, [filteredExercises]);
 
   const checkCurrentWorkoutExercises = async () => {
     try {
@@ -229,46 +212,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }
   };
 
-  const applyFilters = () => {
-    console.log(`Applying filters: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
-    let filtered = [...exercises];
-  
-    // Apply search filter if in search mode
-    try {
-      // Apply search filter if in search mode
-      if (activeFilter === FILTER_SEARCH && searchQuery) {
-        console.log('Applying search filter');
-        const query = searchQuery.toLowerCase();
-        filtered = filtered.filter(ex => 
-          ex.name?.toLowerCase().includes(query) ||
-          ex.primary_muscles?.toLowerCase().includes(query) ||
-          ex.equipment?.toLowerCase().includes(query) ||
-          ex.target?.toLowerCase().includes(query) ||
-          ex.body_part?.toLowerCase().includes(query)
-        );
-      }
-    
-      // Apply other filters
-      if (activeFilter === FILTER_FAVORITE) {
-        console.log('Applying favorite filter');
-        // In a real app, this would filter to show only favorited exercises
-        filtered = filtered.filter((_, index) => index % 5 === 0);
-      } else if (activeFilter === FILTER_RECENT) {
-        console.log('Applying recent filter');
-        // In a real app, this would filter based on recently viewed exercises
-        filtered = filtered.slice(0, 10);
-      } else if (activeFilter === FILTER_FILTERS) {
-        console.log('Applying custom filters');
-        // Add custom filter logic
-      }
-      
-      console.log(`Filtered exercises count: ${filtered.length}`);
-      setFilteredExercises(filtered);
-    } catch (error) {
-      console.error('Error in applyFilters:', error);
-    }
-  };
-
   // Generate the full Supabase storage URL for an exercise GIF
   const getGifUrl = (fileName: string | null) => {
     if (!fileName) return null;
@@ -276,7 +219,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   const renderFilterIcon = (iconName: string, color: string) => {
-    console.log(`Rendering icon: ${iconName} with color ${color}`);
     // Make sure we use a numeric size for icons
     const iconSize = 20;
     
@@ -333,6 +275,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setExercisesByLetter(grouped);
   };
 
+  // Handle exercise selection but don't filter
   const handleExerciseSelection = (exercise: Exercise) => {
     const updatedExercises = exercises.map(ex => {
       if (ex.id === exercise.id) {
@@ -358,7 +301,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setSelectedExercises(selected);
   };
 
-  // Add or modify the scrollToLetter function
+  // Function to handle scrolling to a letter section
   const scrollToLetter = (letter: string) => {
     if (letterPositions[letter] !== undefined && scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ 
@@ -376,12 +319,14 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }));
   };
 
+  // Handle adding exercises to workout
   const handleAddExercises = () => {
     setSelectedSets(3);
     // Open the set selection sheet
     setShowSetSheet(true);
   };
   
+  // Confirm adding exercises with selected sets
   const confirmAddExercises = async (setsCount = selectedSets) => {
     // Close the sheet
     setShowSetSheet(false);
@@ -416,24 +361,24 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         exercises: []
       };
       
-// When adding exercises to the workout, generate unique IDs
-const selectedExercisesForWorkout = selectedExercises.map(ex => ({
-  // Use Date.now() + random number to ensure uniqueness
-  id: `${ex.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  exerciseId: ex.id,
-  name: ex.name,
-  primaryMuscles: ex.primary_muscles || 'Unknown',
-  equipment: ex.equipment || 'Bodyweight',
-  sets: Array.from({ length: setsCount }, (_, i) => ({
-    id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
-    setNumber: i + 1,
-    weight: null,
-    reps: null,
-    isComplete: false
-  })),
-  notes: '',
-  isExpanded: true
-}));
+      // When adding exercises to the workout, generate unique IDs
+      const selectedExercisesForWorkout = selectedExercises.map(ex => ({
+        // Use Date.now() + random number to ensure uniqueness
+        id: `${ex.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        exerciseId: ex.id,
+        name: ex.name,
+        primaryMuscles: ex.primary_muscles || 'Unknown',
+        equipment: ex.equipment || 'Bodyweight',
+        sets: Array.from({ length: setsCount }, (_, i) => ({
+          id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
+          setNumber: i + 1,
+          weight: null,
+          reps: null,
+          isComplete: false
+        })),
+        notes: '',
+        isExpanded: true
+      }));
       
       // Add to existing exercises or create new array
       workoutData.exercises = [
@@ -455,14 +400,12 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 
     // Reset selected sets to default value (3)
     setSelectedSets(3);
-    
-    console.log(`Added ${selectedExercises.length} exercises with ${setsCount} sets each`);
   };
 
+  // Handle superset button
   const handleBuildSuperSet = () => {
-    // Handle building super set - for now just log
+    // In a real app, this would build a superset
     console.log(`Building super set with ${selectedExercises.length} exercises`);
-    // In a real app, navigate to superset creation screen
   };
 
   if (loading) {
@@ -544,10 +487,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     styles.filterBadge,
     activeFilter === filter.id ? styles.activeFilterBadge : styles.inactiveFilterBadge
   ]}
-  onPress={() => {
-    console.log(`Filter pressed: ${filter.id}`);
-    handleFilterChange(filter.id);
-  }}
+  onPress={() => handleFilterChange(filter.id)}
 >
   {renderFilterIcon(
     filter.icon, 
@@ -566,19 +506,6 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
       </ScrollView>
       </View>
 
-      {activeFilter === FILTER_SEARCH && (
-  <View style={styles.searchInputContainer}>
-    <Search size={20} color="#9CA3AF" />
-    <TextInput
-      style={styles.searchInput}
-      value={searchQuery}
-      onChangeText={setSearchQuery}
-      placeholder="Search exercises..."
-      placeholderTextColor="#9CA3AF"
-    />
-  </View>
-)}
-
       {/* Main Content */}
       <View style={styles.contentContainer}>
         <ScrollView 
@@ -586,7 +513,7 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
           style={styles.content}
           showsVerticalScrollIndicator={false}
         >
-{activeFilter === FILTER_AZ ? (
+{activeFilter === 'a-z' ? (
   // A-Z view - organize by first letter
   Object.entries(exercisesByLetter).sort().map(([letter, letterExercises]) => (
     <LetterSection
@@ -599,28 +526,28 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
     />
   ))
 ) : (
-  // Simple fallback rendering
-<View>
-  {filteredExercises.map(exercise => {
-    // Make sure exercise is a valid object with at least an id
-    if (!exercise || !exercise.id) return null;
-    
-    return (
-      <TouchableOpacity 
-        key={exercise.id}
-        style={styles.simpleExerciseItem}
-        onPress={() => handleExerciseSelection(exercise)}
-      >
-        <Text style={styles.simpleExerciseName}>
-          {exercise.name || 'Unnamed Exercise'}
-        </Text>
-        <Text style={styles.simpleExerciseDetails}>
-          {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
-        </Text>
-      </TouchableOpacity>
-    );
-  })}
-</View>
+  // Simple fallback rendering for other filter views
+  <View>
+    {filteredExercises.map(exercise => {
+      // Make sure exercise is a valid object with at least an id
+      if (!exercise || !exercise.id) return null;
+      
+      return (
+        <TouchableOpacity 
+          key={exercise.id}
+          style={styles.simpleExerciseItem}
+          onPress={() => handleExerciseSelection(exercise)}
+        >
+          <Text style={styles.simpleExerciseName}>
+            {exercise.name || 'Unnamed Exercise'}
+          </Text>
+          <Text style={styles.simpleExerciseDetails}>
+            {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
+          </Text>
+        </TouchableOpacity>
+      );
+    })}
+  </View>
 )}
           
           {/* Extra padding at the bottom for floating button */}
@@ -628,13 +555,13 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
         </ScrollView>
         
         {/* Alphabet selector (right side) */}
-        {activeFilter === FILTER_AZ && showAlphabetSelector && (
-  <AlphabetSidebar 
-    alphabet={alphabet}
-    availableLetters={availableLetters}
-    onLetterPress={scrollToLetter}
-  />
-)}
+        {activeFilter === 'a-z' && showAlphabetSelector && (
+          <AlphabetSidebar 
+            alphabet={alphabet}
+            availableLetters={availableLetters}
+            onLetterPress={scrollToLetter}
+          />
+        )}
       </View>
       
       {/* Floating action buttons */}
