@@ -1195,6 +1195,10 @@ async enrichWorkoutWithExerciseDetails(workout: Workout): Promise<Workout> {
  * Cache the full exercise library for offline use
  * @returns Promise that resolves when caching is complete
  */
+/**
+ * Cache the full exercise library for offline use
+ * @returns Promise that resolves when caching is complete
+ */
 async cacheExerciseLibrary(): Promise<void> {
   try {
     const isConnected = await this.checkConnectivity();
@@ -1205,28 +1209,65 @@ async cacheExerciseLibrary(): Promise<void> {
     
     console.log('Caching exercise library...');
     
-    // Fetch all exercises from Supabase
-    const { data, error } = await supabase
+    // First, get the total count of exercises
+    const { count, error: countError } = await supabase
       .from('exercises')
-      .select('*');
+      .select('*', { count: 'exact', head: true });
       
-    if (error) {
-      console.error('Error fetching exercises for caching:', error);
+    if (countError) {
+      console.error('Error counting exercises:', countError);
       return;
     }
     
-    if (!data || data.length === 0) {
+    const totalCount = count || 0;
+    console.log(`Found ${totalCount} total exercises to cache`);
+    
+    // Use pagination to fetch all exercises
+    const PAGE_SIZE = 1000; // Supabase's limit
+    let allExercises = [];
+    let page = 0;
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+    
+    console.log(`Will fetch ${totalPages} pages of exercises`);
+    
+    while (page < totalPages) {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      
+      console.log(`Fetching page ${page+1}/${totalPages}: exercises ${from} to ${to}`);
+      
+      const { data, error } = await supabase
+        .from('exercises')
+        .select('*')
+        .range(from, to);
+        
+      if (error) {
+        console.error(`Error fetching exercises page ${page+1}:`, error);
+        break;
+      }
+      
+      if (data && data.length > 0) {
+        console.log(`Received ${data.length} exercises from page ${page+1}`);
+        allExercises = [...allExercises, ...data];
+        page++;
+      } else {
+        console.log(`No data received for page ${page+1}, stopping pagination`);
+        break;
+      }
+    }
+    
+    if (allExercises.length > 0) {
+      // Save to AsyncStorage
+      await AsyncStorage.setItem('exercise_library_cache', JSON.stringify({
+        timestamp: Date.now(),
+        exercises: allExercises,
+        totalCount
+      }));
+      
+      console.log(`Successfully cached ${allExercises.length} exercises (expected ${totalCount})`);
+    } else {
       console.log('No exercises found to cache');
-      return;
     }
-    
-    // Save to AsyncStorage
-    await AsyncStorage.setItem('exercise_library_cache', JSON.stringify({
-      timestamp: Date.now(),
-      exercises: data
-    }));
-    
-    console.log(`Successfully cached ${data.length} exercises`);
   } catch (error) {
     console.error('Error caching exercise library:', error);
   }
@@ -1304,13 +1345,15 @@ async getExerciseLibrary(): Promise<{ exercises: any[], totalCount: number }> {
             page++;
             
             // Check if we need to fetch more
-            if (data.length < PAGE_SIZE) {
+            if (data.length < PAGE_SIZE || (count !== null && allExercises.length >= count)) {
               hasMore = false;
             }
           } else {
             hasMore = false;
           }
         }
+        
+        console.log(`Fetched ${allExercises.length} exercises total`);
         
         if (allExercises.length > 0) {
           // Update cache with fresh data
