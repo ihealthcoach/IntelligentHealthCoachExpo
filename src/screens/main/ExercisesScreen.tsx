@@ -85,39 +85,58 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
   const isMounted = useRef(true);
+  const isFetchingRef = useRef(false);
 
   const debouncedOrganizeExercises = useCallback(
     debounce((exerciseList) => {
       console.log("Running debounced organize function");
       if (!isMounted.current) return;
       
-      const grouped = {};
-      
-      exerciseList.forEach(exercise => {
-        if (exercise.name) {
-          let firstLetter;
-          // Check if the name starts with a number
-          if (/^[0-9]/.test(exercise.name)) {
-            firstLetter = '#';
-          } else {
-            firstLetter = exercise.name[0].toUpperCase();
-          }
+      try {
+        const grouped = {};
+        
+        // Process safely with null/undefined checks
+        if (exerciseList && Array.isArray(exerciseList)) {
+          exerciseList.forEach(exercise => {
+            if (exercise && exercise.name) {
+              let firstLetter;
+              // Check if the name starts with a number
+              if (/^[0-9]/.test(exercise.name)) {
+                firstLetter = '#';
+              } else {
+                firstLetter = exercise.name[0].toUpperCase();
+              }
+              
+              if (!grouped[firstLetter]) {
+                grouped[firstLetter] = [];
+              }
+              grouped[firstLetter].push(exercise);
+            }
+          });
           
-          if (!grouped[firstLetter]) {
-            grouped[firstLetter] = [];
+          // Sort each group alphabetically - with safety checks
+          Object.keys(grouped).forEach(letter => {
+            if (grouped[letter] && Array.isArray(grouped[letter])) {
+              grouped[letter].sort((a, b) => {
+                if (a && b && a.name && b.name) {
+                  return a.name.localeCompare(b.name);
+                }
+                return 0;
+              });
+            }
+          });
+          
+          // Only update state if component is still mounted
+          if (isMounted.current) {
+            setExercisesByLetter(grouped);
           }
-          grouped[firstLetter].push(exercise);
         }
-      });
-      
-      // Sort each group alphabetically
-      Object.keys(grouped).forEach(letter => {
-        grouped[letter].sort((a, b) => a.name.localeCompare(b.name));
-      });
-      
-      setExercisesByLetter(grouped);
-    }, 300), // 300ms debounce time
-    [/* dependencies if needed */]
+      } catch (error) {
+        console.error("Error in debouncedOrganizeExercises:", error);
+        // Don't update state if there was an error
+      }
+    }, 300), 
+    []
   );
 
   useEffect(() => {
@@ -155,9 +174,27 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   useEffect(() => {
+    // Set mounted flag to true (in case it was false)
+    isMounted.current = true;
+    
+    // Only fetch if mounted
+    if (isMounted.current) {
+      fetchExercises();
+      workoutService.cacheExerciseLibrary();
+    }
+    
+    return () => {
+      // Set mounted flag to false when unmounting
+      isMounted.current = false;
+    };
+  }, []);
+
+  /*
+  useEffect(() => {
     fetchExercises();
     workoutService.cacheExerciseLibrary();
   }, []);
+  */
 
   useEffect(() => {
     checkCurrentWorkoutExercises();
@@ -170,17 +207,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       return () => {};
     }, [])
   );
-
-  // useEffect cleanup
-  useEffect(() => {
-    fetchExercises();
-    workoutService.cacheExerciseLibrary();
-    
-    return () => {
-      // Set mounted flag to false when unmounting
-      isMounted.current = false;
-    };
-  }, []);
 
   const checkCurrentWorkoutExercises = async () => {
     try {
@@ -235,8 +261,13 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   };
 
   const fetchExercises = async () => {
+    if (isFetchingRef.current || !isMounted.current) return;
+  
     try {
+      isFetchingRef.current = true;
       setLoading(true);
+
+      console.log("Starting to fetch exercises");
       
       // Use the workout service to get exercises with caching support
       const exerciseData = await workoutService.getExerciseLibrary();
@@ -257,7 +288,11 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         setFilteredExercises(processedData as Exercise[]);
         
         // Organize exercises by first letter (for UI display only)
-        debouncedOrganizeExercises(processedData as Exercise[]);
+        setTimeout(() => {
+          if (isMounted.current) {
+            debouncedOrganizeExercises(processedData as Exercise[]);
+          }
+        }, 100);
         
         // Track which letters have exercises (for UI display)
         const letters: Record<string, boolean> = {};
