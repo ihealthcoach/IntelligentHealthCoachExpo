@@ -411,6 +411,9 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
         
         console.log(`Created exercise detail with ID: ${exerciseDetailData.id}, now processing ${exercise.sets.length} sets`);
   
+        // Create an array to store all set IDs for verification
+        const setIds: string[] = [];
+  
         // Then insert each set individually, with detailed logging
         for (let setIndex = 0; setIndex < exercise.sets.length; setIndex++) {
           const set = exercise.sets[setIndex];
@@ -435,7 +438,9 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
               console.error(`  Error inserting set ${setIndex+1}: ${setError.message}`);
               throw setError;
             } else {
-              console.log(`  Successfully inserted set ${setIndex+1} with ID: ${data[0].id}`);
+              const setId = data[0].id;
+              setIds.push(setId);
+              console.log(`  Successfully inserted set ${setIndex+1} with ID: ${setId}`);
             }
           } catch (setInsertError) {
             console.error(`  Exception inserting set ${setIndex+1}: ${setInsertError}`);
@@ -444,6 +449,27 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
         }
         
         console.log(`Completed processing all ${exercise.sets.length} sets for exercise ${exIndex+1}`);
+        
+        // VERIFICATION STEP: Query the database to ensure all sets were saved
+        const { data: savedSets, error: verifyError } = await supabase
+          .from('workout_sets')
+          .select('*')
+          .eq('workout_exercise_details_id', exerciseDetailData.id);
+          
+        if (verifyError) {
+          console.error(`Error verifying saved sets: ${verifyError.message}`);
+        } else {
+          console.log(`VERIFICATION: Found ${savedSets.length} sets in database for exercise ${exIndex+1}`);
+          
+          if (savedSets.length !== exercise.sets.length) {
+            console.error(`VERIFICATION FAILED: Expected ${exercise.sets.length} sets but found ${savedSets.length}`);
+          }
+          
+          // Log details of each saved set
+          savedSets.forEach((savedSet, i) => {
+            console.log(`  Verified set ${i+1}: ID=${savedSet.id}, set_number=${savedSet.set_number}`);
+          });
+        }
       }
       
       console.log('Workout sync completed successfully');
@@ -1212,7 +1238,30 @@ async cacheExerciseLibrary(): Promise<void> {
  */
 async getExerciseLibrary(): Promise<{ exercises: any[], totalCount: number }> {
   try {
-    // Try to get from Supabase if online
+    // Check if we have a valid cache first
+    try {
+      const cacheJson = await AsyncStorage.getItem('exercise_library_cache');
+      if (cacheJson) {
+        const cache = JSON.parse(cacheJson);
+        const cacheAge = Date.now() - (cache.timestamp || 0);
+        const CACHE_THRESHOLD = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+        
+        // If cache is fresh (less than 7 days old), use it
+        if (cache.exercises?.length > 0 && cacheAge < CACHE_THRESHOLD) {
+          console.log('Using cached exercise library (age: ' + 
+            Math.round(cacheAge / (24 * 60 * 60 * 1000)) + ' days)');
+          return { 
+            exercises: cache.exercises, 
+            totalCount: cache.totalCount || cache.exercises.length 
+          };
+        }
+        console.log('Exercise cache expired, fetching fresh data');
+      }
+    } catch (cacheError) {
+      console.error('Error reading exercise library cache:', cacheError);
+    }
+    
+    // Cache doesn't exist, is invalid, or expired - try to get from Supabase if online
     const isConnected = await this.checkConnectivity();
     
     if (isConnected) {
@@ -1278,11 +1327,12 @@ async getExerciseLibrary(): Promise<{ exercises: any[], totalCount: number }> {
       }
     }
     
-    // If offline or Supabase failed, try to get from cache
+    // If offline or Supabase failed, try to get from cache again (even if expired)
     try {
       const cacheJson = await AsyncStorage.getItem('exercise_library_cache');
       if (cacheJson) {
         const cache = JSON.parse(cacheJson);
+        console.log('Falling back to expired cache due to offline/error');
         return { 
           exercises: cache.exercises || [], 
           totalCount: cache.totalCount || cache.exercises?.length || 0 
