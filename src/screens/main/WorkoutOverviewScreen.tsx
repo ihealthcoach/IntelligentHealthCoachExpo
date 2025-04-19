@@ -84,31 +84,31 @@ export default function WorkoutOverviewScreen({ navigation }: MainStackScreenPro
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
   // Load data when the component mounts
-  useEffect(() => {
-    loadWorkoutData();
-    loadWorkoutTemplates();
-    
-    // Animate component in
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    
-    return () => {
-      // Clean up or save data when unmounting
-    };
-  }, []);
+// One-time setup
+useEffect(() => {
+  loadWorkoutTemplates();
+  
+  // Animate component in
+  Animated.timing(fadeAnim, {
+    toValue: 1,
+    duration: 300,
+    useNativeDriver: true,
+  }).start();
+  
+  return () => {
+    // Clean up or save data when unmounting
+  };
+}, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // This will run whenever the screen comes into focus (like when navigating back)
-      loadWorkoutData();
-      return () => {
-        // Optional cleanup
-      };
-    }, [])
-  );
+// Refresh data when screen comes into focus
+useFocusEffect(
+  React.useCallback(() => {
+    loadWorkoutData();
+    return () => {
+      // Optional cleanup
+    };
+  }, [])
+);
 
     // Handle template selection
     const handleTemplatePress = (template: WorkoutTemplate) => {

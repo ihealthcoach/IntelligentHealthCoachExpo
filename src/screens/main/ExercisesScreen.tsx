@@ -102,10 +102,21 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     { id: 'filters', icon: 'filter', label: 'Filters' }
   ];
 
-  useEffect(() => {
-    console.log("ExercisesScreen rendered");
-    return () => console.log("ExercisesScreen unmounted");
-  }, []);
+// Component lifecycle logging and one-time setup
+useEffect(() => {
+  console.log("ExercisesScreen rendered");
+  fetchExercises();
+  workoutService.cacheExerciseLibrary();
+  return () => console.log("ExercisesScreen unmounted");
+}, []);
+
+// Refresh data when screen comes into focus
+useFocusEffect(
+  React.useCallback(() => {
+    checkCurrentWorkoutExercises();
+    return () => {};
+  }, [])
+);
 
   // Simple UI-only filter change handler (functionality removed)
   const handleFilterChange = (filterId) => {
@@ -120,14 +131,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   useEffect(() => {
     checkCurrentWorkoutExercises();
   }, []);
-  
-  // Use useFocusEffect to check whenever the screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      checkCurrentWorkoutExercises();
-      return () => {};
-    }, [])
-  );
 
   useEffect(() => {
     if (filteredExercises.length > 0) {
