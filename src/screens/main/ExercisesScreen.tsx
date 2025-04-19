@@ -12,16 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { 
-  ArrowLeft, 
-  Check, 
-  ArrowDownAZ, 
-  Search, 
-  Clock, 
-  Heart, 
-  ChevronDown,
-  Filter
-} from 'lucide-react-native';
+import { Filter } from 'lucide-react-native';
 import { workoutService } from '../../services/workoutService';
 import { MainTabScreenProps } from '../../types/navigation';
 import { supabase } from '../../services/supabase';
@@ -34,6 +25,7 @@ import AlphabetSidebar from '../../components/AlphabetSidebar';
 import LetterSection from '../../components/LetterSection';
 import ExerciseItem from '../../components/ExerciseItem';
 import FlexibleSheet from '../../components/FlexibleSheet';
+import FilterOptions, { FilterType } from '../../components/workout/FilterOptions';
 
 // Styles
 import { fonts } from '../../styles/fonts';
@@ -63,12 +55,8 @@ type Exercise = {
 };
 
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
-  const FILTER_AZ = 'a-z';
-  const FILTER_SEARCH = 'search';
-  const FILTER_RECENT = 'recent';
-  const FILTER_FAVORITE = 'favorite';
-  const FILTER_FILTERS = 'filters';
-  const [activeFilter, setActiveFilter] = useState(FILTER_AZ);
+  // UI state only
+  const [activeFilter, setActiveFilter] = useState<FilterType>('a-z');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,41 +72,29 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
 
-  console.log(`Rendering ExercisesScreen: activeFilter=${activeFilter}, selectedExercises=${selectedExercises.length}`);
-
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
   ];
 
-  // Track which letters have exercises
+  // Track which letters have exercises (UI only)
   const [availableLetters, setAvailableLetters] = useState<Record<string, boolean>>({});
-
-  const filters = [
-    { id: 'a-z', icon: 'bars-arrow-down', label: 'A-Z' },
-    { id: 'search', icon: 'search', label: 'Search' },
-    { id: 'recent', icon: 'clock', label: 'Recent' },
-    { id: 'favorite', icon: 'heart', label: 'Favorites' },
-    { id: 'filters', icon: 'filter', label: 'Filters' } // New filter option
-  ];
 
   useEffect(() => {
     console.log("ExercisesScreen rendered");
     return () => console.log("ExercisesScreen unmounted");
   }, []);
 
-  const handleFilterChange = (filterId) => {
+  // Simplified UI-only filter handler - doesn't actually filter content
+  const handleFilterChange = (filterId: FilterType) => {
     console.log(`Filter changed from ${activeFilter} to ${filterId}`);
-    
-    if (filterId === activeFilter) return; // Avoid redundant updates
-    
-    // Only update the filter - don't try to reorganize data yet
     setActiveFilter(filterId);
     
-    // Handle search special case
-    if (filterId === FILTER_SEARCH && searchQuery === '') {
-      // Don't attempt to filter until user enters search query
-      setFilteredExercises(exercises);
+    // For search filter, show search input
+    if (filterId === 'search') {
+      setSearchVisible(true);
+    } else {
+      setSearchVisible(false);
     }
   };
 
@@ -126,26 +102,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     fetchExercises();
     workoutService.cacheExerciseLibrary();
   }, []);
-
-  useEffect(() => {
-    // Apply filters only when activeFilter or searchQuery changes
-    if (exercises.length > 0) {
-      console.log(`Filter effect triggered: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
-      
-      try {
-        // Defer filter application to avoid render loop
-        const timeoutId = setTimeout(() => {
-          applyFilters();
-        }, 0);
-        
-        return () => clearTimeout(timeoutId);
-      } catch (error) {
-        console.error("Error in filter effect:", error);
-      }
-    } else {
-      console.log('Filter effect skipped: no exercises');
-    }
-  }, [activeFilter, searchQuery, exercises.length]);
 
   useEffect(() => {
     checkCurrentWorkoutExercises();
@@ -160,9 +116,8 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   );
 
   useEffect(() => {
-    // Only organize exercises by letter when filter is A-Z or we're toggling back to A-Z
-    if (activeFilter === FILTER_AZ && filteredExercises.length > 0) {
-      // This ensures we don't call this function during other filter renders
+    // Only organize exercises by letter for UI display
+    if (activeFilter === 'a-z' && filteredExercises.length > 0) {
       const timeoutId = setTimeout(() => {
         organizeExercisesByLetter(filteredExercises);
       }, 0); 
@@ -204,7 +159,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       
       if (exerciseData && exerciseData.exercises.length > 0) {
         setTotalExerciseCount(exerciseData.totalCount);
-        // Process the data as before
+        
         const processedData = exerciseData.exercises.map((exercise) => ({
           ...exercise,
           selected: false,
@@ -214,10 +169,10 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         setExercises(processedData as Exercise[]);
         setFilteredExercises(processedData as Exercise[]);
         
-        // Organize exercises by first letter
+        // Organize exercises by first letter (for UI display only)
         organizeExercisesByLetter(processedData as Exercise[]);
         
-        // Track which letters have exercises
+        // Track which letters have exercises (for UI display)
         const letters: Record<string, boolean> = {};
         alphabet.forEach(letter => {
           if (letter === '#') {
@@ -248,84 +203,15 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }
   };
 
-  const applyFilters = () => {
-    console.log(`Applying filters: activeFilter=${activeFilter}, searchQuery=${searchQuery}`);
-    let filtered = [...exercises];
-  
-    try {
-      // Apply search filter if in search mode
-      if (activeFilter === FILTER_SEARCH && searchQuery) {
-        console.log('Applying search filter');
-        const query = searchQuery.toLowerCase();
-        filtered = filtered.filter(ex => 
-          ex.name?.toLowerCase().includes(query) ||
-          ex.primary_muscles?.toLowerCase().includes(query) ||
-          ex.equipment?.toLowerCase().includes(query) ||
-          ex.target?.toLowerCase().includes(query) ||
-          ex.body_part?.toLowerCase().includes(query)
-        );
-      }
-    
-      // Apply other filters
-      if (activeFilter === FILTER_FAVORITE) {
-        console.log('Applying favorite filter');
-        // In a real app, this would filter to show only favorited exercises
-        filtered = filtered.filter((_, index) => index % 5 === 0);
-      } else if (activeFilter === FILTER_RECENT) {
-        console.log('Applying recent filter');
-        // In a real app, this would filter based on recently viewed exercises
-        filtered = filtered.slice(0, 10);
-      } else if (activeFilter === FILTER_FILTERS) {
-        console.log('Applying custom filters');
-        // Add custom filter logic
-      }
-      
-      console.log(`Filtered exercises count: ${filtered.length}`);
-      setFilteredExercises(filtered);
-      
-      // Only organize by letter if we're in A-Z mode
-      if (activeFilter === FILTER_AZ) {
-        organizeExercisesByLetter(filtered);
-      }
-    } catch (error) {
-      console.error('Error in applyFilters:', error);
-    }
-  };
-
   // Generate the full Supabase storage URL for an exercise GIF
   const getGifUrl = (fileName: string | null) => {
     if (!fileName) return null;
     return `https://fleiivpyjkvahakriuta.supabase.co/storage/v1/object/public/exercises/gifs/${fileName}`;
   };
 
-  const renderFilterIcon = (iconName: string, color: string) => {
-    console.log(`Rendering icon: ${iconName} with color ${color}`);
-    // Make sure we use a numeric size for icons
-    const iconSize = 20;
-    
-    try {
-      switch (iconName) {
-        case 'bars-arrow-down':
-          return <ArrowDownAZ size={iconSize} color={color} />;
-        case 'search':
-          return <Search size={iconSize} color={color} />;
-        case 'clock':
-          return <Clock size={iconSize} color={color} />;
-        case 'heart':
-          return <Heart size={iconSize} color={color} />;
-        case 'filter':
-          return <Filter size={iconSize} color={color} />;
-        default:
-          console.warn(`Unknown icon name: ${iconName}`);
-          return null;
-      }
-    } catch (error) {
-      console.error(`Error rendering icon ${iconName}:`, error);
-      return null;
-    }
-  };
+  // No filter icon render function needed since it's moved to the FilterOptions component
 
-  // Organize exercises by first letter for the A-Z view
+  // Organize exercises by first letter for the A-Z view (UI only)
   const [exercisesByLetter, setExercisesByLetter] = useState<Record<string, Exercise[]>>({});
 
   const organizeExercisesByLetter = (exerciseList: Exercise[]) => {
@@ -381,7 +267,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     setSelectedExercises(selected);
   };
 
-  // Add or modify the scrollToLetter function
+  // Scroll to letter UI function (remains functional)
   const scrollToLetter = (letter: string) => {
     const y = letterPositions[letter];
     if (typeof y === 'number' && scrollViewRef.current) {
@@ -442,24 +328,24 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
         exercises: []
       };
       
-// When adding exercises to the workout, generate unique IDs
-const selectedExercisesForWorkout = selectedExercises.map(ex => ({
-  // Use Date.now() + random number to ensure uniqueness
-  id: `${ex.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-  exerciseId: ex.id,
-  name: ex.name,
-  primaryMuscles: ex.primary_muscles || 'Unknown',
-  equipment: ex.equipment || 'Bodyweight',
-  sets: Array.from({ length: setsCount }, (_, i) => ({
-    id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
-    setNumber: i + 1,
-    weight: null,
-    reps: null,
-    isComplete: false
-  })),
-  notes: '',
-  isExpanded: true
-}));
+      // When adding exercises to the workout, generate unique IDs
+      const selectedExercisesForWorkout = selectedExercises.map(ex => ({
+        // Use Date.now() + random number to ensure uniqueness
+        id: `${ex.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        exerciseId: ex.id,
+        name: ex.name,
+        primaryMuscles: ex.primary_muscles || 'Unknown',
+        equipment: ex.equipment || 'Bodyweight',
+        sets: Array.from({ length: setsCount }, (_, i) => ({
+          id: `set-${Date.now()}-${i + 1}-${Math.random().toString(36).substr(2, 5)}`,
+          setNumber: i + 1,
+          weight: null,
+          reps: null,
+          isComplete: false
+        })),
+        notes: '',
+        isExpanded: true
+      }));
       
       // Add to existing exercises or create new array
       workoutData.exercises = [
@@ -493,11 +379,11 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 
   if (loading) {
     return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size={36} color="#007AFF" />
-          <Text>Loading exercises...</Text>
-        </View>
-      );
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size={36} color="#007AFF" />
+        <Text>Loading exercises...</Text>
+      </View>
+    );
   }
 
   if (error) {
@@ -513,219 +399,189 @@ const selectedExercisesForWorkout = selectedExercises.map(ex => ({
 
   return (
     <SafeAreaView style={styles.container}>
-          <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
 
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-  <View style={styles.headerLeft}>
-    <TouchableOpacity 
-      onPress={() => navigation.goBack()} 
-      style={styles.backButton}
-    >
-      <Icon name="arrow-left-solid" size={24} color={colors.gray[900]} />
-    </TouchableOpacity>
-    
-    {hasWorkoutExercises && (
-      <TouchableOpacity 
-        style={styles.viewWorkoutButton}
-        onPress={() => navigation.navigate('WorkoutOverviewScreen')}
-      >
-        <Text style={styles.viewWorkoutText}>View workout</Text>
-        <Icon name="chevron-down-mini" size={18} color={colors.gray[900]} />
-      </TouchableOpacity>
-    )}
-  </View>
-  
-  <View style={styles.headerRight}>
-    {hasWorkoutExercises && (
-      <TouchableOpacity 
-        style={styles.doneButton}
-        onPress={() => navigation.navigate('WorkoutOverviewScreen')}
-      >
-        <Text style={styles.doneButtonText}>Done</Text>
-        <Icon name="check-mini" size={18} color={colors.common.white} />
-      </TouchableOpacity>
-    )}
-  </View>
-</View>
-      
-      {/* Title and Description */}
-      <View style={styles.titleContainer}>
-  <Text style={styles.title}>Library</Text>
-  <Text style={styles.subtitle}>Add from {totalExerciseCount} exercises to your workout</Text>
-</View>
-      
-      {/* Filters */}
-      <View>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filtersContainer}
-      >
-{filters.map((filter) => (
-  <TouchableOpacity
-  key={filter.id}
-  style={[
-    styles.filterBadge,
-    activeFilter === filter.id ? styles.activeFilterBadge : styles.inactiveFilterBadge
-  ]}
-  onPress={() => {
-    console.log(`Filter pressed: ${filter.id}`);
-    handleFilterChange(filter.id);
-  }}
->
-  {renderFilterIcon(
-    filter.icon, 
-    activeFilter === filter.id ? '#FCFDFD' : '#4B555F'
-  )}
-  <Text 
-    style={[
-      styles.filterLabel,
-      activeFilter === filter.id ? styles.activeFilterLabel : styles.inactiveFilterLabel
-    ]}
-  >
-    {filter.label}
-  </Text>
-</TouchableOpacity>
-))}
-      </ScrollView>
-      </View>
-
-      {activeFilter === FILTER_SEARCH && (
-  <View style={styles.searchInputContainer}>
-    <Icon name="magnifying-glass-outline" size={20} color={colors.gray[600]} />
-    <TextInput
-      style={styles.searchInput}
-      value={searchQuery}
-      onChangeText={setSearchQuery}
-      placeholder="Search exercises..."
-      placeholderTextColor="#9CA3AF"
-    />
-  </View>
-)}
-
-      {/* Main Content */}
-      <View style={styles.contentContainer}>
-  <ScrollView 
-    ref={scrollViewRef}
-    style={styles.content}
-    showsVerticalScrollIndicator={false}
-  >
-    {activeFilter === FILTER_AZ && Object.keys(exercisesByLetter).length > 0 ? (
-      // A-Z view - organize by first letter
-      Object.entries(exercisesByLetter)
-        .sort()
-        .map(([letter, letterExercises]) => (
-          <LetterSection
-            key={letter}
-            letter={letter}
-            exercises={letterExercises || []}
-            onLayout={handleLetterLayout}
-            onExerciseSelection={handleExerciseSelection}
-            getGifUrl={getGifUrl}
-          />
-        ))
-    ) : (
-  // Simple list view for other filters
-  <>
-  {filteredExercises.map(exercise => (
-    exercise && exercise.id ? (
-      <ExerciseItem
-        key={exercise.id}
-        exercise={exercise}
-        onPress={() => handleExerciseSelection(exercise)}
-        getGifUrl={getGifUrl}
-      />
-    ) : null
-  ))}
-</>
-)}
-          
-          {/* Extra padding at the bottom for floating button */}
-          <View style={styles.bottomPadding} />
-        </ScrollView>
-        
-        {/* Alphabet selector (right side) */}
-        {activeFilter === FILTER_AZ && (
-    <AlphabetSidebar 
-      alphabet={alphabet}
-      availableLetters={availableLetters}
-      onLetterPress={scrollToLetter}
-    />
-  )}
-      </View>
-      
-      {/* Floating action buttons */}
-      {selectedExercises.length > 0 && (
-        <View style={styles.floatingButtonsContainer}>
-          <TouchableOpacity 
-            style={styles.addExercisesButton}
-            onPress={handleAddExercises}
-          >
-            <Text style={styles.addExercisesButtonText}>
-              Add {selectedExercises.length > 1 ? `${selectedExercises.length} exercises` : 'exercise'}
-            </Text>
-          </TouchableOpacity>
-          
-          {selectedExercises.length >= 2 && (
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.headerLeft}>
             <TouchableOpacity 
-              style={styles.buildSuperSetButton}
-              onPress={handleBuildSuperSet}
+              onPress={() => navigation.goBack()} 
+              style={styles.backButton}
             >
-              <Text style={styles.buildSuperSetButtonText}>Build Super Set</Text>
+              <Icon name="arrow-left-solid" size={24} color={colors.gray[900]} />
             </TouchableOpacity>
+            
+            {hasWorkoutExercises && (
+              <TouchableOpacity 
+                style={styles.viewWorkoutButton}
+                onPress={() => navigation.navigate('WorkoutOverviewScreen')}
+              >
+                <Text style={styles.viewWorkoutText}>View workout</Text>
+                <Icon name="chevron-down-mini" size={18} color={colors.gray[900]} />
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          <View style={styles.headerRight}>
+            {hasWorkoutExercises && (
+              <TouchableOpacity 
+                style={styles.doneButton}
+                onPress={() => navigation.navigate('WorkoutOverviewScreen')}
+              >
+                <Text style={styles.doneButtonText}>Done</Text>
+                <Icon name="check-mini" size={18} color={colors.common.white} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        
+        {/* Title and Description */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Library</Text>
+          <Text style={styles.subtitle}>Add from {totalExerciseCount} exercises to your workout</Text>
+        </View>
+        
+        {/* Filters - UI only, using separate component */}
+        <FilterOptions 
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+        />
+
+        {activeFilter === 'search' && (
+          <View style={styles.searchInputContainer}>
+            <Icon name="magnifying-glass-outline" size={20} color={colors.gray[600]} />
+            <TextInput
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search exercises..."
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
+        )}
+
+        {/* Main Content */}
+        <View style={styles.contentContainer}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.content}
+            showsVerticalScrollIndicator={false}
+          >
+            {activeFilter === 'a-z' && Object.keys(exercisesByLetter).length > 0 ? (
+              // A-Z view - organize by first letter
+              Object.entries(exercisesByLetter)
+                .sort()
+                .map(([letter, letterExercises]) => (
+                  <LetterSection
+                    key={letter}
+                    letter={letter}
+                    exercises={letterExercises || []}
+                    onLayout={handleLetterLayout}
+                    onExerciseSelection={handleExerciseSelection}
+                    getGifUrl={getGifUrl}
+                  />
+                ))
+            ) : (
+              // Simple list view for other filters
+              <>
+                {filteredExercises.map(exercise => (
+                  exercise && exercise.id ? (
+                    <ExerciseItem
+                      key={exercise.id}
+                      exercise={exercise}
+                      onPress={() => handleExerciseSelection(exercise)}
+                      getGifUrl={getGifUrl}
+                    />
+                  ) : null
+                ))}
+              </>
+            )}
+            
+            {/* Extra padding at the bottom for floating button */}
+            <View style={styles.bottomPadding} />
+          </ScrollView>
+          
+          {/* Alphabet selector (right side) */}
+          {activeFilter === 'a-z' && (
+            <AlphabetSidebar 
+              alphabet={alphabet}
+              availableLetters={availableLetters}
+              onLetterPress={scrollToLetter}
+            />
           )}
         </View>
-      )}
-      
-      {/* Filter/Count button */}
-      <TouchableOpacity 
-        style={[
-          styles.filterCountButton,
-          selectedExercises.length > 0 && styles.filterCountButtonWithCount
-        ]}
-      >
-        {selectedExercises.length > 0 ? (
-          <Text style={styles.filterCountText}>{selectedExercises.length}</Text>
-        ) : (
-          <Filter size={20} color="#fff" />
+        
+        {/* Floating action buttons */}
+        {selectedExercises.length > 0 && (
+          <View style={styles.floatingButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.addExercisesButton}
+              onPress={handleAddExercises}
+            >
+              <Text style={styles.addExercisesButtonText}>
+                Add {selectedExercises.length > 1 ? `${selectedExercises.length} exercises` : 'exercise'}
+              </Text>
+            </TouchableOpacity>
+            
+            {selectedExercises.length >= 2 && (
+              <TouchableOpacity 
+                style={styles.buildSuperSetButton}
+                onPress={handleBuildSuperSet}
+              >
+                <Text style={styles.buildSuperSetButtonText}>Build Super Set</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         )}
-      </TouchableOpacity>
-      
-      {/* Sets Selection Sheet Modal */}
-      <FlexibleSheet
-  visible={showSetSheet}
-  onClose={() => setShowSetSheet(false)}
-  title="How many sets?"
-  initialHeight="40%"
->
-  <View style={styles.pickerContainer}>
-    <Picker
-      selectedValue={selectedSets}
-      onValueChange={(itemValue) => setSelectedSets(itemValue)}
-      style={styles.picker}
-    >
-      {Array.from({ length: 20 }, (_, i) => i + 1).map(value => (
-        <Picker.Item 
-          key={value} 
-          label={`${value} ${value === 1 ? 'set' : 'sets'}`} 
-          value={value} 
-        />
-      ))}
-    </Picker>
-  </View>
-  
-  <TouchableOpacity 
-    style={styles.confirmButton} 
-    onPress={() => confirmAddExercises(selectedSets)}
-  >
-    <Text style={styles.confirmButtonText}>
-      Confirm {selectedSets} {selectedSets === 1 ? 'set' : 'sets'}
-    </Text>
-  </TouchableOpacity>
-</FlexibleSheet>
-    </View>
+        
+        {/* Filter/Count button */}
+        <TouchableOpacity 
+          style={[
+            styles.filterCountButton,
+            selectedExercises.length > 0 && styles.filterCountButtonWithCount
+          ]}
+        >
+          {selectedExercises.length > 0 ? (
+            <Text style={styles.filterCountText}>{selectedExercises.length}</Text>
+          ) : (
+            <Filter size={20} color="#fff" />
+          )}
+        </TouchableOpacity>
+        
+        {/* Sets Selection Sheet Modal */}
+        <FlexibleSheet
+          visible={showSetSheet}
+          onClose={() => setShowSetSheet(false)}
+          title="How many sets?"
+          initialHeight="40%"
+        >
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedSets}
+              onValueChange={(itemValue) => setSelectedSets(itemValue)}
+              style={styles.picker}
+            >
+              {Array.from({ length: 20 }, (_, i) => i + 1).map(value => (
+                <Picker.Item 
+                  key={value} 
+                  label={`${value} ${value === 1 ? 'set' : 'sets'}`} 
+                  value={value} 
+                />
+              ))}
+            </Picker>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.confirmButton} 
+            onPress={() => confirmAddExercises(selectedSets)}
+          >
+            <Text style={styles.confirmButtonText}>
+              Confirm {selectedSets} {selectedSets === 1 ? 'set' : 'sets'}
+            </Text>
+          </TouchableOpacity>
+        </FlexibleSheet>
+      </View>
     </SafeAreaView>
   );
 }
@@ -794,41 +650,11 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginTop: 0,
   },
-  filtersContainer: {
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    paddingVertical: 8,
-    //marginBottom: 0,
-  },
-  filterBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    marginRight: 8,
-    height: 40,
-  },
-  activeFilterBadge: {
-    backgroundColor: colors.gray[900],
-  },
-  inactiveFilterBadge: {
-    backgroundColor: colors.gray[50],
-  },
-  filterLabel: {
-    fontFamily: fonts.medium,
-    fontSize: 14,
-    marginLeft: 4,
-  },
-  activeFilterLabel: {
-    color: '#FCFDFD',
-  },
-  inactiveFilterLabel: {
-    color: '#4B555F',
-  },
+  // Removed filter-related styles as they're moved to the FilterOptions component
   contentContainer: {
     flex: 1,
     position: 'relative',
+    backgroundColor: colors.gray[300],
   },
   content: {
     flex: 1,
