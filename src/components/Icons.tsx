@@ -177,7 +177,13 @@ const iconMap = {
 };
 
 // Create the Icon component
-const Icon: React.FC<IconProps> = ({ name, size = 24, color = '#111827', stroke, fill, ...props }) => {
+const Icon: React.FC<IconProps> = ({ 
+  name,
+  size = 24,
+  color = '#111827',
+  stroke,
+  fill,
+  ...props }) => {
   const IconComponent = iconMap[name];
   
   if (!IconComponent) {

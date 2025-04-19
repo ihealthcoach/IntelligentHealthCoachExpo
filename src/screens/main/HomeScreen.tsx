@@ -192,7 +192,7 @@ const getFirstName = () => {
               
               <TouchableOpacity style={styles.editLink}>
                 <Text style={styles.editLinkText}>Edit goals</Text>
-                <Icon name="arrow-right-mini" size={14} fill={colors.gray[900]} />
+                <Icon name="arrow-right-mini" size={14} fill={colors.gray[100]} />
               </TouchableOpacity>
             </View>
             
@@ -203,7 +203,8 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Icon name="fire-mini" size={24} color={colors.gray[500]} />
+                      <Icon name="fire-mini" size={24} color={colors.gray[100]} />
+                      <FireMini width={24} height={24} color={colors.gray[500]} />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
