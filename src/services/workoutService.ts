@@ -335,6 +335,16 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
   
+      console.log(`Starting sync for workout with ${workout.exercises.length} exercises`);
+      
+      // Log set counts for debugging
+      workout.exercises.forEach((ex, i) => {
+        console.log(`Exercise ${i+1}: ${ex.name} has ${ex.sets.length} sets`);
+        ex.sets.forEach((set, j) => {
+          console.log(`  Set ${j+1}/${ex.sets.length}: completed=${set.isComplete}, id=${set.id.substring(0, 8)}`);
+        });
+      });
+  
       // Use the standard uuidv4 function which should now work
       const workoutId = uuidv4();
       
@@ -373,16 +383,20 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
         .single();
   
       if (workoutError) throw workoutError;
+      console.log(`Created workout record with ID: ${workoutData.id}`);
   
       // Then insert each exercise
-      for (const exercise of workout.exercises) {
+      for (let exIndex = 0; exIndex < workout.exercises.length; exIndex++) {
+        const exercise = workout.exercises[exIndex];
+        console.log(`Processing exercise ${exIndex+1}/${workout.exercises.length}: ${exercise.name}`);
+        
         // Remove the notes field from the insert operation
         const { data: exerciseDetailData, error: exerciseDetailError } = await supabase
           .from('workout_exercise_details')
           .insert({
             workout_id: workoutData.id,
             exercise_id: exercise.exerciseId,
-            order: exercise.order !== undefined ? exercise.order : workout.exercises.indexOf(exercise),
+            order: exercise.order !== undefined ? exercise.order : exIndex,
             superset_id: exercise.supersetId,
             superset_type: exercise.supersetType,
             rest_between_sets: exercise.restBetweenSets
@@ -390,26 +404,49 @@ async saveCurrentWorkout(workout: Workout): Promise<void> {
           .select()
           .single();
   
-        if (exerciseDetailError) throw exerciseDetailError;
-  
-        // Then insert each set
-        for (const set of exercise.sets) {
-          const { error: setError } = await supabase
-            .from('workout_sets')
-            .insert({
-              workout_exercise_details_id: exerciseDetailData.id,
-              set_number: set.setNumber,
-              reps: set.reps,
-              weight: set.weight,
-              duration: set.restAfter,
-              completed: set.isComplete,
-              rpe: set.rpe,
-              is_pr: set.isPR,
-            });
-  
-          if (setError) throw setError;
+        if (exerciseDetailError) {
+          console.error(`Error creating exercise detail: ${exerciseDetailError.message}`);
+          throw exerciseDetailError;
         }
+        
+        console.log(`Created exercise detail with ID: ${exerciseDetailData.id}, now processing ${exercise.sets.length} sets`);
+  
+        // Then insert each set individually, with detailed logging
+        for (let setIndex = 0; setIndex < exercise.sets.length; setIndex++) {
+          const set = exercise.sets[setIndex];
+          console.log(`  Processing set ${setIndex+1}/${exercise.sets.length} (${set.id.substring(0, 8)})`);
+          
+          try {
+            const { data, error: setError } = await supabase
+              .from('workout_sets')
+              .insert({
+                workout_exercise_details_id: exerciseDetailData.id,
+                set_number: set.setNumber,
+                reps: set.reps,
+                weight: set.weight,
+                duration: set.restAfter,
+                completed: set.isComplete,
+                rpe: set.rpe,
+                is_pr: set.isPR,
+              })
+              .select();
+  
+            if (setError) {
+              console.error(`  Error inserting set ${setIndex+1}: ${setError.message}`);
+              throw setError;
+            } else {
+              console.log(`  Successfully inserted set ${setIndex+1} with ID: ${data[0].id}`);
+            }
+          } catch (setInsertError) {
+            console.error(`  Exception inserting set ${setIndex+1}: ${setInsertError}`);
+            throw setInsertError;
+          }
+        }
+        
+        console.log(`Completed processing all ${exercise.sets.length} sets for exercise ${exIndex+1}`);
       }
+      
+      console.log('Workout sync completed successfully');
     } catch (error) {
       console.error('Error syncing workout to Supabase:', error);
       throw error;
