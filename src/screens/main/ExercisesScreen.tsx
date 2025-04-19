@@ -86,6 +86,48 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
   const isMounted = useRef(true);
 
+  const debouncedOrganizeExercises = useCallback(
+    debounce((exerciseList) => {
+      console.log("Running debounced organize function");
+      if (!isMounted.current) return;
+      
+      const grouped = {};
+      
+      exerciseList.forEach(exercise => {
+        if (exercise.name) {
+          let firstLetter;
+          // Check if the name starts with a number
+          if (/^[0-9]/.test(exercise.name)) {
+            firstLetter = '#';
+          } else {
+            firstLetter = exercise.name[0].toUpperCase();
+          }
+          
+          if (!grouped[firstLetter]) {
+            grouped[firstLetter] = [];
+          }
+          grouped[firstLetter].push(exercise);
+        }
+      });
+      
+      // Sort each group alphabetically
+      Object.keys(grouped).forEach(letter => {
+        grouped[letter].sort((a, b) => a.name.localeCompare(b.name));
+      });
+      
+      setExercisesByLetter(grouped);
+    }, 300), // 300ms debounce time
+    [/* dependencies if needed */]
+  );
+
+  useEffect(() => {
+    // Only organize exercises by letter for UI display
+    if (activeFilter === 'a-z' && filteredExercises.length > 0) {
+      // Use the debounced version instead
+      debouncedOrganizeExercises(filteredExercises);
+    }
+  }, [activeFilter, filteredExercises.length, debouncedOrganizeExercises]);
+
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -129,14 +171,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     }, [])
   );
 
-  useEffect(() => {
-    // Only organize exercises by letter for UI display
-    if (activeFilter === 'a-z' && filteredExercises.length > 0) {
-      // Use the debounced version instead
-      debouncedOrganizeExercises(filteredExercises);
-    }
-  }, [activeFilter, filteredExercises.length, debouncedOrganizeExercises]);
-
   // useEffect cleanup
   useEffect(() => {
     fetchExercises();
@@ -147,41 +181,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       isMounted.current = false;
     };
   }, []);
-
-  // Inside your component, add this:
-const debouncedOrganizeExercises = useCallback(
-  debounce((exerciseList) => {
-    console.log("Running debounced organize function");
-    if (!isMounted.current) return;
-    
-    const grouped = {};
-    
-    exerciseList.forEach(exercise => {
-      if (exercise.name) {
-        let firstLetter;
-        // Check if the name starts with a number
-        if (/^[0-9]/.test(exercise.name)) {
-          firstLetter = '#';
-        } else {
-          firstLetter = exercise.name[0].toUpperCase();
-        }
-        
-        if (!grouped[firstLetter]) {
-          grouped[firstLetter] = [];
-        }
-        grouped[firstLetter].push(exercise);
-      }
-    });
-    
-    // Sort each group alphabetically
-    Object.keys(grouped).forEach(letter => {
-      grouped[letter].sort((a, b) => a.name.localeCompare(b.name));
-    });
-    
-    setExercisesByLetter(grouped);
-  }, 300), // 300ms debounce time
-  [/* dependencies if needed */]
-);
 
   const checkCurrentWorkoutExercises = async () => {
     try {
