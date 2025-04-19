@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -54,6 +54,19 @@ type Exercise = {
   selected?: boolean;
 };
 
+  // Debounce utility function
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return function(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
 export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exercises'>) {
   // UI state only
   const [activeFilter, setActiveFilter] = useState<FilterType>('a-z');
@@ -71,6 +84,7 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   const [hasWorkoutExercises, setHasWorkoutExercises] = useState(false);
   const [totalExerciseCount, setTotalExerciseCount] = useState(0);
   const [letterPositions, setLetterPositions] = useState<Record<string, number>>({});
+  const isMounted = useRef(true);
 
   const alphabet = [
     '#', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -118,13 +132,56 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
   useEffect(() => {
     // Only organize exercises by letter for UI display
     if (activeFilter === 'a-z' && filteredExercises.length > 0) {
-      const timeoutId = setTimeout(() => {
-        organizeExercisesByLetter(filteredExercises);
-      }, 0); 
-      
-      return () => clearTimeout(timeoutId);
+      // Use the debounced version instead
+      debouncedOrganizeExercises(filteredExercises);
     }
-  }, [activeFilter, filteredExercises.length]);
+  }, [activeFilter, filteredExercises.length, debouncedOrganizeExercises]);
+
+  // useEffect cleanup
+  useEffect(() => {
+    fetchExercises();
+    workoutService.cacheExerciseLibrary();
+    
+    return () => {
+      // Set mounted flag to false when unmounting
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Inside your component, add this:
+const debouncedOrganizeExercises = useCallback(
+  debounce((exerciseList) => {
+    console.log("Running debounced organize function");
+    if (!isMounted.current) return;
+    
+    const grouped = {};
+    
+    exerciseList.forEach(exercise => {
+      if (exercise.name) {
+        let firstLetter;
+        // Check if the name starts with a number
+        if (/^[0-9]/.test(exercise.name)) {
+          firstLetter = '#';
+        } else {
+          firstLetter = exercise.name[0].toUpperCase();
+        }
+        
+        if (!grouped[firstLetter]) {
+          grouped[firstLetter] = [];
+        }
+        grouped[firstLetter].push(exercise);
+      }
+    });
+    
+    // Sort each group alphabetically
+    Object.keys(grouped).forEach(letter => {
+      grouped[letter].sort((a, b) => a.name.localeCompare(b.name));
+    });
+    
+    setExercisesByLetter(grouped);
+  }, 300), // 300ms debounce time
+  [/* dependencies if needed */]
+);
 
   const checkCurrentWorkoutExercises = async () => {
     try {
@@ -149,70 +206,6 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
       setHasWorkoutExercises(false);
     }
   };
-
-  const fetchExercises = async () => {
-    try {
-      setLoading(true);
-      
-      // Use the workout service to get exercises with caching support
-      const exerciseData = await workoutService.getExerciseLibrary();
-      
-      if (exerciseData && exerciseData.exercises.length > 0) {
-        setTotalExerciseCount(exerciseData.totalCount);
-        
-        const processedData = exerciseData.exercises.map((exercise) => ({
-          ...exercise,
-          selected: false,
-          added: false
-        }));
-        
-        setExercises(processedData as Exercise[]);
-        setFilteredExercises(processedData as Exercise[]);
-        
-        // Organize exercises by first letter (for UI display only)
-        organizeExercisesByLetter(processedData as Exercise[]);
-        
-        // Track which letters have exercises (for UI display)
-        const letters: Record<string, boolean> = {};
-        alphabet.forEach(letter => {
-          if (letter === '#') {
-            // Check if there are exercises starting with numbers
-            const hasNumbers = processedData.some(ex => ex.name && /^[0-9]/.test(ex.name));
-            letters[letter] = hasNumbers;
-          } else {
-            const hasLetter = processedData.some(ex => 
-              ex.name && ex.name.toUpperCase().startsWith(letter)
-            );
-            letters[letter] = hasLetter;
-          }
-        });
-        setAvailableLetters(letters);
-      } else {
-        // If no data available, set empty arrays
-        setExercises([]);
-        setFilteredExercises([]);
-        setAvailableLetters({});
-        // Show appropriate message to user
-        setError('No exercises available. Please check your connection and try again.');
-      }
-    } catch (err) {
-      console.error('Error fetching exercises:', err);
-      setError('Failed to fetch exercises. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Generate the full Supabase storage URL for an exercise GIF
-  const getGifUrl = (fileName: string | null) => {
-    if (!fileName) return null;
-    return `https://fleiivpyjkvahakriuta.supabase.co/storage/v1/object/public/exercises/gifs/${fileName}`;
-  };
-
-  // No filter icon render function needed since it's moved to the FilterOptions component
-
-  // Organize exercises by first letter for the A-Z view (UI only)
-  const [exercisesByLetter, setExercisesByLetter] = useState<Record<string, Exercise[]>>({});
 
   const organizeExercisesByLetter = (exerciseList: Exercise[]) => {
     const grouped: Record<string, Exercise[]> = {};
@@ -241,6 +234,75 @@ export default function ExercisesScreen({ navigation }: MainTabScreenProps<'Exer
     
     setExercisesByLetter(grouped);
   };
+
+  const fetchExercises = async () => {
+    try {
+      setLoading(true);
+      
+      // Use the workout service to get exercises with caching support
+      const exerciseData = await workoutService.getExerciseLibrary();
+
+      // Check if component is still mounted before updating state
+      if (!isMounted.current) return;
+      
+      if (exerciseData && exerciseData.exercises.length > 0) {
+        setTotalExerciseCount(exerciseData.totalCount);
+        
+        const processedData = exerciseData.exercises.map((exercise) => ({
+          ...exercise,
+          selected: false,
+          added: false
+        }));
+        
+        setExercises(processedData as Exercise[]);
+        setFilteredExercises(processedData as Exercise[]);
+        
+        // Organize exercises by first letter (for UI display only)
+        debouncedOrganizeExercises(processedData as Exercise[]);
+        
+        // Track which letters have exercises (for UI display)
+        const letters: Record<string, boolean> = {};
+        alphabet.forEach(letter => {
+          if (letter === '#') {
+            // Check if there are exercises starting with numbers
+            const hasNumbers = processedData.some(ex => ex.name && /^[0-9]/.test(ex.name));
+            letters[letter] = hasNumbers;
+          } else {
+            const hasLetter = processedData.some(ex => 
+              ex.name && ex.name.toUpperCase().startsWith(letter)
+            );
+            letters[letter] = hasLetter;
+          }
+        });
+        setAvailableLetters(letters);
+      } else {
+        // If no data available, set empty arrays
+        setExercises([]);
+        setFilteredExercises([]);
+        setAvailableLetters({});
+        // Show appropriate message to user
+        setError('No exercises available. Please check your connection and try again.');
+      }
+    } catch (err) {
+      console.error('Error fetching exercises:', err);
+      setError('Failed to fetch exercises. Please try again later.');
+    } finally {
+      if (isMounted.current) {
+      setLoading(false);
+      }
+    }
+  };
+
+  // Generate the full Supabase storage URL for an exercise GIF
+  const getGifUrl = (fileName: string | null) => {
+    if (!fileName) return null;
+    return `https://fleiivpyjkvahakriuta.supabase.co/storage/v1/object/public/exercises/gifs/${fileName}`;
+  };
+
+  // No filter icon render function needed since it's moved to the FilterOptions component
+
+  // Organize exercises by first letter for the A-Z view (UI only)
+  const [exercisesByLetter, setExercisesByLetter] = useState<Record<string, Exercise[]>>({});
 
   const handleExerciseSelection = (exercise: Exercise) => {
     const updatedExercises = exercises.map(ex => {
