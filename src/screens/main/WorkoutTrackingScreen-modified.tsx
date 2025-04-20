@@ -2154,13 +2154,17 @@ export default function WorkoutTrackingScreen({
   
           {/* Add Set Button - Only show if no active set */}
           {!activeSetId && (
-            <View style={styles.addSetContainer}>
-              <TouchableOpacity style={styles.addSetButton} onPress={addSet}>
-                <Text style={styles.addSetText}>Add set</Text>
-                <Plus size={20} color="#374151" />
-              </TouchableOpacity>
-            </View>
-          )}
+  <View style={styles.saveSetContainer}>
+    <TouchableOpacity 
+      style={styles.saveSetButton} 
+      onPress={() => saveCurrentSet()}
+      disabled={findNextIncompleteSetIndex() < 0}
+    >
+      <Text style={styles.saveSetText}>Save Set</Text>
+      <Check size={20} color="#FFFFFF" />
+    </TouchableOpacity>
+  </View>
+)}
           
           {/* Exercise History Section (toggleable) */}
           <View style={styles.historySection}>
@@ -2263,17 +2267,18 @@ export default function WorkoutTrackingScreen({
       
       {/* Set Keyboard Wrapper */}
       {keyboardVisible && activeSetId && (
-        <SetKeyboardWrapper
-          activeSet={currentExercise.sets.find(set => set.id === activeSetId)}
-          weight={activeSetWeight}
-          reps={activeSetReps}
-          setType={activeSetType}
-          onWeightChange={setActiveSetWeight}
-          onRepsChange={setActiveSetReps}
-          onSetTypeChange={setActiveSetType}
-          onSave={saveActiveSet}
-        />
-      );
+  <SetKeyboardWrapper
+    activeSet={currentExercise.sets.find(set => set.id === activeSetId)}
+    weight={activeSetWeight}
+    reps={activeSetReps}
+    setType={activeSetType}
+    onWeightChange={setActiveSetWeight}
+    onRepsChange={setActiveSetReps}
+    onSetTypeChange={setActiveSetType}
+    onSave={saveActiveSet}
+  />
+)}
+</SafeAreaView>
     }
 
     const styles = StyleSheet.create({
@@ -2914,9 +2919,17 @@ export default function WorkoutTrackingScreen({
           borderColor: '#E5E7EB',
         },
         selectedSetRow: {
-            backgroundColor: colors.indigo[50],
-            borderWidth: 1,
-            borderColor: colors.indigo[200],
+            backgroundColor: '#EEF2FF', // Light indigo background for selected set
+            borderLeftWidth: 3,
+            borderLeftColor: colors.indigo[600],
+          },
+          selectedText: {
+            color: colors.indigo[600],
+            fontWeight: '500',
+          },
+          selectedIncompleteIndicator: {
+            borderColor: colors.indigo[600],
+            borderWidth: 2,
           },
           completedIndicator: {
             width: 24,
