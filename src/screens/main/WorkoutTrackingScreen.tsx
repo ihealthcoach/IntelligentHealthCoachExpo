@@ -693,6 +693,72 @@ const checkForPersonalRecords = async () => {
   }
 };
 
+// Function to save the current set
+const saveCurrentSet = async () => {
+  if (!workout) return;
+  
+  const activeSetIndex = findNextIncompleteSetIndex();
+  if (activeSetIndex < 0) return; // No incomplete sets
+  
+  const activeSet = workout.exercises[currentExerciseIndex].sets[activeSetIndex];
+  
+  // First, commit any active editing
+  if (editingWeight && editingWeight.setId === activeSet.id) {
+    await updateSetValue(activeSet.id, 'weight', editingWeight.value);
+    setEditingWeight(null);
+  }
+  
+  if (editingReps && editingReps.setId === activeSet.id) {
+    await updateSetValue(activeSet.id, 'reps', editingReps.value);
+    setEditingReps(null);
+  }
+  
+  if (editingRPE && editingRPE.setId === activeSet.id) {
+    await updateSetValue(activeSet.id, 'rpe', editingRPE.value);
+    setEditingRPE(null);
+  }
+  
+  // Validate if weight and reps are entered
+  if (!activeSet.weight || !activeSet.reps) {
+    Alert.alert('Missing Information', 'Please enter both weight and reps before saving the set.');
+    return;
+  }
+  
+  // Mark the set as complete
+  try {
+    const workoutCopy = JSON.parse(JSON.stringify(workout));
+    workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].isComplete = true;
+    workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].completedAt = new Date().toISOString();
+    
+    // Update state
+    setWorkout(workoutCopy);
+    
+    // Save directly to AsyncStorage
+    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+    
+    // Also save through service
+    await workoutService.saveCurrentWorkout(workoutCopy);
+    
+    // Provide feedback
+    setLastCompletedSetId(activeSet.id);
+    if (Platform.OS === 'ios') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Vibration.vibrate(100);
+    }
+    
+    // Start rest timer
+    startRestTimer(workout.exercises[currentExerciseIndex].id, activeSet.id);
+    
+    // Check for PRs
+    checkForPersonalRecords();
+    
+  } catch (error) {
+    console.error('Error saving set:', error);
+    Alert.alert('Error', 'Failed to save the set');
+  }
+};
+
 // Function to mark a set as complete or incomplete
 const toggleSetCompletion = async (setId: string) => {
   if (!workout) return;
@@ -1538,25 +1604,19 @@ const handleBackToOverview = async () => {
                     
                     {/* Completion checkbox / PR indicator */}
                     <View style={styles.completionContainer}>
-                      {set.isPR ? (
-                        <View style={styles.prContainer}>
-                          <Award size={20} color="#F59E0B" />
-                        </View>
-                      ) : (
-                        <TouchableOpacity 
-                          onPress={() => toggleSetCompletion(set.id)}
-                          disabled={isInactive}
-                          style={[
-                            styles.completionCheckbox,
-                            set.isComplete && styles.completedCheckbox,
-                            isInactive && styles.disabledCheckbox
-                          ]}
-                        >
-                          {set.isComplete && (
-                            <Check size={16} color="#FFFFFF" />
-                          )}
-                        </TouchableOpacity>
-                      )}
+          {set.isPR ? (
+            <View style={styles.prContainer}>
+              <Award size={20} color="#F59E0B" />
+            </View>
+          ) : (
+            set.isComplete ? (
+              <View style={styles.completedIndicator}>
+                <Check size={16} color="#FFFFFF" />
+              </View>
+            ) : (
+              <View style={styles.incompleteIndicator} />
+            )
+          )}
                       
                       {/* Set menu button for additional actions */}
                       <TouchableOpacity 
@@ -1571,6 +1631,18 @@ const handleBackToOverview = async () => {
               );
             })}
           </View>
+
+{/* Save Set Button */}
+          <View style={styles.saveSetContainer}>
+  <TouchableOpacity 
+    style={styles.saveSetButton} 
+    onPress={() => saveCurrentSet()}
+    disabled={!findNextIncompleteSetIndex() >= 0}
+  >
+    <Text style={styles.saveSetText}>Save Set</Text>
+    <Check size={20} color="#FFFFFF" />
+  </TouchableOpacity>
+</View>
 
           {/* Add Set Button */}
           <View style={styles.addSetContainer}>
@@ -2363,5 +2435,40 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     fontSize: 16,
     color: colors.gray[900],
+  },
+  saveSetContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  saveSetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.indigo[600],
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  saveSetText: {
+    fontFamily: fonts.medium,
+    fontSize: 16,
+    color: '#FFFFFF',
+  },
+  completedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.indigo[600],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  incompleteIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
   },
 });
