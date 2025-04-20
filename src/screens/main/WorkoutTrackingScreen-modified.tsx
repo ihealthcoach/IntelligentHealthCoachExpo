@@ -2279,7 +2279,8 @@ export default function WorkoutTrackingScreen({
   />
 )}
 </SafeAreaView>
-    }
+  );
+}
 
     const styles = StyleSheet.create({
         container: {
@@ -2996,4 +2997,5 @@ export default function WorkoutTrackingScreen({
             justifyContent: 'space-between',
             marginBottom: 16,
             gap: 12,
+          },
       });
