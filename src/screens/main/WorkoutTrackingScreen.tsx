@@ -698,6 +698,21 @@ const toggleSetCompletion = async (setId: string) => {
   if (!workout) return;
   
   try {
+    // First, commit any active editing values
+    if (editingWeight && editingWeight.setId) {
+      await updateSetValue(editingWeight.setId, 'weight', editingWeight.value);
+      setEditingWeight(null);
+    }
+    
+    if (editingReps && editingReps.setId) {
+      await updateSetValue(editingReps.setId, 'reps', editingReps.value);
+      setEditingReps(null);
+    }
+    
+    if (editingRPE && editingRPE.setId) {
+      await updateSetValue(editingRPE.setId, 'rpe', editingRPE.value);
+      setEditingRPE(null);
+    }
     // Create a deep copy of the current workout
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
