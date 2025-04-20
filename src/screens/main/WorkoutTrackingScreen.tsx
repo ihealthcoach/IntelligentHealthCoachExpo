@@ -1637,7 +1637,7 @@ const handleBackToOverview = async () => {
   <TouchableOpacity 
     style={styles.saveSetButton} 
     onPress={() => saveCurrentSet()}
-    disabled={!findNextIncompleteSetIndex() >= 0}
+    disabled={findNextIncompleteSetIndex() < 0}
   >
     <Text style={styles.saveSetText}>Save Set</Text>
     <Check size={20} color="#FFFFFF" />
