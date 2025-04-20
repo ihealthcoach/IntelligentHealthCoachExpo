@@ -140,7 +140,6 @@ export default function WorkoutTrackingScreen({
         useNativeDriver: true,
       }).start();
     });
-  };
   
   // Handle navigation back to overview screen
   const handleBackToOverview = async () => {
@@ -1439,10 +1438,16 @@ export default function WorkoutTrackingScreen({
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
     // Force immediate save before navigation
-    await workoutService.saveCurrentWorkout(workoutCopy);
+    await ensureWorkoutSaved(workoutCopy);
     
     // Skip any active timer
     skipRestTimer();
+    
+    // Reset active set tracking state
+    setActiveSetId(null);
+    setActiveSetWeight('');
+    setActiveSetReps('');
+    setActiveSetType('standard');
     
     Animated.timing(position, {
       toValue: -width,
@@ -1462,3 +1467,810 @@ export default function WorkoutTrackingScreen({
         setCompletionModalVisible(true);
         return;
       }
+      
+      Animated.timing(position, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+  
+  // Handle navigation back to overview screen
+  const handleBackToOverview = async () => {
+    if (workout) {
+      console.log("-----DEBUG: NAVIGATION BACK TO OVERVIEW-----");
+      
+      // Create a deep copy of the workout to see exactly what we're saving
+      const workoutToSave = JSON.parse(JSON.stringify(workout));
+      
+      // Log the workout state explicitly with a structured format
+      console.log(`DEBUG: Saving workout ID: ${workoutToSave.id}`);
+      console.log(`DEBUG: Total exercises: ${workoutToSave.exercises.length}`);
+      
+      let totalSets = 0;
+      let completedSets = 0;
+      
+      workoutToSave.exercises.forEach((ex, i) => {
+        const exCompleted = ex.sets.filter(s => s.isComplete).length;
+        totalSets += ex.sets.length;
+        completedSets += exCompleted;
+        
+        console.log(`DEBUG: Exercise ${i+1}: ${ex.name} - ${exCompleted}/${ex.sets.length} completed sets`);
+        
+        // Log each set's details
+        ex.sets.forEach((set, j) => {
+          console.log(`DEBUG: Exercise ${i+1}, Set ${j+1}: ID=${set.id}, completed=${set.isComplete}, weight=${set.weight}, reps=${set.reps}`);
+        });
+      });
+      
+      console.log(`DEBUG: Total sets completed: ${completedSets}/${totalSets}`);
+      
+      try {
+        // FIRST, directly save to AsyncStorage with error handling
+        console.log("DEBUG: Directly saving to AsyncStorage first");
+        try {
+          await AsyncStorage.setItem('current_workout', JSON.stringify(workoutToSave));
+          console.log("DEBUG: Direct AsyncStorage save successful");
+        } catch (directError) {
+          console.error("DEBUG: ERROR in direct AsyncStorage save:", directError);
+        }
+        
+        // SECOND, save through the service layer
+        console.log("DEBUG: Saving through workout service");
+        await workoutService.saveCurrentWorkout(workoutToSave);
+        
+        // VERIFY the save was successful by reading back
+        try {
+          const verifyJson = await AsyncStorage.getItem('current_workout');
+          if (verifyJson) {
+            const verifiedWorkout = JSON.parse(verifyJson);
+            const verifiedCompletedSets = verifiedWorkout.exercises.reduce((total, ex) => 
+              total + ex.sets.filter(s => s.isComplete).length, 0);
+            
+            console.log(`DEBUG: Verification - saved workout has ${verifiedCompletedSets} completed sets`);
+            
+            // Compare expected vs actual
+            if (completedSets !== verifiedCompletedSets) {
+              console.error(`DEBUG: CRITICAL DATA MISMATCH - Expected ${completedSets} completed sets but found ${verifiedCompletedSets}`);
+            } else {
+              console.log("DEBUG: Data integrity verified ✓");
+            }
+          } else {
+            console.error("DEBUG: VERIFICATION FAILED - Could not read workout from AsyncStorage");
+          }
+        } catch (verifyError) {
+          console.error("DEBUG: ERROR during verification:", verifyError);
+        }
+      } catch (saveError) {
+        console.error("DEBUG: ERROR saving workout:", saveError);
+      }
+      
+      console.log("-----DEBUG: NAVIGATION COMPLETE-----");
+    }
+    
+    // Wait a moment to ensure saves complete before navigation
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Reset active set tracking state
+    setActiveSetId(null);
+    
+    // Navigate back
+    navigation.goBack();
+  };
+  
+  // Update exercise notes
+  const updateExerciseNotes = async () => {
+    if (!workout) return;
+    
+    // Only update if notes have changed
+    if (workout.exercises[currentExerciseIndex].notes !== exerciseNotes) {
+      const updatedExercises = workout.exercises.map((exercise, index) => {
+        if (index === currentExerciseIndex) {
+          return {
+            ...exercise,
+            notes: exerciseNotes
+          };
+        }
+        return exercise;
+      });
+      
+      const newWorkout = { ...workout, exercises: updatedExercises };
+      setWorkout(newWorkout);
+      
+      // Save workout data
+      await workoutService.saveCurrentWorkout(newWorkout);
+    }
+    
+    // Exit editing mode
+    setIsEditingNotes(false);
+  };
+  
+  // Calculate sets completed for current exercise
+  const getCompletedSetsText = () => {
+    if (!workout) return "";
+    
+    const currentExercise = workout.exercises[currentExerciseIndex];
+    const completedSets = currentExercise.sets.filter(set => set.isComplete).length;
+    const totalSets = currentExercise.sets.length;
+    
+    return `${completedSets} of ${totalSets} sets completed`;
+  };
+  
+  // Handle completing the workout
+  const completeWorkout = async () => {
+    try {
+      if (!workout) return;
+      
+      // Save any unsaved notes
+      updateExerciseNotes();
+      
+      // Add completion timestamp and update status
+      const completedWorkout = {
+        ...workout,
+        completedAt: new Date().toISOString(),
+        status: 'completed' as const
+      };
+      
+      // Calculate some stats for the workout
+      let totalVolume = 0;
+      let setCount = 0;
+      let completedSetCount = 0;
+      
+      // Calculate total volume and completion rate
+      completedWorkout.exercises.forEach(exercise => {
+        exercise.sets.forEach(set => {
+          setCount++;
+          if (set.isComplete) {
+            completedSetCount++;
+            if (set.weight && set.reps) {
+              totalVolume += set.weight * set.reps;
+            }
+          }
+        });
+      });
+      
+      completedWorkout.totalVolume = totalVolume;
+      
+      // Add a check for workout completion
+      if (completedSetCount === 0) {
+        Alert.alert(
+          'No Sets Completed',
+          'You haven\'t completed any sets. Are you sure you want to finish this workout?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel'
+            },
+            {
+              text: 'Complete Anyway',
+              onPress: async () => {
+                await finishWorkout(completedWorkout);
+              }
+            }
+          ]
+        );
+      } else {
+        await finishWorkout(completedWorkout);
+      }
+    } catch (error) {
+      console.error('Error completing workout:', error);
+      Alert.alert('Error', 'Failed to save workout data');
+    }
+  };
+  
+  // Final steps to finish a workout
+  const finishWorkout = async (completedWorkout: Workout) => {
+    try {
+      // Use workout service to complete the workout
+      await workoutService.completeWorkout(completedWorkout);
+      
+      // Explicitly clear the current workout
+      await workoutService.clearCurrentWorkout();
+      
+      // Set a flag that a workout was recently completed
+      await AsyncStorage.setItem('recently_completed_workout', 'true');
+      
+      // Navigate to a workout summary/success screen
+      // For now, just go back to the main tabs
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
+    } catch (error) {
+      console.error('Error finishing workout:', error);
+      Alert.alert('Error', 'Failed to complete workout');
+    }
+  };
+  
+  // Handle continuing the workout without completing
+  const continueWorkout = () => {
+    setCompletionModalVisible(false);
+  };
+  
+  // State for handling the active set keyboard workflow
+  const [activeSetId, setActiveSetId] = useState<string | null>(null);
+  const [activeSetWeight, setActiveSetWeight] = useState('');
+  const [activeSetReps, setActiveSetReps] = useState('');
+  const [activeSetType, setActiveSetType] = useState('standard');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  
+  // Listen for keyboard events
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+  
+    // Cleanup listeners
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+  
+  // Handle selecting a set to edit
+  const handleSetSelection = (set: ExerciseSet) => {
+    // Don't re-select if already selected or if we're in other editing modes
+    if (activeSetId === set.id || editingWeight || editingReps || editingRPE || isEditingNotes) {
+      return;
+    }
+    
+    // Initialize the editing state with current values
+    setActiveSetId(set.id);
+    setActiveSetWeight(set.weight ? set.weight.toString() : '');
+    setActiveSetReps(set.reps ? set.reps.toString() : '');
+    setActiveSetType(set.type || 'standard');
+    
+    // Provide haptic feedback
+    if (Platform.OS === 'ios') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } else {
+      Vibration.vibrate(30);
+    }
+  };
+  
+  // Save the active set
+  const saveActiveSet = async () => {
+    if (!workout || !activeSetId) return;
+    
+    try {
+      // Validate inputs
+      if (!activeSetWeight || !activeSetReps) {
+        Alert.alert('Missing Information', 'Please enter both weight and reps before saving the set.');
+        return;
+      }
+      
+      // Create a deep copy of the current workout
+      const workoutCopy = JSON.parse(JSON.stringify(workout));
+      
+      // Find and update the set
+      let updatedSet = false;
+      
+      for (const exercise of workoutCopy.exercises) {
+        for (let i = 0; i < exercise.sets.length; i++) {
+          if (exercise.sets[i].id === activeSetId) {
+            // Update the set
+            exercise.sets[i] = {
+              ...exercise.sets[i],
+              weight: parseFloat(activeSetWeight),
+              reps: parseInt(activeSetReps),
+              type: activeSetType,
+              isComplete: true,
+              completedAt: new Date().toISOString()
+            };
+            updatedSet = true;
+            break;
+          }
+        }
+        if (updatedSet) break;
+      }
+      
+      if (!updatedSet) {
+        console.error(`Set with ID ${activeSetId} not found`);
+        return;
+      }
+      
+      // Update state
+      setWorkout(workoutCopy);
+      
+      // Save to storage
+      await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
+      await workoutService.saveCurrentWorkout(workoutCopy);
+      
+      // Set as last completed for animation
+      setLastCompletedSetId(activeSetId);
+      
+      // Provide feedback
+      if (Platform.OS === 'ios') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } else {
+        Vibration.vibrate(100);
+      }
+      
+      // Start rest timer
+      const currentExercise = workout.exercises[currentExerciseIndex];
+      startRestTimer(currentExercise.id, activeSetId);
+      
+      // Check for PRs
+      checkForPersonalRecords();
+      
+      // Reset active set state
+      setActiveSetId(null);
+      setActiveSetWeight('');
+      setActiveSetReps('');
+      setActiveSetType('standard');
+      
+      // Dismiss keyboard
+      Keyboard.dismiss();
+      
+    } catch (error) {
+      console.error('Error saving active set:', error);
+      Alert.alert('Error', 'Failed to save the set');
+    }
+  };
+  
+  if (!workout || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading workout...</Text>
+      </View>
+    );
+  }
+  
+  const currentExercise = workout.exercises[currentExerciseIndex];
+  
+  // Helper to find the next incomplete set (for highlighting the active set)
+  const findNextIncompleteSetIndex = () => {
+    return currentExercise.sets.findIndex(set => !set.isComplete);
+  };
+  
+  // Get active set index
+  const activeSetIndex = findNextIncompleteSetIndex();
+  
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPress={handleBackToOverview}>
+            <ArrowLeft size={24} color={colors.gray[900]} />
+          </TouchableOpacity>
+          
+          <View style={styles.headerTitle}>
+            <Text style={styles.headerText}>Exercise</Text>
+            <Text style={styles.headerCount}>
+              {currentExerciseIndex + 1} of {workout.exercises.length}
+            </Text>
+          </View>
+          
+          <TouchableOpacity>
+            <MoreHorizontal size={24} color={colors.gray[900]} />
+          </TouchableOpacity>
+        </View>
+      </View>
+  
+      {/* Rest Timer Modal */}
+      {restTimer.isActive && (
+        <View style={styles.restTimerContainer}>
+          <View style={styles.restTimerContent}>
+            <Text style={styles.restTimerTitle}>Rest Timer</Text>
+            <Text style={styles.restTimerTime}>{formatTime(restTimer.timeRemaining)}</Text>
+            
+            <ProgressBar 
+              progress={restTimer.timeRemaining / restTimer.defaultDuration} 
+              color="#4F46E5"
+              style={styles.restTimerProgress}
+            />
+            
+            <View style={styles.restTimerControls}>
+              <TouchableOpacity style={styles.restTimerButton} onPress={skipRestTimer}>
+                <Text style={styles.restTimerButtonText}>Skip</Text>
+              </TouchableOpacity>
+              
+              {restTimer.isActive ? (
+                <TouchableOpacity style={styles.restTimerButton} onPress={pauseRestTimer}>
+                  <Pause size={20} color={colors.gray[900]} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={styles.restTimerButton} onPress={resumeRestTimer}>
+                  <Play size={20} color={colors.gray[900]} />
+                </TouchableOpacity>
+              )}
+              
+              <TouchableOpacity 
+                style={styles.restTimerButton} 
+                onPress={() => startRestTimer(restTimer.exerciseId!, restTimer.setId!)}
+              >
+                <RefreshCw size={20} color={colors.gray[900]} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
+  
+      <Animated.ScrollView 
+        style={[
+          styles.scrollView,
+          { transform: [{ translateX: position }] }
+        ]}
+        {...panResponder.panHandlers}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          {/* Exercise Title Section */}
+          <View style={styles.titleSection}>
+            <View style={styles.headlineContainer}>
+              <Text style={styles.headline}>{currentExercise.name}</Text>
+              <View style={styles.subtitleSection}>
+                <Text style={styles.subtitle}>{getCompletedSetsText()}</Text>
+                {/* Superset badge if applicable */}
+                {currentExercise.supersetType && currentExercise.supersetType !== SupersetType.NONE && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{currentExercise.supersetType}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+            
+            {/* Notes section */}
+            <View style={styles.noteContainer}>
+              {isEditingNotes ? (
+                <View style={styles.noteEditContainer}>
+                  <TextInput
+                    style={styles.noteEditInput}
+                    value={exerciseNotes}
+                    onChangeText={setExerciseNotes}
+                    placeholder="Add notes for this exercise..."
+                    multiline
+                    autoFocus
+                  />
+                  <TouchableOpacity style={styles.noteSaveButton} onPress={updateExerciseNotes}>
+                    <Save size={18} color="#4F46E5" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={styles.noteDisplayContainer}
+                  onPress={() => setIsEditingNotes(true)}
+                >
+                  <Text style={styles.noteText}>
+                    {exerciseNotes || "Tap to add notes..."}
+                  </Text>
+                  <Edit size={16} color="#9CA3AF" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+  
+          {/* Sets Section */}
+          <View style={styles.setsSection}>
+            {/* Sets table header */}
+            <View style={styles.setTableHeader}>
+              <Text style={styles.setTableHeaderText}>SET</Text>
+              <Text style={styles.setTableHeaderText}>PREV</Text>
+              <Text style={styles.setTableHeaderText}>KG</Text>
+              <Text style={styles.setTableHeaderText}>REPS</Text>
+              <Text style={styles.setTableHeaderText}>RPE</Text>
+              <Text style={styles.setTableHeaderText}>✓</Text>
+            </View>
+            
+            {currentExercise.sets.map((set, index) => {
+              // Determine if set should be active or inactive
+              const isActive = index === activeSetIndex;
+              const isInactive = index > activeSetIndex && activeSetIndex !== -1;
+              const isSelected = set.id === activeSetId;
+              
+              // Animation for the last completed set
+              const isLastCompleted = set.id === lastCompletedSetId;
+              
+              return (
+                <TouchableOpacity
+                  key={set.id}
+                  style={[
+                    styles.setRow,
+                    isActive && styles.activeSetRow,
+                    isInactive && styles.inactiveSetRow,
+                    isSelected && styles.selectedSetRow,
+                    isLastCompleted && {
+                      backgroundColor: setCompleteAnimation.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: ['#FCFDFD', '#E0F2FE', '#FCFDFD']
+                      })
+                    }
+                  ]}
+                  onPress={() => handleSetSelection(set)}
+                  activeOpacity={0.7}
+                  disabled={set.isComplete || isInactive || editingWeight || editingReps || editingRPE || isEditingNotes}
+                >
+                  <View style={styles.setRowContent}>
+                    {/* Set number */}
+                    <View style={styles.setNumberContainer}>
+                      <Text style={[
+                        styles.setNumber, 
+                        isInactive && styles.inactiveText,
+                        isSelected && styles.selectedText
+                      ]}>
+                        {String(set.setNumber).padStart(2, '0')}
+                      </Text>
+                    </View>
+                    
+                    {/* Previous performance */}
+                    <View style={styles.previousContainer}>
+                      {set.previousWeight && set.previousReps ? (
+                        <Text style={[
+                          styles.previousText, 
+                          isInactive && styles.inactiveText,
+                          isSelected && styles.selectedText
+                        ]}>
+                          {set.previousWeight}kg × {set.previousReps}
+                        </Text>
+                      ) : (
+                        <Text style={[
+                          styles.previousText, 
+                          styles.emptyValue, 
+                          isInactive && styles.inactiveText,
+                          isSelected && styles.selectedText
+                        ]}>
+                          -
+                        </Text>
+                      )}
+                    </View>
+                    
+                    {/* Weight */}
+                    <View style={styles.weightContainer}>
+                      {editingWeight && editingWeight.setId === set.id ? (
+                        <TextInput
+                          style={styles.valueInput}
+                          value={editingWeight.value}
+                          onChangeText={(text) => setEditingWeight({...editingWeight, value: text})}
+                          keyboardType="numeric"
+                          autoFocus
+                          onBlur={() => {
+                            updateSetValue(set.id, 'weight', editingWeight.value);
+                            setEditingWeight(null);
+                          }}
+                          onSubmitEditing={() => {
+                            updateSetValue(set.id, 'weight', editingWeight.value);
+                            setEditingWeight(null);
+                          }}
+                        />
+                      ) : (
+                        <Text style={[
+                          styles.weightValue, 
+                          !set.weight && styles.emptyValue,
+                          isInactive && styles.inactiveText,
+                          isSelected && styles.selectedText,
+                          // Add a visual indicator if value is saved but set not completed
+                          (set.weight && !set.isComplete) && styles.savedButNotCompletedText
+                        ]}>
+                          {set.weight?.toString() || '-'}
+                        </Text>
+                      )}
+                    </View>
+                    
+                    {/* Reps */}
+                    <View style={styles.repsContainer}>
+                      {editingReps && editingReps.setId === set.id ? (
+                        <TextInput
+                          style={styles.valueInput}
+                          value={editingReps.value}
+                          onChangeText={(text) => setEditingReps({...editingReps, value: text})}
+                          keyboardType="numeric"
+                          autoFocus
+                          onBlur={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                          onSubmitEditing={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                        />
+                      ) : (
+                        <Text style={[
+                          styles.repsValue, 
+                          !set.reps && styles.emptyValue,
+                          isInactive && styles.inactiveText,
+                          isSelected && styles.selectedText
+                        ]}>
+                          {set.reps?.toString() || '-'}
+                        </Text>
+                      )}
+                    </View>
+                    
+                    {/* RPE (Rate of Perceived Exertion) */}
+                    <View style={styles.rpeContainer}>
+                      {editingRPE && editingRPE.setId === set.id ? (
+                        <Slider
+                          style={styles.rpeSlider}
+                          value={editingRPE.value || 5}
+                          minimumValue={1}
+                          maximumValue={10}
+                          step={0.5}
+                          minimumTrackTintColor="#4F46E5"
+                          maximumTrackTintColor="#E5E7EB"
+                          onValueChange={(value) => setEditingRPE({...editingRPE, value})}
+                          onSlidingComplete={(value) => {
+                            updateSetValue(set.id, 'rpe', value);
+                            setEditingRPE(null);
+                          }}
+                        />
+                      ) : (
+                        <Text style={[
+                          styles.rpeValue, 
+                          !set.rpe && styles.emptyValue,
+                          isInactive && styles.inactiveText,
+                          !set.isComplete && styles.disabledText,
+                          isSelected && styles.selectedText
+                        ]}>
+                          {set.rpe?.toString() || '-'}
+                        </Text>
+                      )}
+                    </View>
+                    
+                    {/* Completion checkbox / PR indicator */}
+                    <View style={styles.completionContainer}>
+                      {set.isPR ? (
+                        <View style={styles.prContainer}>
+                          <Award size={20} color="#F59E0B" />
+                        </View>
+                      ) : (
+                        set.isComplete ? (
+                          <View style={styles.completedIndicator}>
+                            <Check size={16} color="#FFFFFF" />
+                          </View>
+                        ) : (
+                          <View style={[
+                            styles.incompleteIndicator,
+                            isSelected && styles.selectedIncompleteIndicator
+                          ]} />
+                        )
+                      )}
+                      
+                      {/* Set menu button for additional actions */}
+                      <TouchableOpacity 
+                        style={styles.setMenuButton}
+                        onPress={() => removeSet(set.id)}
+                      >
+                        <Trash size={16} color="#9CA3AF" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+  
+          {/* Add Set Button - Only show if no active set */}
+          {!activeSetId && (
+            <View style={styles.addSetContainer}>
+              <TouchableOpacity style={styles.addSetButton} onPress={addSet}>
+                <Text style={styles.addSetText}>Add set</Text>
+                <Plus size={20} color="#374151" />
+              </TouchableOpacity>
+            </View>
+          )}
+          
+          {/* Exercise History Section (toggleable) */}
+          <View style={styles.historySection}>
+            <TouchableOpacity 
+              style={styles.historySectionHeader}
+              onPress={() => setShowExerciseHistory(!showExerciseHistory)}
+            >
+              <Text style={styles.historySectionTitle}>Exercise History</Text>
+              {showExerciseHistory ? (
+                <ChevronUp size={20} color={colors.gray[900]} />
+              ) : (
+                <ChevronDown size={20} color={colors.gray[900]} />
+              )}
+            </TouchableOpacity>
+            
+            {showExerciseHistory && (
+              <View style={styles.historyContent}>
+                {currentExercise.exerciseHistory?.length ? (
+                  currentExercise.exerciseHistory.map((record, idx) => (
+                    <View key={idx} style={styles.historyItem}>
+                      <Text style={styles.historyDate}>{new Date(record.date).toLocaleDateString()}</Text>
+                      <Text style={styles.historyWeight}>{record.weight}kg</Text>
+                      <Text style={styles.historyReps}>{record.reps} reps</Text>
+                      <Text style={styles.historyVolume}>{record.volume}kg</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noHistoryText}>No previous data for this exercise</Text>
+                )}
+              </View>
+            )}
+          </View>
+          
+          {/* Exercise Information Section */}
+          <View style={styles.infoSection}>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>Exercise Information</Text>
+              <Text style={styles.infoDescription}>
+                {currentExercise.primaryMuscles} • {currentExercise.equipment}
+              </Text>
+              
+              {/* Exercise target muscle groups */}
+              {currentExercise.targetMuscleGroups && currentExercise.targetMuscleGroups.length > 0 && (
+                <View style={styles.muscleTags}>
+                  {currentExercise.targetMuscleGroups.map((muscle, idx) => (
+                    <View key={idx} style={styles.muscleTag}>
+                      <Text style={styles.muscleTagText}>{muscle}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+          
+          {/* Estimated One-Rep Max */}
+          <View style={styles.oneRepMaxSection}>
+            <View style={styles.oneRepMaxCard}>
+              <Text style={styles.oneRepMaxTitle}>Estimated 1RM</Text>
+              <Text style={styles.oneRepMaxValue}>
+                {currentExercise.estimatedOneRepMax ? 
+                  `${Math.round(currentExercise.estimatedOneRepMax)}kg` : 
+                  'Complete a set to calculate'
+                }
+              </Text>
+            </View>
+          </View>
+          
+          {/* Bottom padding for floating button */}
+          <View style={styles.bottomPadding} />
+        </View>
+      </Animated.ScrollView>
+      
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNavContainer}>
+        <View style={styles.bottomNav}>
+          <TouchableOpacity style={styles.navItem}>
+            <Info size={24} color="#FCFDFD" />
+            <Text style={styles.navText}>Guide</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.navItem}>
+            <Activity size={24} color="#FCFDFD" />
+            <Text style={styles.navText}>Stats</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.navItem}>
+            <Timer size={24} color="#FCFDFD" />
+            <Text style={styles.navText}>Timer</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navItem}
+            onPress={() => setIsEditingNotes(true)}
+          >
+            <FileText size={24} color="#FCFDFD" />
+            <Text style={styles.navText}>Notes</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
+      {/* Set Keyboard Wrapper */}
+      {keyboardVisible && activeSetId && (
+        <SetKeyboardWrapper
+          activeSet={currentExercise.sets.find(set => set.id === activeSetId)}
+          weight={activeSetWeight}
+          reps={activeSetReps}
+          setType={activeSetType}
+          onWeightChange={setActiveSetWeight}
+          onRepsChange={setActiveSetReps}
+          onSetTypeChange={setActiveSetType}
+          onSave={saveActiveSet}
+        />
+    };
