@@ -700,9 +700,23 @@ const saveCurrentSet = async () => {
   const activeSetIndex = findNextIncompleteSetIndex();
   if (activeSetIndex < 0) return; // No incomplete sets
   
-  const activeSet = workout.exercises[currentExerciseIndex].sets[activeSetIndex];
+  const currentExercise = workout.exercises[currentExerciseIndex];
+  const activeSet = currentExercise.sets[activeSetIndex];
   
-  // First, commit any active editing
+  // Get the most up-to-date values, accounting for any active editing
+  const weight = editingWeight && editingWeight.setId === activeSet.id 
+    ? (editingWeight.value === '' ? null : parseFloat(editingWeight.value)) 
+    : activeSet.weight;
+    
+  const reps = editingReps && editingReps.setId === activeSet.id 
+    ? (editingReps.value === '' ? null : parseInt(editingReps.value, 10)) 
+    : activeSet.reps;
+    
+  const rpe = editingRPE && editingRPE.setId === activeSet.id 
+    ? editingRPE.value 
+    : activeSet.rpe;
+  
+  // Commit any active editing first
   if (editingWeight && editingWeight.setId === activeSet.id) {
     await updateSetValue(activeSet.id, 'weight', editingWeight.value);
     setEditingWeight(null);
@@ -718,18 +732,23 @@ const saveCurrentSet = async () => {
     setEditingRPE(null);
   }
   
-  // Validate if weight and reps are entered
-  if (!activeSet.weight || !activeSet.reps) {
+  // Validate with the final values
+  if (!weight || !reps) {
     Alert.alert('Missing Information', 'Please enter both weight and reps before saving the set.');
     return;
   }
   
-  // Mark the set as complete
+  // Create a fresh deep copy with the updated values
+  const workoutCopy = JSON.parse(JSON.stringify(workout));
+  
+  // Make sure our set has the latest values (in case async operations haven't completed)
+  workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].weight = weight;
+  workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].reps = reps;
+  workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].rpe = rpe;
+  workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].isComplete = true;
+  workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].completedAt = new Date().toISOString();
+  
   try {
-    const workoutCopy = JSON.parse(JSON.stringify(workout));
-    workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].isComplete = true;
-    workoutCopy.exercises[currentExerciseIndex].sets[activeSetIndex].completedAt = new Date().toISOString();
-    
     // Update state
     setWorkout(workoutCopy);
     
@@ -779,6 +798,7 @@ const toggleSetCompletion = async (setId: string) => {
       await updateSetValue(editingRPE.setId, 'rpe', editingRPE.value);
       setEditingRPE(null);
     }
+    
     // Create a deep copy of the current workout
     const workoutCopy = JSON.parse(JSON.stringify(workout));
     
@@ -818,7 +838,7 @@ const toggleSetCompletion = async (setId: string) => {
     
     // DIRECT SAVE: Save directly to AsyncStorage first
     const workoutJson = JSON.stringify(workoutCopy);
-    await AsyncStorage.setItem('current_workout', workoutJson);
+    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
     
     // Then save through service
     await workoutService.saveCurrentWorkout(workoutCopy);
