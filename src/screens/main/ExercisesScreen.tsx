@@ -280,25 +280,32 @@ useFocusEffect(
 
   // Handle exercise selection but don't filter
   const handleExerciseSelection = (exercise: Exercise) => {
-    // Create new arrays directly instead of mapping through the entire array
-    setExercises(prevExercises => 
-      prevExercises.map(ex => ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex)
-    );
-    
-    setFilteredExercises(prevFiltered => 
-      prevFiltered.map(ex => ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex)
-    );
-    
-    // Immediately update selected exercises for the buttons
+    // Immediately update the selectedExercises array first
     setSelectedExercises(prevSelected => {
-      const isSelected = prevSelected.some(ex => ex.id === exercise.id);
-      if (isSelected) {
+      const isAlreadySelected = prevSelected.some(ex => ex.id === exercise.id);
+      
+      if (isAlreadySelected) {
+        // Remove from selection if already selected
         return prevSelected.filter(ex => ex.id !== exercise.id);
       } else {
+        // Add to selection if not already selected
         return [...prevSelected, exercise];
       }
     });
-  }
+    
+    // Then update the UI state for highlighting the selected exercise
+    setExercises(prevExercises => 
+      prevExercises.map(ex => 
+        ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex
+      )
+    );
+    
+    setFilteredExercises(prevFiltered => 
+      prevFiltered.map(ex => 
+        ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex
+      )
+    );
+  };
 
   // Function to handle scrolling to a letter section
   const scrollToLetter = (letter: string) => {
