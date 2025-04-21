@@ -27,7 +27,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
       onPress={onPress}
     >
       <View style={styles.exerciseImageContainer}>
-        {exercise.selected && (
+        {exercise.added && (
           <View style={styles.checkBadge}>
             <Icon name="check-mini" width={12} height={12} color={colors.common.white} />
           </View>
@@ -52,11 +52,14 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
         </View>
       </View>
       
-      {exercise.added && (
-        <View style={styles.addedContainer}>
+      <View style={styles.addedContainer}>
+        {exercise.added && (
           <Text style={styles.addedText}>Added</Text>
-        </View>
-      )}
+        )}
+        {exercise.selected && !exercise.added && (
+          <Text style={styles.selectedText}>Selected</Text>
+        )}
+      </View>
     </TouchableOpacity>
   );
 };
@@ -134,6 +137,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: 11,
     color: '#4F46E5',
+  },
+  selectedText: {
+    fontFamily: fonts.semiBold,
+    fontSize: 11,
+    color: '#4F46E5', // Using a green color for selected
   },
 });
 

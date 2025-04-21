@@ -280,29 +280,25 @@ useFocusEffect(
 
   // Handle exercise selection but don't filter
   const handleExerciseSelection = (exercise: Exercise) => {
-    const updatedExercises = exercises.map(ex => {
-      if (ex.id === exercise.id) {
-        return { ...ex, selected: !ex.selected };
+    // Create new arrays directly instead of mapping through the entire array
+    setExercises(prevExercises => 
+      prevExercises.map(ex => ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex)
+    );
+    
+    setFilteredExercises(prevFiltered => 
+      prevFiltered.map(ex => ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex)
+    );
+    
+    // Immediately update selected exercises for the buttons
+    setSelectedExercises(prevSelected => {
+      const isSelected = prevSelected.some(ex => ex.id === exercise.id);
+      if (isSelected) {
+        return prevSelected.filter(ex => ex.id !== exercise.id);
+      } else {
+        return [...prevSelected, exercise];
       }
-      return ex;
     });
-    
-    setExercises(updatedExercises);
-    
-    // Update filtered exercises too
-    const updatedFiltered = filteredExercises.map(ex => {
-      if (ex.id === exercise.id) {
-        return { ...ex, selected: !ex.selected };
-      }
-      return ex;
-    });
-    
-    setFilteredExercises(updatedFiltered);
-    
-    // Update selected exercises list
-    const selected = updatedExercises.filter(ex => ex.selected);
-    setSelectedExercises(selected);
-  };
+  }
 
   // Function to handle scrolling to a letter section
   const scrollToLetter = (letter: string) => {
@@ -530,27 +526,21 @@ useFocusEffect(
   ))
 ) : (
   // Simple fallback rendering for other filter views
-  <View>
-    {filteredExercises.map(exercise => {
-      // Make sure exercise is a valid object with at least an id
-      if (!exercise || !exercise.id) return null;
-      
-      return (
-        <TouchableOpacity 
-          key={exercise.id}
-          style={styles.simpleExerciseItem}
-          onPress={() => handleExerciseSelection(exercise)}
-        >
-          <Text style={styles.simpleExerciseName}>
-            {exercise.name || 'Unnamed Exercise'}
-          </Text>
-          <Text style={styles.simpleExerciseDetails}>
-            {exercise.primary_muscles || 'Unknown'} • {exercise.equipment || 'Bodyweight'}
-          </Text>
-        </TouchableOpacity>
-      );
-    })}
-  </View>
+<View>
+  {filteredExercises.map(exercise => {
+    // Make sure exercise is a valid object with at least an id
+    if (!exercise || !exercise.id) return null;
+    
+    return (
+      <ExerciseItem
+        key={exercise.id}
+        exercise={exercise}
+        onPress={() => handleExerciseSelection(exercise)}
+        getGifUrl={getGifUrl}
+      />
+    );
+  })}
+</View>
 )}
           
           {/* Extra padding at the bottom for floating button */}
