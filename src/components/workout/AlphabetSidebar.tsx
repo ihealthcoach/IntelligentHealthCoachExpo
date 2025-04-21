@@ -9,18 +9,21 @@ interface AlphabetSidebarProps {
   alphabet: string[];
   availableLetters: Record<string, boolean>;
   onLetterPress: (letter: string) => void;
+  selectedLetter?: string;
 }
 
 // Using React.memo to prevent unnecessary re-renders
 const AlphabetSidebar: React.FC<AlphabetSidebarProps> = memo(({ 
   alphabet, 
   availableLetters, 
-  onLetterPress 
+  onLetterPress,
+  selectedLetter
 }) => {
   // Use useMemo to cache the letter elements for better performance
   const letterElements = useMemo(() => {
     return alphabet.map((letter) => {
       const isAvailable = availableLetters[letter];
+      const isSelected = letter === selectedLetter;
       
       return (
         <TouchableOpacity
@@ -31,7 +34,8 @@ const AlphabetSidebar: React.FC<AlphabetSidebarProps> = memo(({
           <Text
             style={[
               styles.alphabetLetter,
-              !isAvailable && styles.alphabetLetterInactive
+              !isAvailable && styles.alphabetLetterInactive,
+              isSelected && styles.alphabetLetterSelected
             ]}
           >
             {letter}
@@ -39,7 +43,7 @@ const AlphabetSidebar: React.FC<AlphabetSidebarProps> = memo(({
         </TouchableOpacity>
       );
     });
-  }, [alphabet, availableLetters, onLetterPress]);
+  }, [alphabet, availableLetters, onLetterPress, selectedLetter]);
   
   return (
     <View style={styles.alphabetContainer}>
@@ -65,6 +69,9 @@ const styles = StyleSheet.create({
     color: colors.gray[400],
     paddingVertical: 1,
     textAlign: 'center',
+  },
+  alphabetLetterSelected: {
+    color: colors.gray[900],
   },
   alphabetLetterInactive: {
     color: colors.gray[200],

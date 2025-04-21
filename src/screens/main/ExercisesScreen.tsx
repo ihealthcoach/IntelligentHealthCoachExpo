@@ -13,7 +13,7 @@ import {
   Animated,
   Modal,
   ActivityIndicator,
-  ImageBackground
+  ImageBackground,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { 
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   doneButtonText: {
-    color: '#FFFFFF',
+    color: colors.common.white,
     fontFamily: fonts.medium,
     marginRight: 4,
   },
@@ -792,7 +792,7 @@ const styles = StyleSheet.create({
   },
   addExercisesButtonText: {
     fontFamily: fonts.medium,
-    color: '#FFFFFF',
+    color: colors.common.white,
     fontSize: 16,
   },
   buildSuperSetButton: {
