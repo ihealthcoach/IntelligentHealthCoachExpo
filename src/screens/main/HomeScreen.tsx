@@ -19,16 +19,20 @@ import { useSnackbar } from '../../contexts/SnackbarContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { MainTabScreenProps } from '../../types/navigation';
 
-// Icons
-import FireMini from '../../assets/icons/fire-mini.svg';
-import ClockOutline from '../../assets/icons/clock-outline.svg';
-import StepsIcon from '../../assets/icons/steps.svg';
-import MapPinOutline from '../../assets/icons/map-pin-outline.svg';
-import DumbbellIcon from '../../assets/icons/dumbbell.svg';
-import ArrowRightMini from '../../assets/icons/arrow-right-mini.svg';
-import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
-import ChevronDownMini from '../../assets/icons/chevron-down-mini.svg';
-import PlusMini from '../../assets/icons/plus-mini.svg';
+// Import icons from the styles/icons file
+import {
+  ChevronDownMini,
+  Dumbbell,
+  Steps,
+} from '../../styles/icons';
+
+// https://www.npmjs.com/package/react-native-heroicons
+import * as SolidIcons from "react-native-heroicons/solid";
+import * as OutlineIcons from "react-native-heroicons/outline";
+import * as MiniIcons from "react-native-heroicons/mini";
+
+// https://www.npmjs.com/package/iconsax-react-native
+import { Clock, } from 'iconsax-react-native';
 
 // Styles
 import { fonts } from '../../styles/fonts';
@@ -187,12 +191,13 @@ const getFirstName = () => {
             <View style={styles.sectionHeader}>
               <View style={styles.sectionTitleContainer}>
                 <Text style={styles.sectionTitle}>Today's goals</Text>
-                <Icon name="chevron-down-mini" size={20} fill={colors.gray[900]} />
+                <MiniIcons.ChevronDownIcon size={20} color={colors.gray[900]} />
+                
               </View>
               
               <TouchableOpacity style={styles.editLink}>
                 <Text style={styles.editLinkText}>Edit goals</Text>
-                <Icon name="arrow-right-mini" size={14} fill={colors.gray[100]} />
+                <MiniIcons.ArrowRightIcon size={14} fill={colors.gray[900]} />
               </TouchableOpacity>
             </View>
             
@@ -203,8 +208,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Icon name="fire-mini" size={24} color={colors.gray[100]} />
-                      <FireMini width={24} height={24} color={colors.gray[500]} />
+                      <MiniIcons.FireIcon size={24} color={colors.gray[500]} />
                     </View>
                     <Text style={styles.goalTitle}>Calories</Text>
                   </View>
@@ -226,7 +230,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Icon name="clock-outline" size={24} color={colors.gray[500]} />
+                      <OutlineIcons.ClockIcon size={24} stroke={colors.gray[500]}/>
                     </View>
                     <Text style={styles.goalTitle}>Active time</Text>
                   </View>
@@ -251,7 +255,7 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                    <Icon name="steps" size={24} color={colors.gray[500]} />
+                    <Steps width={24} stroke={colors.gray[500]} />
                     </View>
                     <Text style={styles.goalTitle}>Steps</Text>
                   </View>
@@ -273,7 +277,8 @@ const getFirstName = () => {
                 <View style={styles.goalItem}>
                   <View style={styles.goalHeader}>
                     <View style={styles.goalIconContainer}>
-                      <Icon name="map-pin-outline" size={24} color={colors.gray[500]} />
+                      <OutlineIcons.MapPinIcon size={24} stroke={colors.gray[500]} />
+
                     </View>
                     <Text style={styles.goalTitle}>Distance</Text>
                   </View>
@@ -301,7 +306,8 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Workouts (week 36)</Text>
                   <Text style={styles.statsValue}>3/5</Text>
                 </View>
-                <Icon name="chevron-right-mini" size={20} color={colors.gray[400]} />
+                <MiniIcons.ChevronRightIcon size={20} fill={colors.gray[400]} />
+                
               </TouchableOpacity>
               
               {/* Weight Row */}
@@ -313,7 +319,8 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Weight</Text>
                   <Text style={styles.statsValue}>86/92 kg</Text>
                 </View>
-                <Icon name="chevron-right-mini" size={20} color={colors.gray[400]} />
+                <MiniIcons.ChevronRightIcon size={20} fill={colors.gray[400]} />
+
               </TouchableOpacity>
               
               {/* Calories Row */}
@@ -322,7 +329,7 @@ const getFirstName = () => {
                   <Text style={styles.statsTitle}>Calories</Text>
                   <Text style={styles.statsValue}>1.350/2.500</Text>
                 </View>
-                <Icon name="chevron-right-mini" size={20} color={colors.gray[400]} />
+                <MiniIcons.ChevronRightIcon size={20} fill={colors.gray[400]} />
               </TouchableOpacity>
             </View>
             
@@ -332,7 +339,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Workouts')}
             >
               <Text style={styles.trackButtonText}>Track a workout</Text>
-              <Icon name="chevron-right-mini" size={24} fill={colors.common.white} />
+              <MiniIcons.ArrowRightIcon size={24} fill={colors.common.white} />
             </TouchableOpacity>
           </View>
           
@@ -346,7 +353,7 @@ const getFirstName = () => {
                 onPress={() => navigation.navigate('History')}
               >
                 <Text style={styles.editLinkText}>Show history</Text>
-                <Icon name="arrow-right-mini" size={14} color={colors.gray[900]} />
+                <MiniIcons.ArrowRightIcon size={14} color={colors.gray[900]} />
               </TouchableOpacity>
             </View>
             
@@ -355,22 +362,23 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Running</Text>
-                  <Icon name="arrow-right-mini" size={20} color={colors.gray[900]} />
+                  <MiniIcons.ArrowRightIcon size={20} color={colors.gray[900]} />
+                  
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                  <Icon name="clock-outline" size={24} color={colors.gray[500]} />
+                  <OutlineIcons.ClockIcon size={24} stroke={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>00:40:17</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Icon name="fire-mini" size={24} color={colors.gray[500]} />
+                    <MiniIcons.FireIcon size={24} color={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>140 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Icon name="map-pin-outline" size={24} color={colors.gray[500]} />
+                    <OutlineIcons.MapIcon size={24} stroke={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>4,2 km</Text>
                   </View>
                 </View>
@@ -380,27 +388,27 @@ const getFirstName = () => {
               <View style={styles.activityItem}>
                 <View style={styles.activityHeader}>
                   <Text style={styles.activityTitle}>Gym</Text>
-                  <Icon name="arrow-right-mini" size={20} color={colors.gray[900]} />
+                  <MiniIcons.ArrowRightIcon size={20} color={colors.gray[900]} />
                 </View>
                 
                 <View style={styles.activityStats}>
                   <View style={styles.activityStat}>
-                  <Icon name="clock-outline" size={24} color={colors.gray[500]} />
+                  <OutlineIcons.ClockIcon size={24} stroke={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>01:15:00</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                  <Icon name="fire-mini" size={24} color={colors.gray[500]} />
+                  <MiniIcons.FireIcon size={24} color={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>812 kcal</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                    <Icon name="dumbbell" size={24} color={colors.gray[500]} />
+                    <Dumbbell width={24} color={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>8 exercises</Text>
                   </View>
                   
                   <View style={styles.activityStat}>
-                  <Icon name="dumbbell" size={24} color={colors.gray[500]} />
+                  <Dumbbell width={24} color={colors.gray[500]} />
                     <Text style={styles.activityStatValue}>00:15</Text>
                   </View>
                 </View>
@@ -413,7 +421,7 @@ const getFirstName = () => {
               onPress={() => navigation.navigate('Exercises')}
             >
               <View style={styles.addWidgetContent}>
-              <Icon name="plus-mini" size={20} fill={colors.gray[400]} />
+              <MiniIcons.PlusIcon size={20} color={colors.gray[400]} />
                 <Text style={styles.addWidgetText}>add widget</Text>
               </View>
             </TouchableOpacity>
