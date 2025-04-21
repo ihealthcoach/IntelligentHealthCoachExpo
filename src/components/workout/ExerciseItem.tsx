@@ -3,12 +3,12 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 
 // Styles
-import { fonts } from '../styles/fonts';
-import { colors } from '../styles/colors';
+import { fonts } from '../../styles/fonts';
+import { colors } from '../../styles/colors';
 
 // Components
-import Icon from './Icons';
-import { IconName } from './Icons';
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface ExerciseItemProps {
   exercise: any;

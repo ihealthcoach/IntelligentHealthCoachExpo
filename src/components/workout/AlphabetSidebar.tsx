@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // Styles
-import { fonts } from '../styles/fonts';
-import { colors } from '../styles/colors';
+import { fonts } from '../../styles/fonts';
+import { colors } from '../../styles/colors';
 
 // Components
-import Icon from './Icons';
-import { IconName } from './Icons';
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface AlphabetSidebarProps {
   alphabet: string[];

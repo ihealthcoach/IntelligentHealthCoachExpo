@@ -36,9 +36,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
 
 // Components
-import AlphabetSidebar from '../../components/AlphabetSidebar';
-import LetterSection from '../../components/LetterSection';
-import ExerciseItem from '../../components/ExerciseItem';
+import AlphabetSidebar from '../../components/workout/AlphabetSidebar';
+import LetterSection from '../../components/workout/LetterSection';
+import ExerciseItem from '../../components/workout/ExerciseItem';
 import FlexibleSheet from '../../components/FlexibleSheet';
 
 // Styles

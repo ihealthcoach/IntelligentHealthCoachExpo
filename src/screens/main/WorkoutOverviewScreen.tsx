@@ -45,7 +45,7 @@ import {
 } from '../../types/workout';
 import * as Haptics from 'expo-haptics';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
-import SaveTemplateModal from '../../components/SaveTemplateModal';
+import SaveTemplateModal from '../../components/workout/SaveTemplateModal';
 import { useFocusEffect } from '@react-navigation/native';
 
 // Styles

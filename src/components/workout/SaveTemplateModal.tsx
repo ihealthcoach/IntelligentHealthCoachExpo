@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, Text } from 'react-native';
 import { Portal, Modal, Button, Divider, Chip } from 'react-native-paper';
-import { Workout } from '../types/workout';
-import { workoutService } from '../services/workoutService';
+import { Workout } from '../../types/workout';
+import { workoutService } from '../../services/workoutService';
 
 // Styles
-import { fonts } from '../styles/fonts';
-import { colors } from '../styles/colors';
+import { fonts } from '../../styles/fonts';
+import { colors } from '../../styles/colors';
 
 // Components
-import Icon from './Icons';
-import { IconName } from './Icons';
+import Icon from '../Icons';
+import { IconName } from '../Icons';
 
 interface SaveTemplateModalProps {
   visible: boolean;
