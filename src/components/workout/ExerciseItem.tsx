@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
     height: 68,
+    paddingRight: 16,
   },
   exerciseImageContainer: {
     width: 68,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   selectedText: {
     fontFamily: fonts.semiBold,
     fontSize: 11,
-    color: '#4F46E5', // Using a green color for selected
+    color: '#4F46E5',
   },
 });
 

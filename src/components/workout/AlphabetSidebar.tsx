@@ -1,13 +1,9 @@
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // Styles
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
-
-// Components
-import Icon from '../Icons';
-import { IconName } from '../Icons';
 
 interface AlphabetSidebarProps {
   alphabet: string[];
@@ -15,32 +11,42 @@ interface AlphabetSidebarProps {
   onLetterPress: (letter: string) => void;
 }
 
-const AlphabetSidebar: React.FC<AlphabetSidebarProps> = ({ 
+// Using React.memo to prevent unnecessary re-renders
+const AlphabetSidebar: React.FC<AlphabetSidebarProps> = memo(({ 
   alphabet, 
   availableLetters, 
   onLetterPress 
 }) => {
-  return (
-    <View style={styles.alphabetContainer}>
-      {alphabet.map((letter) => (
+  // Use useMemo to cache the letter elements for better performance
+  const letterElements = useMemo(() => {
+    return alphabet.map((letter) => {
+      const isAvailable = availableLetters[letter];
+      
+      return (
         <TouchableOpacity
           key={letter}
-          onPress={() => onLetterPress(letter)}
-          disabled={!availableLetters[letter]}
+          onPress={() => isAvailable && onLetterPress(letter)}
+          disabled={!isAvailable}
         >
           <Text
             style={[
               styles.alphabetLetter,
-              !availableLetters[letter] && styles.alphabetLetterInactive
+              !isAvailable && styles.alphabetLetterInactive
             ]}
           >
             {letter}
           </Text>
         </TouchableOpacity>
-      ))}
+      );
+    });
+  }, [alphabet, availableLetters, onLetterPress]);
+  
+  return (
+    <View style={styles.alphabetContainer}>
+      {letterElements}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   alphabetContainer: {
@@ -49,18 +55,19 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingRight: 2,
+    paddingVertical: 48,
+    paddingRight: 6,
     zIndex: 10,
   },
   alphabetLetter: {
     fontFamily: fonts.medium,
-    fontSize: 12,
-    color: colors.gray[900],
+    fontSize: 11,
+    color: colors.gray[400],
     paddingVertical: 1,
+    textAlign: 'center',
   },
   alphabetLetterInactive: {
-    color: colors.gray[300],
+    color: colors.gray[200],
   },
 });
 
