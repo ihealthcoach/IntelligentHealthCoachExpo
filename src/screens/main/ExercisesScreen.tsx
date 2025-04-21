@@ -280,31 +280,27 @@ useFocusEffect(
 
   // Handle exercise selection but don't filter
   const handleExerciseSelection = (exercise: Exercise) => {
-    // Immediately update the selectedExercises array first
-    setSelectedExercises(prevSelected => {
-      const isAlreadySelected = prevSelected.some(ex => ex.id === exercise.id);
-      
-      if (isAlreadySelected) {
-        // Remove from selection if already selected
-        return prevSelected.filter(ex => ex.id !== exercise.id);
-      } else {
-        // Add to selection if not already selected
-        return [...prevSelected, exercise];
+    // Create a single batch update for all state changes
+    const isCurrentlySelected = selectedExercises.some(ex => ex.id === exercise.id);
+    
+    // Prepare new state objects first (without updating state yet)
+    const newSelectedExercises = isCurrentlySelected
+      ? selectedExercises.filter(ex => ex.id !== exercise.id)
+      : [...selectedExercises, exercise];
+    
+    // Do a single batch update for better performance
+    setSelectedExercises(newSelectedExercises);
+    
+    // Update the UI selections in a single pass
+    const toggleSelected = (ex) => {
+      if (ex.id === exercise.id) {
+        return { ...ex, selected: !isCurrentlySelected };
       }
-    });
+      return ex;
+    };
     
-    // Then update the UI state for highlighting the selected exercise
-    setExercises(prevExercises => 
-      prevExercises.map(ex => 
-        ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex
-      )
-    );
-    
-    setFilteredExercises(prevFiltered => 
-      prevFiltered.map(ex => 
-        ex.id === exercise.id ? { ...ex, selected: !ex.selected } : ex
-      )
-    );
+    setExercises(prevExercises => prevExercises.map(toggleSelected));
+    setFilteredExercises(prevFiltered => prevFiltered.map(toggleSelected));
   };
 
   // Function to handle scrolling to a letter section
@@ -737,6 +733,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     position: 'relative',
+    paddingTop: 8,
   },
   content: {
     flex: 1,

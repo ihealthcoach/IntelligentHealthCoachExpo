@@ -10,6 +10,10 @@ import { colors } from '../../styles/colors';
 import Icon from '../Icons';
 import { IconName } from '../Icons';
 
+import * as SolidIcons from "react-native-heroicons/solid";
+import * as OutlineIcons from "react-native-heroicons/outline";
+import * as MiniIcons from "react-native-heroicons/mini";
+
 interface ExerciseItemProps {
   exercise: any;
   onPress: () => void;
@@ -29,7 +33,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
       <View style={styles.exerciseImageContainer}>
         {exercise.added && (
           <View style={styles.checkBadge}>
-            <Icon name="check-mini" width={12} height={12} color={colors.common.white} />
+            <MiniIcons.CheckIcon size={12} color={colors.common.white} />
           </View>
         )}
         <View style={styles.imageWrapper}>
@@ -101,9 +105,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     zIndex: 1,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    borderRadius: 999,
     backgroundColor: colors.indigo[600],
     justifyContent: 'center',
     alignItems: 'center',
@@ -117,7 +121,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: 16,
     color: colors.gray[900],
-    marginBottom: 0,
+    marginBottom: 2,
   },
   exerciseDetails: {
     flexDirection: 'row',
@@ -126,23 +130,26 @@ const styles = StyleSheet.create({
   exerciseDetail: {
     fontFamily: fonts.regular,
     fontSize: 11,
-    color: '#9CA3AF',
-    marginRight: 2,
+    color: colors.gray[400],
     textTransform: 'capitalize',
   },
   addedContainer: {
-    width: 36,
+    width: 48,
     alignItems: 'flex-end',
   },
   addedText: {
     fontFamily: fonts.semiBold,
     fontSize: 11,
-    color: '#4F46E5',
+    color: colors.indigo[600],
+    position: 'absolute',
+    justifyContent: 'center',
   },
   selectedText: {
     fontFamily: fonts.semiBold,
     fontSize: 11,
-    color: '#4F46E5',
+    color: colors.indigo[600],
+    position: 'absolute',
+    justifyContent: 'center',
   },
 });
 

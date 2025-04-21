@@ -6,10 +6,6 @@ import ExerciseItem from './ExerciseItem';
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
 
-// Components
-import Icon from '../Icons';
-import { IconName } from '../Icons';
-
 interface LetterSectionProps {
   letter: string;
   exercises: any[];
@@ -54,7 +50,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: 36,
     color: colors.gray[900],
-    textAlign: 'right',
+    textAlign: 'left',
     marginBottom: 6,
   },
 });
