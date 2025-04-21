@@ -14,7 +14,6 @@ import {
   TextInput,
   Vibration,
   Platform,
-  Keyboard,
 } from 'react-native';
 import { 
   Check, 
@@ -58,7 +57,6 @@ import { colors } from '../../styles/colors';
 // Components
 import Icon from '../../components/Icons';
 import { IconName } from '../../components/Icons';
-import SetKeyboardWrapper from '../../components/workout/SetKeyboardWrapper';
 
 // Icons
 import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
@@ -99,11 +97,6 @@ export default function WorkoutTrackingScreen({
   const [completionSheetVisible, setCompletionSheetVisible] = useState(false);
   const completionSheetRef = useRef(null);
   const [showSetSheet, setShowSetSheet] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [activeSetId, setActiveSetId] = useState<string | null>(null);
-  const [activeSetWeight, setActiveSetWeight] = useState('');
-  const [activeSetReps, setActiveSetReps] = useState('');
-  const [activeSetType, setActiveSetType] = useState('standard');
   
   // Set editing state
   const [editingWeight, setEditingWeight] = useState<{setId: string, value: string} | null>(null);
@@ -163,132 +156,6 @@ export default function WorkoutTrackingScreen({
       console.error(`Error in logFullWorkout: ${error}`);
     }
   };
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        // Only set keyboard visible if not already set
-        if (!keyboardVisible) {
-          setKeyboardVisible(true);
-        }
-      }
-    );
-    
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        // Only clear if we're not interacting with inputs
-        // We need to add a small delay to prevent immediate dismissal
-        setTimeout(() => {
-          if (!activeSetId) {
-            setKeyboardVisible(false);
-          }
-        }, 100);
-      }
-    );
-  
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, [keyboardVisible, activeSetId]);
-
-  // Handle set selection for editing
-  const handleSetSelection = (set: ExerciseSet) => {
-    // Only allow selecting incomplete sets
-    if (set.isComplete) return;
-    
-    // Set the active set ID
-    setActiveSetId(set.id);
-    
-    // Set initial values
-    setActiveSetWeight(set.weight ? set.weight.toString() : '');
-    setActiveSetReps(set.reps ? set.reps.toString() : '');
-    setActiveSetType('standard'); // Default type
-    
-    // Force keyboard visibility
-    setKeyboardVisible(true);
-    
-    // Provide haptic feedback
-    if (Platform.OS === 'ios') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  };
-
-// Save the current active set
-const saveActiveSet = async () => {
-  if (!workout || !activeSetId) return;
-  
-  // Find the set in the workout
-  let updatedSet: ExerciseSet | null = null;
-  let exerciseIndex = -1;
-  let setIndex = -1;
-  
-  // Find the set and its indices
-  workout.exercises.forEach((exercise, exIdx) => {
-    exercise.sets.forEach((set, sIdx) => {
-      if (set.id === activeSetId) {
-        updatedSet = set;
-        exerciseIndex = exIdx;
-        setIndex = sIdx;
-      }
-    });
-  });
-  
-  if (!updatedSet || exerciseIndex === -1 || setIndex === -1) {
-    console.error('Set not found:', activeSetId);
-    return;
-  }
-  
-  try {
-    // Parse values
-    const weight = activeSetWeight ? parseFloat(activeSetWeight) : null;
-    const reps = activeSetReps ? parseInt(activeSetReps, 10) : null;
-    
-    // Create a deep copy of the workout
-    const workoutCopy = JSON.parse(JSON.stringify(workout));
-    
-    // Update the set
-    workoutCopy.exercises[exerciseIndex].sets[setIndex] = {
-      ...updatedSet,
-      weight,
-      reps,
-      type: activeSetType,
-      isComplete: true,
-      completedAt: new Date().toISOString()
-    };
-    
-    // Update state
-    setWorkout(workoutCopy);
-    
-    // Save to AsyncStorage and service
-    await AsyncStorage.setItem('current_workout', JSON.stringify(workoutCopy));
-    await workoutService.saveCurrentWorkout(workoutCopy);
-    
-    // Clear active set
-    setActiveSetId(null);
-    setActiveSetWeight('');
-    setActiveSetReps('');
-    
-    // Provide feedback
-    if (Platform.OS === 'ios') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } else {
-      Vibration.vibrate(100);
-    }
-    
-    // Start rest timer
-    startRestTimer(workout.exercises[exerciseIndex].id, updatedSet.id);
-    
-    // Check for PRs
-    checkForPersonalRecords();
-    
-  } catch (error) {
-    console.error('Error saving set:', error);
-    Alert.alert('Error', 'Failed to save the set');
-  }
-};
 
   // saveWorkoutToStorage
   const saveWorkoutToStorage = async (workout) => {
@@ -1616,83 +1483,147 @@ const handleBackToOverview = async () => {
               const isLastCompleted = set.id === lastCompletedSetId;
               
               return (
-<Animated.View 
-      key={set.id} 
-      style={[
-        styles.setRow, 
-        isActive && styles.activeSetRow,
-        isInactive && styles.inactiveSetRow,
-        activeSetId === set.id && styles.selectedSetRow,
-        isLastCompleted && {
-          backgroundColor: setCompleteAnimation.interpolate({
-            inputRange: [0, 0.5, 1],
-            outputRange: ['#FCFDFD', '#E0F2FE', '#FCFDFD']
-          })
-        }
-      ]}
+                <Animated.View 
+                  key={set.id} 
+                  style={[
+                    styles.setRow, 
+                    isActive && styles.activeSetRow,
+                    isInactive && styles.inactiveSetRow,
+                    isLastCompleted && {
+                      backgroundColor: setCompleteAnimation.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: ['#FCFDFD', '#E0F2FE', '#FCFDFD']
+                      })
+                    }
+                  ]}
+                >
+                  <View style={styles.setRowContent}>
+                    {/* Set number */}
+                    <View style={styles.setNumberContainer}>
+                      <Text style={[styles.setNumber, isInactive && styles.inactiveText]}>
+                        {String(set.setNumber).padStart(2, '0')}
+                      </Text>
+                    </View>
+                    
+                    {/* Previous performance */}
+                    <View style={styles.previousContainer}>
+                      {set.previousWeight && set.previousReps ? (
+                        <Text style={[styles.previousText, isInactive && styles.inactiveText]}>
+                          {set.previousWeight}kg × {set.previousReps}
+                        </Text>
+                      ) : (
+                        <Text style={[styles.previousText, styles.emptyValue, isInactive && styles.inactiveText]}>
+                          -
+                        </Text>
+                      )}
+                    </View>
+                    
+                    {/* Weight */}
+                    <View style={styles.weightContainer}>
+  {editingWeight && editingWeight.setId === set.id ? (
+    <TextInput
+      style={styles.valueInput}
+      value={editingWeight.value}
+      onChangeText={(text) => setEditingWeight({...editingWeight, value: text})}
+      keyboardType="numeric"
+      autoFocus
+      onBlur={() => {
+        updateSetValue(set.id, 'weight', editingWeight.value);
+        setEditingWeight(null);
+      }}
+      onSubmitEditing={() => {
+        updateSetValue(set.id, 'weight', editingWeight.value);
+        setEditingWeight(null);
+      }}
+    />
+  ) : (
+    <TouchableOpacity
+      onPress={() => setEditingWeight({setId: set.id, value: set.weight?.toString() || ''})}
+      disabled={isInactive}
     >
-      <TouchableOpacity 
-        style={styles.setRowContent}
-        onPress={() => handleSetSelection(set)}
-        disabled={set.isComplete || isInactive}
-      >
-        {/* Set number */}
-        <View style={styles.setNumberContainer}>
-          <Text style={[styles.setNumber, isInactive && styles.inactiveText]}>
-            {String(set.setNumber).padStart(2, '0')}
-          </Text>
-        </View>
-        
-        {/* Previous performance */}
-        <View style={styles.previousContainer}>
-          {set.previousWeight && set.previousReps ? (
-            <Text style={[styles.previousText, isInactive && styles.inactiveText]}>
-              {set.previousWeight}kg × {set.previousReps}
-            </Text>
-          ) : (
-            <Text style={[styles.previousText, styles.emptyValue, isInactive && styles.inactiveText]}>
-              -
-            </Text>
-          )}
-        </View>
-        
-        {/* Weight */}
-        <View style={styles.weightContainer}>
-          <Text style={[
-            styles.weightValue, 
-            !set.weight && styles.emptyValue,
-            isInactive && styles.inactiveText,
-            (set.weight && !set.isComplete) && styles.savedButNotCompletedText
-          ]}>
-            {set.weight?.toString() || '-'}
-          </Text>
-        </View>
-        
-        {/* Reps */}
-        <View style={styles.repsContainer}>
-          <Text style={[
-            styles.repsValue, 
-            !set.reps && styles.emptyValue,
-            isInactive && styles.inactiveText
-          ]}>
-            {set.reps?.toString() || '-'}
-          </Text>
-        </View>
-        
-        {/* RPE (Rate of Perceived Exertion) */}
-        <View style={styles.rpeContainer}>
-          <Text style={[
-            styles.rpeValue, 
-            !set.rpe && styles.emptyValue,
-            isInactive && styles.inactiveText,
-            !set.isComplete && styles.disabledText
-          ]}>
-            {set.rpe?.toString() || '-'}
-          </Text>
-        </View>
-        
-        {/* Completion checkbox / PR indicator */}
-        <View style={styles.completionContainer}>
+      <Text style={[
+        styles.weightValue, 
+        !set.weight && styles.emptyValue,
+        isInactive && styles.inactiveText,
+        // Add a visual indicator if value is saved but set not completed
+        (set.weight && !set.isComplete) && styles.savedButNotCompletedText
+      ]}>
+        {set.weight?.toString() || '-'}
+      </Text>
+    </TouchableOpacity>
+  )}
+</View>
+                    
+                    {/* Reps */}
+                    <View style={styles.repsContainer}>
+                      {editingReps && editingReps.setId === set.id ? (
+                        <TextInput
+                          style={styles.valueInput}
+                          value={editingReps.value}
+                          onChangeText={(text) => setEditingReps({...editingReps, value: text})}
+                          keyboardType="numeric"
+                          autoFocus
+                          onBlur={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                          onSubmitEditing={() => {
+                            updateSetValue(set.id, 'reps', editingReps.value);
+                            setEditingReps(null);
+                          }}
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setEditingReps({setId: set.id, value: set.reps?.toString() || ''})}
+                          disabled={isInactive}
+                        >
+                          <Text style={[
+                            styles.repsValue, 
+                            !set.reps && styles.emptyValue,
+                            isInactive && styles.inactiveText
+                          ]}>
+                            {set.reps?.toString() || '-'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    
+                    {/* RPE (Rate of Perceived Exertion) */}
+                    <View style={styles.rpeContainer}>
+                      {editingRPE && editingRPE.setId === set.id ? (
+                        <Slider
+                          style={styles.rpeSlider}
+                          value={editingRPE.value || 5}
+                          minimumValue={1}
+                          maximumValue={10}
+                          step={0.5}
+                          minimumTrackTintColor="#4F46E5"
+                          maximumTrackTintColor="#E5E7EB"
+                          onValueChange={(value) => setEditingRPE({...editingRPE, value})}
+                          onSlidingComplete={(value) => {
+                            updateSetValue(set.id, 'rpe', value);
+                            setEditingRPE(null);
+                          }}
+                        />
+                      ) : (
+                        <TouchableOpacity
+                          onPress={() => setEditingRPE({setId: set.id, value: set.rpe})}
+                          disabled={isInactive || !set.isComplete}
+                        >
+                          <Text style={[
+                            styles.rpeValue, 
+                            !set.rpe && styles.emptyValue,
+                            isInactive && styles.inactiveText,
+                            !set.isComplete && styles.disabledText
+                          ]}>
+                            {set.rpe?.toString() || '-'}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    
+                    {/* Completion checkbox / PR indicator */}
+                    <View style={styles.completionContainer}>
           {set.isPR ? (
             <View style={styles.prContainer}>
               <Award size={20} color="#F59E0B" />
@@ -1706,19 +1637,19 @@ const handleBackToOverview = async () => {
               <View style={styles.incompleteIndicator} />
             )
           )}
-          
-          {/* Set menu button for additional actions */}
-          <TouchableOpacity 
-            style={styles.setMenuButton}
-            onPress={() => removeSet(set.id)}
-          >
-            <Trash size={16} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-})}
+                      
+                      {/* Set menu button for additional actions */}
+                      <TouchableOpacity 
+                        style={styles.setMenuButton}
+                        onPress={() => removeSet(set.id)}
+                      >
+                        <Trash size={16} color="#9CA3AF" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  </Animated.View>
+              );
+            })}
           </View>
 
 {/* Save Set Button */}
@@ -1919,20 +1850,6 @@ const handleBackToOverview = async () => {
     </View>
   </Modal>
 </Portal>
-
-{/* Keyboard set input wrapper */}
-{activeSetId && workout && (
-  <SetKeyboardWrapper
-    activeSet={workout.exercises[currentExerciseIndex].sets.find(s => s.id === activeSetId)}
-    weight={activeSetWeight}
-    reps={activeSetReps}
-    setType={activeSetType}
-    onWeightChange={setActiveSetWeight}
-    onRepsChange={setActiveSetReps}
-    onSetTypeChange={setActiveSetType}
-    onSave={saveActiveSet}
-  />
-)}
     </SafeAreaView>
   );
 }
@@ -2573,10 +2490,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 2,
     borderColor: '#E5E7EB',
-  },
-  selectedSetRow: {
-    backgroundColor: colors.indigo[50],
-    borderWidth: 1,
-    borderColor: colors.indigo[200],
   },
 });

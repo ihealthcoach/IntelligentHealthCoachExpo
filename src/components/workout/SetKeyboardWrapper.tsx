@@ -70,6 +70,10 @@ const SetKeyboardWrapper: React.FC<SetKeyboardWrapperProps> = ({
                   onChangeText={onWeightChange}
                   keyboardType="numeric"
                   placeholder="0"
+                    onFocus={() => {
+    // Keep parent components from hiding when this gets focus
+    // No need to do anything specific here
+  }}
                 />
                 <Text style={styles.inputUnit}>kg</Text>
               </View>
