@@ -12,6 +12,7 @@ const SET_TYPES = [
   { label: 'Standard set', value: 'standard' },
   { label: 'Drop set', value: 'drop' },
   { label: 'Negative set', value: 'negative' },
+  { label: 'Failure set', value: 'failure' },
   { label: 'Rest pause set', value: 'rest_pause' },
   { label: 'Warm up set', value: 'warm_up' },
 ];
