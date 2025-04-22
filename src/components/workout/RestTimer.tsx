@@ -7,65 +7,59 @@ import { Play, Pause, RefreshCw } from 'lucide-react-native';
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
 
-// Components
-import Icon from '../Icons';
-import { IconName } from '../Icons';
-
 interface RestTimerProps {
   isActive: boolean;
   timeRemaining: number;
   defaultDuration: number;
-  formatTime: (seconds: number) => string;
-  skipRestTimer: () => void;
-  pauseRestTimer: () => void;
-  resumeRestTimer: () => void;
-  startRestTimer: (exerciseId: string, setId: string) => void;
-  exerciseId: string | null;
-  setId: string | null;
+  formattedTime: string;
+  onSkip: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  onRestart: () => void;
 }
 
 const RestTimer: React.FC<RestTimerProps> = ({
   isActive,
   timeRemaining,
   defaultDuration,
-  formatTime,
-  skipRestTimer,
-  pauseRestTimer,
-  resumeRestTimer,
-  startRestTimer,
-  exerciseId,
-  setId
+  formattedTime,
+  onSkip,
+  onPause,
+  onResume,
+  onRestart
 }) => {
+  const progress = timeRemaining / defaultDuration;
+  
   return (
     <View style={styles.restTimerContainer}>
       <View style={styles.restTimerContent}>
         <Text style={styles.restTimerTitle}>Rest Timer</Text>
-        <Text style={styles.restTimerTime}>{formatTime(timeRemaining)}</Text>
+        <Text style={styles.restTimerTime}>{formattedTime}</Text>
         
         <ProgressBar 
-          progress={timeRemaining / defaultDuration} 
+          progress={progress} 
           color="#4F46E5"
           style={styles.restTimerProgress}
         />
         
         <View style={styles.restTimerControls}>
-          <TouchableOpacity style={styles.restTimerButton} onPress={skipRestTimer}>
+          <TouchableOpacity style={styles.restTimerButton} onPress={onSkip}>
             <Text style={styles.restTimerButtonText}>Skip</Text>
           </TouchableOpacity>
           
           {isActive ? (
-            <TouchableOpacity style={styles.restTimerButton} onPress={pauseRestTimer}>
+            <TouchableOpacity style={styles.restTimerButton} onPress={onPause}>
               <Pause size={20} color={colors.gray[900]} />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.restTimerButton} onPress={resumeRestTimer}>
+            <TouchableOpacity style={styles.restTimerButton} onPress={onResume}>
               <Play size={20} color={colors.gray[900]} />
             </TouchableOpacity>
           )}
           
           <TouchableOpacity 
             style={styles.restTimerButton} 
-            onPress={() => startRestTimer(exerciseId!, setId!)}
+            onPress={onRestart}
           >
             <RefreshCw size={20} color={colors.gray[900]} />
           </TouchableOpacity>
