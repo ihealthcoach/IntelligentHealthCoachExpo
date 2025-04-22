@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
+  Text,
   StyleSheet, 
   ScrollView, 
   SafeAreaView, 
@@ -217,6 +218,52 @@ export default function WorkoutTrackingScreen({
       Alert.alert('Error', 'Failed to load workout data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveCurrentSet = async () => {
+    if (!workout) return;
+    
+    // Find the next incomplete set
+    const activeSetIndex = findNextIncompleteSetIndex();
+    if (activeSetIndex < 0) return; // No incomplete sets
+    
+    const currentExercise = workout.exercises[currentExerciseIndex];
+    const activeSet = currentExercise.sets[activeSetIndex];
+    
+    // Check if set has necessary values
+    if (!activeSet.weight || !activeSet.reps) {
+      Alert.alert('Missing Information', 'Please enter both weight and reps before saving the set.');
+      return;
+    }
+    
+    try {
+      // Mark set as complete
+      const updatedWorkout = JSON.parse(JSON.stringify(workout));
+      updatedWorkout.exercises[currentExerciseIndex].sets[activeSetIndex].isComplete = true;
+      updatedWorkout.exercises[currentExerciseIndex].sets[activeSetIndex].completedAt = new Date().toISOString();
+      
+      // Update state
+      setWorkout(updatedWorkout);
+      
+      // Save to storage
+      await workoutService.saveCurrentWorkout(updatedWorkout);
+      
+      // Provide feedback
+      setLastCompletedSetId(activeSet.id);
+      if (Platform.OS === 'ios') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
+      // Start rest timer
+      startRestTimer(currentExercise.id, activeSet.id);
+      
+      // Check for PRs
+      checkForPersonalRecords();
+      
+    } catch (error) {
+      console.error('Error saving set:', error);
+      Alert.alert('Error', 'Failed to save the set');
     }
   };
   
@@ -492,6 +539,27 @@ export default function WorkoutTrackingScreen({
     // Exit editing mode
     setIsEditingNotes(false);
   };
+
+  const handleSetSelection = (set: ExerciseSet) => {
+    // Only allow selecting incomplete sets
+    if (set.isComplete) return;
+    
+    // Set the active set ID
+    setActiveSetId(set.id);
+    
+    // Set initial values
+    setActiveSetWeight(set.weight ? set.weight.toString() : '');
+    setActiveSetReps(set.reps ? set.reps.toString() : '');
+    setActiveSetType('standard'); // Default type
+    
+    // Force keyboard visibility
+    setKeyboardVisible(true);
+    
+    // Provide haptic feedback
+    if (Platform.OS === 'ios') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
   
   // Navigate to the previous exercise
   const handlePreviousExercise = async () => {
@@ -730,19 +798,19 @@ export default function WorkoutTrackingScreen({
               const isLastCompleted = set.id === lastCompletedSetId;
               
               return (
-                <SetRow
-                  key={set.id}
-                  set={set}
-                  index={index}
-                  isActive={isActive}
-                  isInactive={isInactive}
-                  isLastCompleted={isLastCompleted}
-                  isSelected={isSelected}
-                  completeAnimation={setCompleteAnimation}
-                  onSetPress={handleSetPress}
-                  onToggleCompletion={toggleSetCompletion}
-                  onRemove={removeSet}
-                />
+<SetRow
+  key={set.id}
+  set={set}
+  index={index}
+  isActive={isActive}
+  isInactive={isInactive}
+  isLastCompleted={isLastCompleted}
+  isSelected={activeSetId === set.id}
+  completeAnimation={setCompleteAnimation}
+  onSetPress={handleSetSelection}  // Pass your handler here
+  onToggleCompletion={toggleSetCompletion}
+  onRemove={removeSet}
+/>
               );
             })}
           </View>
