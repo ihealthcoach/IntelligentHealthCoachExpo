@@ -10,14 +10,14 @@ import { colors } from '../../styles/colors';
 import Icon from '../Icons';
 import { IconName } from '../Icons';
 
-interface CompletionModalProps {
+interface WorkoutCompletionModalProps {
   visible: boolean;
   onDismiss: () => void;
   onCompleteWorkout: () => void;
   onContinueWorkout: () => void;
 }
 
-const CompletionModal: React.FC<CompletionModalProps> = ({
+const WorkoutCompletionModal: React.FC<WorkoutCompletionModalProps> = ({
   visible,
   onDismiss,
   onCompleteWorkout,
@@ -84,4 +84,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CompletionModal;
+export default WorkoutCompletionModal;

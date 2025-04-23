@@ -36,8 +36,8 @@ import ExerciseHistorySection from '../../components/workout/ExerciseHistorySect
 import ExerciseInfoSection from '../../components/workout/ExerciseInfoSection';
 import OneRepMaxCard from '../../components/workout/OneRepMaxCard';
 import BottomNavigation from '../../components/workout/BottomNavigation';
-import CompletionModal from '../../components/workout/CompletionModal';
-import CompletionSheet from '../../components/workout/CompletionSheet';
+import WorkoutCompletionModal from '../../components/workout/WorkoutCompletionModal';
+import CompletionSheet from '../../components/workout/ExerciseCompletionSheet';
 import SetKeyboardWrapper from '../../components/workout/SetKeyboardWrapper';
 
 // Styles
@@ -64,6 +64,7 @@ export default function WorkoutTrackingScreen({
   const [completionSheetVisible, setCompletionSheetVisible] = useState(false);
   const [showSetSheet, setShowSetSheet] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const prevAllSetsCompletedRef = useRef<boolean>(false);
   
   // Set editing state
   const [activeSetId, setActiveSetId] = useState<string | null>(null);
@@ -123,12 +124,17 @@ export default function WorkoutTrackingScreen({
     if (!workout) return;
     
     const currentExercise = workout.exercises[currentExerciseIndex];
+    if (!currentExercise) return;
+    
     const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
     const allSetsCompleted = currentExercise.sets.length > 0 && 
       currentExercise.sets.every(set => set.isComplete);
     
-    if (allSetsCompleted) {
-      // All sets in current exercise are completed
+    // Track state changes
+    if (allSetsCompleted && !prevAllSetsCompletedRef.current) {
+      // Sets just completed
+      prevAllSetsCompletedRef.current = true;
+      
       if (isLastExercise) {
         // This is the last exercise, show completion modal
         setCompletionModalVisible(true);
@@ -137,7 +143,9 @@ export default function WorkoutTrackingScreen({
         setAllSetsCompleted(true);
         setCompletionSheetVisible(true);
       }
-    } else if (!allSetsCompleted && allSetsCompleted) {
+    } else if (!allSetsCompleted && prevAllSetsCompletedRef.current) {
+      // Sets were uncompleted
+      prevAllSetsCompletedRef.current = false;
       setAllSetsCompleted(false);
     }
   }, [workout, currentExerciseIndex]);
@@ -877,7 +885,7 @@ export default function WorkoutTrackingScreen({
       />
       
       {/* Workout Completion Modal */}
-      <CompletionModal
+      <WorkoutCompletionModal
         visible={completionModalVisible}
         onDismiss={() => setCompletionModalVisible(false)}
         onCompleteWorkout={completeWorkout}

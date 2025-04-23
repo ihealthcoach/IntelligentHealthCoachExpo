@@ -10,7 +10,7 @@ import ChevronRightMini from '../../assets/icons/chevron-right-mini.svg';
 import { fonts } from '../../styles/fonts';
 import { colors } from '../../styles/colors';
 
-interface CompletionSheetProps {
+interface ExerciseCompletionSheetProps {
   visible: boolean;
   onDismiss: () => void;
   onAddMoreSets: () => void;
@@ -19,7 +19,7 @@ interface CompletionSheetProps {
   onAddExercise: () => void;
 }
 
-const CompletionSheet: React.FC<CompletionSheetProps> = ({
+const ExerciseCompletionSheet: React.FC<ExerciseCompletionSheetProps> = ({
   visible,
   onDismiss,
   onAddMoreSets,
@@ -116,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CompletionSheet;
+export default ExerciseCompletionSheet;
