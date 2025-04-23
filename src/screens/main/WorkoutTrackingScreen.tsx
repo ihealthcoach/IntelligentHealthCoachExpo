@@ -37,7 +37,7 @@ import ExerciseInfoSection from '../../components/workout/ExerciseInfoSection';
 import OneRepMaxCard from '../../components/workout/OneRepMaxCard';
 import BottomNavigation from '../../components/workout/BottomNavigation';
 import WorkoutCompletionModal from '../../components/workout/WorkoutCompletionModal';
-import CompletionSheet from '../../components/workout/ExerciseCompletionSheet';
+import ExerciseCompletionSheet from '../../components/workout/ExerciseCompletionSheet';
 import SetKeyboardWrapper from '../../components/workout/SetKeyboardWrapper';
 
 // Styles
@@ -893,7 +893,7 @@ export default function WorkoutTrackingScreen({
       />
       
       {/* Completion Sheet */}
-      <CompletionSheet
+      <ExerciseCompletionSheet
         visible={completionSheetVisible}
         onDismiss={() => setCompletionSheetVisible(false)}
         onAddMoreSets={handleAddMoreSets}
