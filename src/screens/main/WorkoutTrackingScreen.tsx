@@ -123,23 +123,22 @@ export default function WorkoutTrackingScreen({
     if (!workout) return;
     
     const currentExercise = workout.exercises[currentExerciseIndex];
-    const allSetsCompletedInCurrentExercise = currentExercise.sets.length > 0 && 
+    const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
+    const allSetsCompleted = currentExercise.sets.length > 0 && 
       currentExercise.sets.every(set => set.isComplete);
     
-    const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
-    
-    if (allSetsCompletedInCurrentExercise) {
+    if (allSetsCompleted) {
+      // All sets in current exercise are completed
       if (isLastExercise) {
-        // If this is the last exercise and all sets completed, show completion modal
+        // This is the last exercise, show completion modal
         setCompletionModalVisible(true);
       } else {
-        // Otherwise just show the sheet for the current exercise
+        // Not the last exercise, just show exercise completion sheet
         setAllSetsCompleted(true);
         setCompletionSheetVisible(true);
       }
-    } else if (!allSetsCompletedInCurrentExercise && allSetsCompleted) {
+    } else if (!allSetsCompleted && allSetsCompleted) {
       setAllSetsCompleted(false);
-      setCompletionSheetVisible(false);
     }
   }, [workout, currentExerciseIndex]);
 
@@ -596,6 +595,10 @@ export default function WorkoutTrackingScreen({
         
         // Update notes for the new exercise
         setExerciseNotes(workout.exercises[newIndex].notes || '');
+        
+        // Reset completion states when moving to new exercise
+        setAllSetsCompleted(false);
+        setCompletionSheetVisible(false);
       } else {
         // If at the first exercise, go back to overview
         navigation.goBack();
@@ -642,7 +645,16 @@ export default function WorkoutTrackingScreen({
         setCompletionSheetVisible(false);
       } else {
         // Only show completion modal if we're at the last exercise
-        setCompletionModalVisible(true);
+        // AND if all sets are completed
+        const currentExercise = workout.exercises[currentExerciseIndex];
+        const allSetsCompleted = currentExercise.sets.every(set => set.isComplete);
+        
+        if (allSetsCompleted) {
+          setCompletionModalVisible(true);
+        } else {
+          // Otherwise just navigate back to the overview
+          navigation.goBack();
+        }
         return;
       }
       
