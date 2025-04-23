@@ -127,11 +127,13 @@ export default function WorkoutTrackingScreen({
     if (!currentExercise) return;
     
     const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
-    const allSetsCompleted = currentExercise.sets.length > 0 && 
+    
+    // Only consider sets completed if there are sets and all are complete
+    const hasAnySets = currentExercise.sets.length > 0;
+    const allSetsMarkedComplete = hasAnySets && 
       currentExercise.sets.every(set => set.isComplete);
     
-    // Track state changes
-    if (allSetsCompleted && !prevAllSetsCompletedRef.current) {
+    if (allSetsMarkedComplete && !prevAllSetsCompletedRef.current && hasAnySets) {
       // Sets just completed
       prevAllSetsCompletedRef.current = true;
       
@@ -143,10 +145,14 @@ export default function WorkoutTrackingScreen({
         setAllSetsCompleted(true);
         setCompletionSheetVisible(true);
       }
-    } else if (!allSetsCompleted && prevAllSetsCompletedRef.current) {
+    } else if (!allSetsMarkedComplete && prevAllSetsCompletedRef.current) {
       // Sets were uncompleted
       prevAllSetsCompletedRef.current = false;
       setAllSetsCompleted(false);
+      
+      // Also hide the modals
+      setCompletionModalVisible(false);
+      setCompletionSheetVisible(false);
     }
   }, [workout, currentExerciseIndex]);
 
@@ -235,6 +241,13 @@ export default function WorkoutTrackingScreen({
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetCompletionState = () => {
+    prevAllSetsCompletedRef.current = false;
+    setAllSetsCompleted(false);
+    setCompletionModalVisible(false);
+    setCompletionSheetVisible(false);
   };
 
   const saveCurrentSet = async () => {
