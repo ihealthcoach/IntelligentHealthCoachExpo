@@ -25,6 +25,16 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
   onPress,
   getGifUrl
 }) => {
+  // Get the GIF URL but make it static by adding a frame parameter
+  const getStaticGifUrl = (fileName: string | null) => {
+    const gifUrl = getGifUrl(fileName);
+    if (!gifUrl) return null;
+    
+    // Add a query parameter to make the GIF static (frame=0)
+    // This works because many servers will return just the first frame
+    return `${gifUrl}#frame=0`;
+  };
+
   return (
     <TouchableOpacity 
       style={styles.exerciseItem}
@@ -39,7 +49,8 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
         <View style={styles.imageWrapper}>
           <Image 
             source={exercise.gif_url 
-              ? { uri: getGifUrl(exercise.gif_url) } 
+              /* ? { uri: getGifUrl(exercise.gif_url) } */
+              ? { uri: getStaticGifUrl(exercise.gif_url) }
               : { uri: 'https://via.placeholder.com/68x68/333' }}
             style={styles.exerciseImage} 
             resizeMode="cover"

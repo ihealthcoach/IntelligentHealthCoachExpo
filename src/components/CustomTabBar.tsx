@@ -15,8 +15,11 @@ import { IconName } from './Icons';
 // Components
 import ShortcutSheet from './ShortcutSheet';
 
-// Icons
-import DumbbellIcon from '../assets/icons/dumbbell.svg';
+// https://www.npmjs.com/package/react-native-heroicons
+import * as SolidIcons from "react-native-heroicons/solid";
+import * as OutlineIcons from "react-native-heroicons/outline";
+import * as MiniIcons from "react-native-heroicons/mini";
+import { Home2 } from 'iconsax-react-native';
 
 const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const [showShortcutSheet, setShowShortcutSheet] = useState(false);
@@ -44,7 +47,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('Home')}
         >
-          <Icon name="home-outline" size={24} color={colors.gray[900]} />
+          <Home2 variant='Linear' size={24} color={colors.gray[900]} />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
         
@@ -52,7 +55,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           style={styles.navItem}
           onPress={() => navigation.navigate('History')}
         >
-          <Icon name="chart-bar-outline" size={24} color={colors.gray[900]} fill="none" />
+          <OutlineIcons.ChartBarIcon size={24} stroke={colors.gray[900]} />
           <Text style={styles.navText}>Activity</Text>
         </TouchableOpacity>
         
@@ -61,7 +64,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => 
           onPress={handleOpenShortcutSheet}
           activeOpacity={0.8}
         >
-          <Icon name="plus-mini" size={24} color="{colors.common.white}" fill="none" />
+          <MiniIcons.PlusIcon size={24} color={colors.common.white} />
         </TouchableOpacity>
         
         <TouchableOpacity 

@@ -137,11 +137,14 @@ export default function WorkoutTrackingScreen({
       // Sets just completed
       prevAllSetsCompletedRef.current = true;
       
+      // Only show completion modal if this is the last exercise
+      // Otherwise show the exercise completion sheet
       if (isLastExercise) {
-        // This is the last exercise, show completion modal
-        setCompletionModalVisible(true);
+        // For the last exercise, we'll let the handleNextExercise function
+        // handle showing the completion modal when the user navigates
+        setAllSetsCompleted(true);
+        setCompletionSheetVisible(true);
       } else {
-        // Not the last exercise, just show exercise completion sheet
         setAllSetsCompleted(true);
         setCompletionSheetVisible(true);
       }
@@ -662,13 +665,13 @@ export default function WorkoutTrackingScreen({
         setExerciseNotes(workout.exercises[newIndex].notes || '');
         
         // Reset completion states when moving to new exercise
-        setAllSetsCompleted(false);
-        setCompletionSheetVisible(false);
+        resetCompletionState();
       } else {
         // Only show completion modal if we're at the last exercise
         // AND if all sets are completed
         const currentExercise = workout.exercises[currentExerciseIndex];
-        const allSetsCompleted = currentExercise.sets.every(set => set.isComplete);
+        const allSetsCompleted = currentExercise.sets.length > 0 && 
+          currentExercise.sets.every(set => set.isComplete);
         
         if (allSetsCompleted) {
           setCompletionModalVisible(true);

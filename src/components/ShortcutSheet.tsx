@@ -19,6 +19,12 @@ import { colors } from '../styles/colors';
 import Icon from './Icons';
 import { IconName } from './Icons';
 
+// https://www.npmjs.com/package/react-native-heroicons
+import * as SolidIcons from "react-native-heroicons/solid";
+import * as OutlineIcons from "react-native-heroicons/outline";
+import * as MiniIcons from "react-native-heroicons/mini";
+import { Ruler } from 'iconsax-react-native';
+
 interface ShortcutSheetProps {
   visible: boolean;
   onClose: () => void;
